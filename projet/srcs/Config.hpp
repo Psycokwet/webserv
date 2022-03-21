@@ -16,6 +16,7 @@
     XX(ENDVALUE_KEYWORD_ONLY,=0x00010000) \
 
 DECLARE_ENUM(e_type, E_TYPE_ENUM)
+// to play with std::cout << "Value = " << Gete_typeValue(GetString((e_type)1)) << std::endl;
 
 class Config
 {
@@ -33,14 +34,6 @@ class Config
 			public:
 				typedef std::map<std::string, Node> t_node_map;
 				typedef std::list<Node> t_node_list;
-
-				// enum e_type {
-				// 	NO_TYPE = 0x00000000,
-				// 	HASHMAP = 0x00000001,
-				// 	LIST = 0x00000010,
-				// 	ENDVALUE_STD_ARRAY = 0x00000100,
-				// 	ENDVALUE_KEYWORD_ONLY = 0x00001000
-				// };
 
 				Node(e_type type = NO_TYPE, Node* parent = NULL);
 				Node( Node const & src, Node* parent = NULL);

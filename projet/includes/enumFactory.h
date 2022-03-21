@@ -6,13 +6,13 @@
 /*   By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#             */
-/*   Updated: 2022/03/21 16:27:37 by scarboni         ###   ########.fr       */
+/*   Updated: 2022/03/21 16:47:03 by scarboni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef ENUM_FACTORY_H
 # define ENUM_FACTORY_H
-#include <string.h>
+# include <string.h>
 
 # define HAS_TYPE(current, type) ((current & type) == type)
 
@@ -56,6 +56,5 @@
   	ENUM_DEF(ENUM_ITERATE) \
   } \
 
-// to play with std::cout << "Value = " << Gete_typeValue(GetString((e_type)1)) << std::endl;
 
 # endif
