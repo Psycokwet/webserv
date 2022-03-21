@@ -6,7 +6,7 @@
 /*   By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#             */
-/*   Updated: 2022/03/21 14:20:08 by scarboni         ###   ########.fr       */
+/*   Updated: 2022/03/21 18:02:31 by scarboni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,6 @@ int		main(int ac, char *av[])
 		std::cout << "Usage : ./webserv [configuration file]" << std::endl;
 		return 0;
 	}
-	(void)av;
 
 	Config *config = Config::factory(av[1]);
 	std::cout << *config << std::endl;
