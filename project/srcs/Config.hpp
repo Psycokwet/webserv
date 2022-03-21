@@ -1,8 +1,10 @@
 #ifndef CONFIG_HPP
 # define CONFIG_HPP
 
+# include <ctype.h>
 # include <iostream>
-# include <string>
+# include <sstream>
+# include <cstring>
 # include <list>
 # include <map>
 # include <algorithm>

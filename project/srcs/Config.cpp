@@ -9,18 +9,29 @@ DEFINE_ENUM(e_type, E_TYPE_ENUM)
 
 void ltrim(std::string &s)
 {
-	s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
+	s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(isblank))));
 }
 
 void rtrim(std::string &s)
 {
-	s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
+	s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(isblank))).base(), s.end());
 }
 
 void trim(std::string &s)
 {
 	ltrim(s);
 	rtrim(s);
+}
+
+void split(std::string &s)
+{
+	std::stringstream ss(s);
+	std::string tmp_block;
+	while(std::getline(ss, tmp_block, ' '))
+	{
+		std::cout << tmp_block << ";";
+	}
+	std::cout << std::endl;
 }
 
 Config *Config::factory(std::string input_file)
@@ -38,12 +49,11 @@ Config *Config::factory(std::string input_file)
 	(void)current_node;
 	while(std::getline(ifs, tmp_line))
 	{
+		std::replace_if(tmp_line.begin(), tmp_line.end(), isblank, ' ');
 		trim(tmp_line);
-
 		if(tmp_line == "" || tmp_line[0] == '#')
 			continue;
-		
-		std::cout << tmp_line << std::endl;
+		split(tmp_line);
 	}
 	ifs.close();
 	return new Config(input_file, first_node);
