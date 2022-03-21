@@ -56,9 +56,13 @@ fclean:
 
 re: fclean all
 
+
+# LEAKS = valgrind 
+LEAKS = 
+
 test:	$(NAME)
-	./megaphone "shhhhh... I think the students are asleep..."
-	./megaphone Damnit " ! " "Sorry students, I thought this thing was off."
-	./megaphone
+	$(LEAKS) ./$(NAME)
+	$(LEAKS) ./$(NAME) Makefile
+
 
 .PHONY: clean fclean re bonus
