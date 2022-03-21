@@ -6,7 +6,7 @@
 #    By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#              #
-#    Updated: 2022/03/19 22:03:09 by scarboni         ###   ########.fr        #
+#    Updated: 2022/03/21 16:14:38 by scarboni         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,7 +20,7 @@ CPPFLAGS 			=  -Wall -Wextra -Werror -g3  -std=c++98
 
 SRC_PATH			= ./srcs/
 
-SRCS = 	main.cpp
+SRCS = 	main.cpp Config.cpp
 
 SRC_FILES	+=	$(SRCS)
 
@@ -59,10 +59,11 @@ re: fclean all
 
 # LEAKS = valgrind 
 LEAKS = 
+CONFIG_FOLDER = ./config_files/
 
 test:	$(NAME)
 	$(LEAKS) ./$(NAME)
-	$(LEAKS) ./$(NAME) Makefile
+	$(LEAKS) ./$(NAME) $(CONFIG_FOLDER)example_nginx_base.conf
 
 
 .PHONY: clean fclean re bonus

@@ -6,11 +6,12 @@
 /*   By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#             */
-/*   Updated: 2022/03/19 22:15:00 by scarboni         ###   ########.fr       */
+/*   Updated: 2022/03/21 14:20:08 by scarboni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../webserv.h"
+#include "../includes/webserv.h"
+#include "Config.hpp"
 
 int		main(int ac, char *av[])
 {
@@ -20,5 +21,11 @@ int		main(int ac, char *av[])
 		return 0;
 	}
 	(void)av;
+
+	Config *config = Config::factory(av[1]);
+	std::cout << *config << std::endl;
+	if(!config)
+		return 0;
+	delete config;
 	return 0;
 }
