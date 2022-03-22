@@ -42,6 +42,7 @@ class Config
 				~Node();
 				void addType(e_type type);
 				std::ostream & print(std::ostream & o) const;
+				Node *getParent() const;
 
 			private:
 				Node &		operator=( Node const & rhs );
@@ -54,7 +55,10 @@ class Config
 
 				int _type; //necessary so that we can have multiple types
 				Node *_parent;
-				std::string _inner_value;
+				std::list<std::string> _inner_args; //first arg is the identifier of
+													//the node server{localhost{node ah que coucou bob}}
+													//would have identifier server.localhost.node and
+													//would have as args "node" "ah" "que" "coucou" "bob"
 
 				t_node_map _inner_map;
 				t_node_list _inner_list;
@@ -67,6 +71,10 @@ class Config
 
 		std::string _input_file;
 		Config::Node _first_node;
+
+
+		int splitAddToNode(std::string &s, Config::Node current_node);
+		int	parseObject(std::ifstream ifs, std::string tmp_line, Config::Node *current_node);
 
 
 };

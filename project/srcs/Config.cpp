@@ -23,37 +23,90 @@ void trim(std::string &s)
 	rtrim(s);
 }
 
-void split(std::string &s)
+#define PARSING_ERROR -1
+
+int Config::splitAddToNode(std::string &s, Config::Node *current_node)
 {
 	std::stringstream ss(s);
 	std::string tmp_block;
 	while(std::getline(ss, tmp_block, ' '))
 	{
+		if(tmp_block[0] == '#')
+			return EXIT_SUCCESS;
+		if(tmp_block == "")
+			continue;
+
+		if (tmp_block == "{")
+		{
+			current_node.addType(HASHMAP);
+			//parsing sub object
+		}
+		else if (tmp_block == "}")
+		{
+			if((current_node = current_node.getParent()) == NULL)
+				return PARSING_ERROR;
+		}else 
+		{
+
+		}
 		std::cout << tmp_block << ";";
 	}
 	std::cout << std::endl;
+	return EXIT_SUCCESS;
+}
+
+#define PREPARE_AND_SKIP_EMPTY_LIGNES(str) std::replace_if(str.begin(), str.end(), isblank, ' '); \
+		trim(str);\
+		if(str == "" || str[0] == '#')\
+			continue;
+
+int	Config::parseObject(std::ifstream ifs, std::string tmp_line, Config::Node *current_node)
+{
+	do
+	{
+		PREPARE_AND_SKIP_EMPTY_LIGNES(tmp_line)
+		// std::replace_if(tmp_line.begin(), tmp_line.end(), isblank, ' ');
+		// trim(tmp_line);
+		// if(tmp_line == "" || tmp_line[0] == '#')
+		// 	continue;
+		if(splitAddToNode(tmp_line, current_node) != EXIT_SUCCESS)
+		{
+			ifs.close();
+			return NULL;
+		}
+	} while(std::getline(ifs, tmp_line));
+	return EXIT_SUCCESS;
 }
 
 Config *Config::factory(std::string input_file)
 {
 	Config::Node	first_node;
-	std::string		tmp_line = "";
-	Config::Node	*current_node = &first_node;
 	std::ifstream	ifs(input_file.c_str());
+	std::string		tmp_line = "";
 
 	if (!ifs.is_open())
 	{
 		std::cout << "File innaccessible or non existing" << std::endl;
+		ifs.close();
 		return NULL;
 	}
-	(void)current_node;
 	while(std::getline(ifs, tmp_line))
 	{
-		std::replace_if(tmp_line.begin(), tmp_line.end(), isblank, ' ');
-		trim(tmp_line);
-		if(tmp_line == "" || tmp_line[0] == '#')
-			continue;
-		split(tmp_line);
+		PREPARE_AND_SKIP_EMPTY_LIGNES(tmp_line)
+		// std::replace_if(tmp_line.begin(), tmp_line.end(), isblank, ' ');
+		// trim(tmp_line);
+		// if(tmp_line == "" || tmp_line[0] == '#')
+		// 	continue;
+		if(parseObject(ifs, tmp_line, &first_node)) != EXIT_SUCCESS)
+		{
+			ifs.close();
+			return NULL;
+		}
+		// if(split(tmp_line, current_node) != EXIT_SUCCESS)
+		// {
+		// 	ifs.close();
+		// 	return NULL;
+		// }
 	}
 	ifs.close();
 	return new Config(input_file, first_node);
@@ -141,7 +194,7 @@ void Config::Node::copy_list(const t_node_list &oldlist, t_node_list &newlist, C
 }
 
 
-Config::Node::Node( const Config::Node &src, Config::Node *parent): _type(src._type), _parent(parent), _inner_value(src._inner_value)
+Config::Node::Node( const Config::Node &src, Config::Node *parent): _type(src._type), _parent(parent), _inner_args(std::list<std::string>(src._inner_args))
 {
 	if(HAS_TYPE(_type, HASHMAP))
 		copy_map(src._inner_map, this->_inner_map, this);
@@ -220,6 +273,10 @@ void Config::Node::addType(e_type type)
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
+Config::Node *Config::Node::getParent() const
+{
+	return this->_parent
+}
 
 
 /* ************************************************************************** */
