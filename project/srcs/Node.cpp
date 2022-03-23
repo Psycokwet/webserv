@@ -11,8 +11,6 @@ DEFINE_ENUM(e_type, E_TYPE_ENUM)
 
 Node::Node(e_type type, Node *parent, int deepness, t_inner_args_container inner_args) : _type(type), _parent(parent), _deepness(deepness), _inner_args(inner_args)
 {
-	std::cout<< " NODE build"<<std::endl;
-	std::cout<<*this<<std::endl;
 }
 
 // void Node::copy_map(const t_node_map &oldmap, t_node_map &newmap, Node *parent)
@@ -59,11 +57,11 @@ Node::~Node()
 ** --------------------------------- OVERLOAD ---------------------------------
 */
 
-Node &				Node::operator=( Node const & rhs )
-{
-	(void)rhs;
-	return *this;
-}
+// Node &				Node::operator=( Node const & rhs )
+// {
+// 	(void)rhs;
+// 	return *this;
+// }
 
 void print_type(e_type value, void* raw)
 {
@@ -76,7 +74,8 @@ std::ostream & Node::print_map(std::ostream & o) const
 {
 	if(this->_inner_map.size() == 0)
 		return o;
-	// o << "Print map content" <<std::endl;
+	// // o << "Print map content" <<std::endl;
+	// std::cout << "shord notde " << this->getParent()<<  std::endl;
 	if(this->_parent)
 		o << "{" <<std::endl;
 	for(t_node_map::const_iterator it = this->_inner_map.begin(); it != this->_inner_map.end(); it++)
@@ -110,19 +109,17 @@ std::ostream & Node::print_inner_args(std::ostream & o) const
 std::ostream & Node::print(std::ostream & o) const
 {
 	// o << "[";
-	// o << "node at deepness " << this->_deepness << " has parent :" << this->_parent << " contains types :" << std::endl;
+	// o << "node at deepness " << this->_deepness << " has parent :" << this->_parent << " and is " << this << " contains types :" << std::endl;
 	// iteratee_typeEnum(this->_type, NULL, &print_type);
-	print_inner_args(o);
 
-	if(HAS_TYPE(_type, HASHMAP))
+	if(HAS_TYPE(_type, HASHMAP)){
+		print_inner_args(o);
 		print_map(o);
+	}
 	if(HAS_TYPE(_type, LIST))
 		print_list(o);
 	// o << "]" << std::endl;
 
-	// for ()
-
-	// std::cout << "Value = " << Gete_typeValue(GetString((e_type)1)) << std::endl;
 	return o;
 }
 
@@ -137,25 +134,29 @@ std::ostream &			operator<<( std::ostream & o, Node const & i )
 ** --------------------------------- METHODS ----------------------------------
 */
 
-int Node::addNode(Node *node)
+Node *Node::addNode(Node *node)
 {
 	std::string key = node->inner_args_toString();
 	if(HAS_TYPE(_type, HASHMAP))
 	{
-		if (!HAS_TYPE(node->getType(), LIST))
-			return -EXIT_FAILURE;
 		if(this->_inner_map.find(key) == this->_inner_map.end())
+		{
+			node->addType(LIST);
 			this->_inner_map[key] = node;
+			return this->_inner_map[key]->addNode(new Node(NO_TYPE, node, node->getDeepness() + 1, node->_inner_args));
+		}
 		else
-			return this->_inner_map[key]->addNode(node);
-	}
-	if(HAS_TYPE(_type, LIST))
+		{
+			node->addType(HASHMAP);
+			if(HAS_TYPE(this->_inner_map[key]->_type, HASHMAP)) return NULL;
+			this->_inner_map[key]->_inner_list.push_back(node);
+		}
+	}else
 	{
-		if(this->inner_args_toString() != key)
-			return -EXIT_FAILURE;
+		node->addType(HASHMAP);
 		this->_inner_list.push_back(node);
 	}
-	return EXIT_SUCCESS;
+	return node;
 }
 
 void Node::addType(e_type type)

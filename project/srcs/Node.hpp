@@ -38,7 +38,7 @@ class Node
 		int getDeepness() const;
 		bool compareInnerArgs(t_inner_args_container &compare) const;
 		std::string inner_args_toString() const;
-		int addNode(Node *node);
+		Node *addNode(Node *node);
 		Node *buildAndAdd(e_type type, Node *parent, int deepness, t_inner_args_container inner_args);
 
 	private:

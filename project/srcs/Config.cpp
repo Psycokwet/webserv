@@ -23,11 +23,20 @@ void trim(std::string &s)
 
 #define PARSING_ERROR -1
 
-int splitAddToNode(std::string &s, Node *current_node)
+std::string conttoString(Node::t_inner_args_container &cont) 
+{
+	std::string tmp = "";
+
+	for(Node::t_inner_args_container::const_iterator it = cont.begin(); it != cont.end(); it++)
+		tmp = tmp + ";" + *it;
+	return tmp;
+}
+int splitAddToNode(std::string &s, Node **current_node)
 {
 	std::stringstream ss(s);
 	std::string tmp_block;
 	Node::t_inner_args_container tmp_inner_args;
+	Node *tmp_node = NULL;
 	while(std::getline(ss, tmp_block, ' '))
 	{
 		if(tmp_block[0] == '#')
@@ -37,35 +46,38 @@ int splitAddToNode(std::string &s, Node *current_node)
 
 		if (tmp_block == "{")
 		{
-		// std::cout << "GETTING DOWN______" << std::endl;
 			if (tmp_inner_args.size() == 0)
 				return PARSING_ERROR;
-			Node *tmp_node = new Node(LIST, current_node, current_node->getDeepness() + 1, tmp_inner_args);
-		// std::cout << "GETTING DOWN______int" << tmp_node << std::endl;
-			if(current_node->addNode(tmp_node) != EXIT_SUCCESS)
+			tmp_node = new Node(NO_TYPE, *current_node, (*current_node)->getDeepness() + 1, tmp_inner_args);
+			if(!(*current_node = (*current_node)->addNode(tmp_node)))
 			{
 				delete tmp_node;
 				return PARSING_ERROR;
 			}
-		// std::cout << "GETTING DOWN______int2" << tmp_node << std::endl;
-			current_node = tmp_node;
-		// std::cout << "GETTING DOWN______\\" <<*current_node<< std::endl;
+			return EXIT_SUCCESS;
 			//parsing sub object
 		}
 		else if (tmp_block == "}")
 		{
-		// std::cout << "GETTING UP______" <<current_node->getDeepness()  << std::endl;
-			if((current_node = current_node->getParent()) == NULL)
+			if((*current_node)->getParent() == NULL)
 				return PARSING_ERROR;
-		// std::cout << "GETTING UP______\\" << std::endl;
+			((*current_node) = (*current_node)->getParent()->getParent());
+			return EXIT_SUCCESS;
 		}else 
 		{
 			tmp_inner_args.push_back(tmp_block);
 		}
-		std::cout << tmp_block << ";;;" << std::endl;
-		std::cout << " current_node " << *current_node << "::" << std::endl << std::endl;
 	}
-	std::cout << std::endl;
+	if(tmp_inner_args.size() > 0)
+	{
+		tmp_node = new Node(NO_TYPE, *current_node, (*current_node)->getDeepness() + 1, tmp_inner_args);
+		
+		if(!(*current_node)->addNode(tmp_node))
+		{
+			delete tmp_node;
+			return PARSING_ERROR;
+		}
+	}
 	return EXIT_SUCCESS;
 }
 
@@ -74,18 +86,14 @@ int splitAddToNode(std::string &s, Node *current_node)
 		if(str == "" || str[0] == '#')\
 			continue;
 
-int	parseObject(std::ifstream &ifs, std::string tmp_line, Node *current_node)
+int	parseObject(std::ifstream &ifs, std::string tmp_line, Node **current_node)
 {
 	do {
 		PREPARE_AND_SKIP_EMPTY_LIGNES(tmp_line)
-		// std::replace_if(tmp_line.begin(), tmp_line.end(), isblank, ' ');
-		// trim(tmp_line);
-		// if(tmp_line == "" || tmp_line[0] == '#')
-		// 	continue;
 		if(splitAddToNode(tmp_line, current_node) != EXIT_SUCCESS)
 		{
 			ifs.close();
-			return 0;
+			return PARSING_ERROR;
 		}
 	} while(std::getline(ifs, tmp_line));
 	return EXIT_SUCCESS;
@@ -94,6 +102,7 @@ int	parseObject(std::ifstream &ifs, std::string tmp_line, Node *current_node)
 Config *Config::factory(std::string input_file)
 {
 	Node			first_node(HASHMAP);
+	Node			*current = &first_node;
 	std::ifstream	ifs(input_file.c_str());
 	std::string		tmp_line = "";
 
@@ -106,24 +115,14 @@ Config *Config::factory(std::string input_file)
 	while(std::getline(ifs, tmp_line))
 	{
 		PREPARE_AND_SKIP_EMPTY_LIGNES(tmp_line)
-		// std::replace_if(tmp_line.begin(), tmp_line.end(), isblank, ' ');
-		// trim(tmp_line);
-		// if(tmp_line == "" || tmp_line[0] == '#')
-		// 	continue;
 
-		if(parseObject(ifs, tmp_line, &first_node) != EXIT_SUCCESS)
+		if(parseObject(ifs, tmp_line, &current) != EXIT_SUCCESS)
 		{
 			std::cout << "ERROR : " << first_node  << std::endl;
 			ifs.close();
 			return NULL;
 		}
 		std::cout <<  "OK : " <<first_node  << std::endl;
-
-		// if(split(tmp_line, current_node) != EXIT_SUCCESS)
-		// {
-		// 	ifs.close();
-		// 	return NULL;
-		// }
 	}
 	ifs.close();
 	return new Config(input_file, first_node);
