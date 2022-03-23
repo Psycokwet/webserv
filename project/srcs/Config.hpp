@@ -9,17 +9,7 @@
 # include <map>
 # include <algorithm>
 # include <fstream>
-# include "../includes/enumFactory.h"
-# define E_TYPE_ENUM(XX) \
-    XX(NO_TYPE,=0x00000001) \
-    XX(HASHMAP,=0x00000010) \
-    XX(LIST,=0x00000100) \
-    XX(ENDVALUE_STD_ARRAY,=0x00001000) \
-    XX(ENDVALUE_KEYWORD_ONLY,=0x00010000) \
-
-DECLARE_ENUM(e_type, E_TYPE_ENUM)
-// to play with std::cout << "Value = " << Gete_typeValue(GetString((e_type)1)) << std::endl;
-
+# include "Node.hpp"
 class Config
 {
 
@@ -28,55 +18,23 @@ class Config
 		~Config();
 		static Config *factory(std::string input_file);
 		
+        class IllegalConstructorException : public std::exception
+        {
+            public:
+                virtual const char *what() const throw();
+        };
 
 	private:
-
-		class Node
-		{
-			public:
-				typedef std::map<std::string, Node> t_node_map;
-				typedef std::list<Node> t_node_list;
-
-				Node(e_type type = NO_TYPE, Node* parent = NULL);
-				Node( Node const & src, Node* parent = NULL);
-				~Node();
-				void addType(e_type type);
-				std::ostream & print(std::ostream & o) const;
-				Node *getParent() const;
-
-			private:
-				Node &		operator=( Node const & rhs );
-
-				void copy_map(const t_node_map &oldmap, t_node_map &newmap, Node *parent);
-				void copy_list(const t_node_list &oldlist, t_node_list &newlist, Node *parent);
-
-				std::ostream & print_map(std::ostream & o) const;
-				std::ostream & print_list(std::ostream & o) const;
-
-				int _type; //necessary so that we can have multiple types
-				Node *_parent;
-				std::list<std::string> _inner_args; //first arg is the identifier of
-													//the node server{localhost{node ah que coucou bob}}
-													//would have identifier server.localhost.node and
-													//would have as args "node" "ah" "que" "coucou" "bob"
-
-				t_node_map _inner_map;
-				t_node_list _inner_list;
-
-		};
-
-		Config(std::string input_file = "", Config::Node first_node = Config::Node());
+		static Node _default_node;
+		Config(std::string input_file = "", Node &first_node = _default_node);
 		Config( Config const & src );
 		Config &		operator=( Config const & rhs );
 
 		std::string _input_file;
-		Config::Node _first_node;
+		Node &_first_node;
 
-
-		int splitAddToNode(std::string &s, Config::Node current_node);
-		int	parseObject(std::ifstream ifs, std::string tmp_line, Config::Node *current_node);
-
-
+		// static int splitAddToNode(std::string &s, Node *current_node);
+		// int parseObject(std::ifstream ifs, std::string tmp_line, Node *current_node);
 };
 
 std::ostream &			operator<<( std::ostream & o, Config const & i );

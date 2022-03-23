@@ -6,7 +6,7 @@
 #    By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#              #
-#    Updated: 2022/03/21 18:05:04 by scarboni         ###   ########.fr        #
+#    Updated: 2022/03/23 15:30:11 by scarboni         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,7 +20,7 @@ CPPFLAGS 			=  -Wall -Wextra -Werror -g3  -std=c++98
 
 SRC_PATH			= ./srcs/
 
-SRCS = 	main.cpp Config.cpp
+SRCS = 	main.cpp Config.cpp Node.cpp
 
 SRC_FILES	+=	$(SRCS)
 
@@ -57,8 +57,8 @@ fclean:
 re: fclean all
 
 
-# LEAKS = valgrind 
 LEAKS = 
+LEAKS = valgrind --leak-check=full
 CONFIG_FOLDER = ./config_files/
 SEPARATOR = @echo "____.--.--.____.--.--.____.--.--.____.--.--.__Weeeeeeeeee__.--.--.____.--.--.____.--.--.____.--.--.____"
 
