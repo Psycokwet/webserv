@@ -62,7 +62,4 @@ int  main(void)
     printf("server's message sent\n");
     return (0);
 
-
-
-
 }
