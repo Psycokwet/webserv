@@ -15,7 +15,7 @@ int main(void)
     char client_message[] = "This is message from client\n";
     char buffer[1024] = {0};
 
-    client_socket = socket(AF_INET, SOCK_STREAM, 0);
+    client_socket = socket(AF_INET, SOCK_STREAM, 0); // Quan trong nhat la buoc nay, tao fd voi cung AF_INET vaf SOCK_STREAM nhu server_fd
     if (client_socket < 0)
     {
         printf("\n Socket creation error \n");
