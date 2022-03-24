@@ -40,7 +40,27 @@ class Node
 		std::string inner_args_toString() const;
 		Node *addNode(Node *node);
 		Node *buildAndAdd(e_type type, Node *parent, int deepness, t_inner_args_container inner_args);
+		
+		t_node_list &getChildrenByFullName(std::string key); //for listen port pwot, it would be ;listen;port;pwot I guess you won't really need this one
+		t_node_list getChildrenByFirstName(std::string key); //for listen port pwot, it would be listen
+		t_node_map &getDirectChildrens(); // in a server { pwit pwot pwet} objet, your would get the map to pwit pwot pwet, warning ! you will get a list a pwit, a list of pwot and a list of pwet, in case there is multiple occurences of them. They are stored in list by full args contracted. See about "inner_args_toString"
 
+        class IllegalGetterException : public std::exception
+        {
+            public:
+                virtual const char *what() const throw()
+				{
+					return "You don't have the legal type to get this kind of childrens.";
+				}
+        };
+		class KeyDontExistHereException : public std::exception
+        {
+            public:
+                virtual const char *what() const throw()
+				{
+					return "The object you are trying to retrieve here are not here.";
+				}
+        };
 	private:
 		Node(e_type type = NO_TYPE, Node* parent = NULL, int deepness = 0, t_inner_args_container _inner_args = t_inner_args_container());
 		Node( Node const & src, Node* parent = NULL);

@@ -312,6 +312,35 @@ std::string Node::inner_args_toString() const
 	return tmp;
 }
 
+Node::t_node_list &Node::getChildrenByFullName(std::string key)
+{
+	if(HAS_TYPE(this->_type, LIST))
+		throw IllegalGetterException();
+
+	if(this->_inner_map.find(key) == this->_inner_map.end())
+		throw KeyDontExistHereException();
+	return this->_inner_map[key]->_inner_list;
+}
+
+Node::t_node_list Node::getChildrenByFirstName(std::string key)
+{
+	if(HAS_TYPE(this->_type, LIST))
+		throw IllegalGetterException();
+	t_node_list tmp;
+	for(t_node_map::const_iterator it = this->_inner_map.begin(); it != this->_inner_map.end(); it++)
+		if(it->second->_inner_args[0] == key)
+			copy(it->second->_inner_list.begin(), it->second->_inner_list.end(), std::back_inserter(tmp));
+	return tmp;
+}
+
+Node::t_node_map &Node::getDirectChildrens()
+{
+	if(HAS_TYPE(this->_type, LIST))
+		throw IllegalGetterException();
+	return this->_inner_map;
+}
+
+
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
