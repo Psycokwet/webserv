@@ -26,8 +26,10 @@ class Node
 		typedef std::list<Node*> t_node_list;
 		typedef std::vector<std::string> t_inner_args_container;
 		
-		
-		Node(e_type type = NO_TYPE, Node* parent = NULL, int deepness = 0, t_inner_args_container _inner_args = t_inner_args_container());
+		static Node *digestConfigurationFile(std::string input_file);
+		static int splitAddToNode(std::string &s, Node **current_node);
+		static int parseObject(std::ifstream &ifs, std::string tmp_line, Node **current_node);
+
 		~Node();
 		void addType(e_type type);
 		std::ostream & print(std::ostream & o) const;
@@ -40,6 +42,7 @@ class Node
 		Node *buildAndAdd(e_type type, Node *parent, int deepness, t_inner_args_container inner_args);
 
 	private:
+		Node(e_type type = NO_TYPE, Node* parent = NULL, int deepness = 0, t_inner_args_container _inner_args = t_inner_args_container());
 		Node( Node const & src, Node* parent = NULL);
 		Node &		operator=( Node const & rhs );
 
