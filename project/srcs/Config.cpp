@@ -101,8 +101,8 @@ int	parseObject(std::ifstream &ifs, std::string tmp_line, Node **current_node)
 
 Config *Config::factory(std::string input_file)
 {
-	Node			first_node(HASHMAP);
-	Node			*current = &first_node;
+	Node			*first_node = new Node(HASHMAP);
+	Node			*current = first_node;
 	std::ifstream	ifs(input_file.c_str());
 	std::string		tmp_line = "";
 
@@ -118,11 +118,11 @@ Config *Config::factory(std::string input_file)
 
 		if(parseObject(ifs, tmp_line, &current) != EXIT_SUCCESS)
 		{
-			std::cout << "ERROR : " << first_node  << std::endl;
+			std::cout << "ERROR : " << *first_node  << std::endl;
 			ifs.close();
 			return NULL;
 		}
-		std::cout <<  "OK : " <<first_node  << std::endl;
+		std::cout <<  "OK : " <<*first_node  << std::endl;
 	}
 	ifs.close();
 	return new Config(input_file, first_node);
@@ -132,7 +132,7 @@ Config *Config::factory(std::string input_file)
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Config::Config(std::string input_file, Node &first_node): _input_file(input_file), _first_node(first_node)
+Config::Config(std::string input_file, Node *first_node): _input_file(input_file), _first_node(first_node)
 {
 }
 
@@ -148,6 +148,8 @@ Config::Config(std::string input_file, Node &first_node): _input_file(input_file
 
 Config::~Config()
 {
+	if(this->_first_node)
+		delete this->_first_node;
 }
 
 

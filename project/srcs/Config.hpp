@@ -25,13 +25,12 @@ class Config
         };
 
 	private:
-		static Node _default_node;
-		Config(std::string input_file = "", Node &first_node = _default_node);
+		Config(std::string input_file = "", Node *first_node = NULL);
 		Config( Config const & src );
 		Config &		operator=( Config const & rhs );
 
 		std::string _input_file;
-		Node &_first_node;
+		Node *_first_node;
 
 		// static int splitAddToNode(std::string &s, Node *current_node);
 		// int parseObject(std::ifstream ifs, std::string tmp_line, Node *current_node);
