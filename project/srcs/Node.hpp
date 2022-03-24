@@ -31,7 +31,7 @@ class Node
 		static int parseObject(std::ifstream &ifs, std::string tmp_line, Node **current_node);
 
 		~Node();
-		void addType(e_type type);
+		void setType(e_type type);
 		std::ostream & print(std::ostream & o) const;
 		Node *getParent() const;
 		int getType() const;
@@ -73,7 +73,7 @@ class Node
 		std::ostream & print_list(std::ostream & o) const;
 		std::ostream & print_inner_args(std::ostream & o) const;
 
-		int _type; //necessary so that we can have multiple types
+		e_type _type; //necessary so that we can have multiple types
 		Node *_parent;
 		int _deepness; //object intrication
 		t_inner_args_container _inner_args; //first arg is the identifier of

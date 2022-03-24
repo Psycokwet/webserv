@@ -196,8 +196,6 @@ std::ostream & Node::print_map(std::ostream & o) const
 {
 	if(this->_inner_map.size() == 0)
 		return o;
-	// // o << "Print map content" <<std::endl;
-	// std::cout << "shord notde " << this->getParent()<<  std::endl;
 	if(this->_parent)
 		o << "{" <<std::endl;
 	for(t_node_map::const_iterator it = this->_inner_map.begin(); it != this->_inner_map.end(); it++)
@@ -210,7 +208,6 @@ std::ostream & Node::print_list(std::ostream & o) const
 {
 	if(this->_inner_list.size() == 0)
 		return o;
-	// o << "Print list content" <<std::endl;
 	for(t_node_list::const_iterator it = this->_inner_list.begin(); it != this->_inner_list.end(); it++)
 		(*it)->print(o) << std::endl;
 	return o;
@@ -218,29 +215,21 @@ std::ostream & Node::print_list(std::ostream & o) const
 
 std::ostream & Node::print_inner_args(std::ostream & o) const
 {
-	// o << "WILL ??? " << this << std::endl;
 	if(this->_inner_args.size() == 0)
 		return o;
-	// o << "Print inner arguments " << this->inner_args_toString() <<  std::endl;
 	for(t_inner_args_container::const_iterator it = this->_inner_args.begin(); it != this->_inner_args.end(); it++)
 		o << *it << " ";
-		// o << *it <<std::endl;
 	return o;
 }
 
 std::ostream & Node::print(std::ostream & o) const
 {
-	// o << "[";
-	// o << "node at deepness " << this->_deepness << " has parent :" << this->_parent << " and is " << this << " contains types :" << std::endl;
-	// iteratee_typeEnum(this->_type, NULL, &print_type);
-
 	if(HAS_TYPE(_type, HASHMAP)){
 		print_inner_args(o);
 		print_map(o);
 	}
 	if(HAS_TYPE(_type, LIST))
 		print_list(o);
-	// o << "]" << std::endl;
 
 	return o;
 }
@@ -263,30 +252,29 @@ Node *Node::addNode(Node *node)
 	{
 		if(this->_inner_map.find(key) == this->_inner_map.end())
 		{
-			node->addType(LIST);
+			node->setType(LIST);
 			this->_inner_map[key] = node;
 			return this->_inner_map[key]->addNode(new Node(NO_TYPE, node, node->getDeepness() + 1, node->_inner_args));
 		}
 		else
 		{
-			node->addType(HASHMAP);
+			node->setType(HASHMAP);
 			if(HAS_TYPE(this->_inner_map[key]->_type, HASHMAP)) return NULL;
 			this->_inner_map[key]->_inner_list.push_back(node);
 		}
 	}else
 	{
-		node->addType(HASHMAP);
+		node->setType(HASHMAP);
 		this->_inner_list.push_back(node);
 	}
 	return node;
 }
 
-void Node::addType(e_type type)
+void Node::setType(e_type type)
 {
-	if(this->_type == NO_TYPE)
-		this->_type = type;
-	else
-		this->_type = this->_type | type;
+	if(this->_type != NO_TYPE)
+		return;//should throw an error... But honestly, should not happens so...
+	this->_type = type;
 }
 
 bool Node::compareInnerArgs(t_inner_args_container &compare) const
