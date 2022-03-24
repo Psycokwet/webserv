@@ -33,10 +33,11 @@ std::string conttoString(Node::t_inner_args_container &cont)
 }
 int splitAddToNode(std::string &s, Node **current_node)
 {
-	std::stringstream ss(s);
 	std::string tmp_block;
 	Node::t_inner_args_container tmp_inner_args;
 	Node *tmp_node = NULL;
+	if(s.size() > 0 && s.at(s.size() - 1) == ';') s.resize(s.size() - 1);
+	std::stringstream ss(s);
 	while(std::getline(ss, tmp_block, ' '))
 	{
 		if(tmp_block[0] == '#')

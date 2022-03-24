@@ -15,8 +15,6 @@
     XX(NO_TYPE,=0x00000001) \
     XX(HASHMAP,=0x00000010) \
     XX(LIST,=0x00000100) \
-    XX(ENDVALUE_STD_ARRAY,=0x00001000) \
-    XX(ENDVALUE_KEYWORD_ONLY,=0x00010000) \
 
 DECLARE_ENUM(e_type, E_TYPE_ENUM)
 // to play with std::cout << "Value = " << Gete_typeValue(GetString((e_type)1)) << std::endl;
