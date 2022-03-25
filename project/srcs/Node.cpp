@@ -49,6 +49,7 @@ int Node::splitAddToNode(std::string &s, Node **current_node)
 		{
 			if (tmp_inner_args.size() == 0)
 				return PARSING_ERROR;
+
 			tmp_node = new Node(NO_TYPE, *current_node, (*current_node)->getDeepness() + 1, tmp_inner_args);
 			if(!(*current_node = (*current_node)->addNode(tmp_node)))
 			{
@@ -72,7 +73,6 @@ int Node::splitAddToNode(std::string &s, Node **current_node)
 	if(tmp_inner_args.size() > 0)
 	{
 		tmp_node = new Node(NO_TYPE, *current_node, (*current_node)->getDeepness() + 1, tmp_inner_args);
-		
 		if(!(*current_node)->addNode(tmp_node))
 		{
 			delete tmp_node;
@@ -124,6 +124,11 @@ Node *Node::digestConfigurationFile(std::string input_file)
 		}
 	}
 	ifs.close();
+	if(current != first_node)
+	{
+		delete first_node;
+		return NULL;
+	}
 	return first_node;
 }
 
@@ -258,6 +263,7 @@ Node *Node::addNode(Node *node)
 		}
 		else
 		{
+			node->_parent = this->_inner_map[key];
 			node->setType(HASHMAP);
 			if(HAS_TYPE(this->_inner_map[key]->_type, HASHMAP)) return NULL;
 			this->_inner_map[key]->_inner_list.push_back(node);
@@ -341,7 +347,7 @@ int Node::getDeepness() const
 {
 	return this->_deepness;
 }
-int Node::getType() const
+e_type Node::getType() const
 {
 	return this->_type;
 }

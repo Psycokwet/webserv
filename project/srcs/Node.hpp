@@ -34,7 +34,7 @@ class Node
 		void setType(e_type type);
 		std::ostream & print(std::ostream & o) const;
 		Node *getParent() const;
-		int getType() const;
+		e_type getType() const;
 		int getDeepness() const;
 		bool compareInnerArgs(t_inner_args_container &compare) const;
 		std::string inner_args_toString() const;

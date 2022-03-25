@@ -6,7 +6,7 @@
 /*   By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#             */
-/*   Updated: 2022/03/24 11:04:35 by scarboni         ###   ########.fr       */
+/*   Updated: 2022/03/25 07:16:17 by scarboni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,11 @@ int		main(int ac, char *av[])
 	}
 
 	Node *firstNode = Node::digestConfigurationFile(av[1]);
+	if( !firstNode)
+	{
+		std::cout << "The configuration file contains syntax errors" << std::endl;
+		return 0;
+	}
 	// you can get all servers objects like that :
 	Node::t_node_list servers = firstNode->getChildrenByFirstName("server");
 	for(Node::t_node_list ::const_iterator it = servers.begin(); it != servers.end(); it++)

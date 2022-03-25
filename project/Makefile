@@ -6,7 +6,7 @@
 #    By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#              #
-#    Updated: 2022/03/24 10:28:52 by scarboni         ###   ########.fr        #
+#    Updated: 2022/03/25 08:43:51 by scarboni         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -64,6 +64,8 @@ SEPARATOR = @echo "____.--.--.____.--.--.____.--.--.____.--.--.__Weeeeeeeeee__.-
 
 test:	$(NAME)
 	$(LEAKS) ./$(NAME)
+	$(SEPARATOR)
+	$(LEAKS) ./$(NAME) $(CONFIG_FOLDER)bad_syntax.conf
 	$(SEPARATOR)
 	$(LEAKS) ./$(NAME) $(CONFIG_FOLDER)example_nginx_base.conf
 
