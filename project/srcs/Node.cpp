@@ -102,8 +102,6 @@ int	Node::parseObject(std::ifstream &ifs, std::string tmp_line, Node **current_n
 
 Node *Node::digestConfigurationFile(std::string input_file)
 {
-	Node			*first_node = new Node(HASHMAP);
-	Node			*current = first_node;
 	std::ifstream	ifs(input_file.c_str());
 	std::string		tmp_line = "";
 
@@ -113,6 +111,8 @@ Node *Node::digestConfigurationFile(std::string input_file)
 		ifs.close();
 		return NULL;
 	}
+	Node			*first_node = new Node(HASHMAP);
+	Node			*current = first_node;
 	while(std::getline(ifs, tmp_line))
 	{
 		PREPARE_AND_SKIP_EMPTY_LIGNES(tmp_line)
@@ -120,6 +120,7 @@ Node *Node::digestConfigurationFile(std::string input_file)
 		if(parseObject(ifs, tmp_line, &current) != EXIT_SUCCESS)
 		{
 			ifs.close();
+			std::cout << "The configuration file contains syntax errors" << std::endl;
 			return NULL;
 		}
 	}
@@ -127,6 +128,7 @@ Node *Node::digestConfigurationFile(std::string input_file)
 	if(current != first_node)
 	{
 		delete first_node;
+		std::cout << "The configuration file contains syntax errors" << std::endl;
 		return NULL;
 	}
 	return first_node;

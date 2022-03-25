@@ -6,25 +6,33 @@
 /*   By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#             */
-/*   Updated: 2022/03/25 07:16:17 by scarboni         ###   ########.fr       */
+/*   Updated: 2022/03/25 09:02:41 by scarboni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/webserv.h"
 #include "Node.hpp"
 
+#define DEFAULT_CONFIG_PATH "./config_files/default.conf"
+
 int		main(int ac, char *av[])
 {
-	if (ac != 2)
+	std::string config_path;
+	if (ac > 2)
 	{
 		std::cout << "Usage : ./webserv [configuration file]" << std::endl;
 		return 0;
 	}
+	if (ac < 2)
+	{
+		config_path = DEFAULT_CONFIG_PATH;
+		std::cout << "Taking default configuration file" << std::endl;
+	}
+	else config_path = av[1];
 
-	Node *firstNode = Node::digestConfigurationFile(av[1]);
+	Node *firstNode = Node::digestConfigurationFile(config_path);
 	if( !firstNode)
 	{
-		std::cout << "The configuration file contains syntax errors" << std::endl;
 		return 0;
 	}
 	// you can get all servers objects like that :
