@@ -266,6 +266,7 @@ Node *Node::addNode(Node *node)
 		else
 		{
 			node->_parent = this->_inner_map[key];
+			node->_deepness = this->_inner_map[key] + 1;
 			node->setType(HASHMAP);
 			if(HAS_TYPE(this->_inner_map[key]->_type, HASHMAP)) return NULL;
 			this->_inner_map[key]->_inner_list.push_back(node);
