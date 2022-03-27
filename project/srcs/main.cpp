@@ -38,13 +38,12 @@ int		main(int ac, char *av[])
 	// you can get all servers objects like that :
 	Node::t_node_list servers = firstNode->getChildrenByFirstName("server");
 	for(Node::t_node_list ::const_iterator it = servers.begin(); it != servers.end(); it++)
-		std::cout << **it << std::endl; //two * because the list contain pointers to nodes
-	// you can get all listen objects like that too :
-	Node::t_node_list listen_sub_first_server = (*servers.begin())->getChildrenByFirstName("listen");
-	for(Node::t_node_list ::const_iterator it = listen_sub_first_server.begin(); it != listen_sub_first_server.end(); it++)
-		std::cout << **it << std::endl; //two * because the list contain pointers to nodes
-	if(!firstNode)
-		return 0;
+	{
+		Node::t_node_list listen_sub_first_server = (*servers.begin())->getChildrenByFirstName("index");
+		for(Node::t_node_list ::const_iterator it2 = listen_sub_first_server.begin(); it2 != listen_sub_first_server.end(); it2++)
+			std::cout << **it2 << std::endl; //two * because the list contain pointers to nodes
+		
+	}
 	delete firstNode;
 	return 0;
 }

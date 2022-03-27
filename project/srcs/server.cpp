@@ -15,6 +15,9 @@
 #define TRUE 1
 #define FALSE 0
 
+// Todo: following is setting up ONE server that can serve multiple clients.
+// ! Do we need to setup server to several websites?
+
 int  main(void)
 {
     int server_fd;
@@ -23,9 +26,9 @@ int  main(void)
     int new_socket;
     int valread;
     char buffer[1024];
-    char message[] = "Hello from server";
+    char message[] = "This message is sent from server\n";
     int i;
-    int max_clients = 30;
+    int max_clients = 3;
     int client_socket[max_clients];
     int opt = TRUE;
     int addrlen;
@@ -37,13 +40,16 @@ int  main(void)
     fd_set readfds;
     
     // initialize add client socket to 0, so not checked
-    for (i = 0; i < max_clients; i++)
+    for (i = 0; i < max_clients; i++) // ! max_client is set in the config file or not?
     {
         client_socket[i] = 0;
     }
 
     // server_fd = socket(domain, type, protocol); Create an endpoint for communication
-    server_fd = socket(AF_INET, SOCK_STREAM, 0);
+    // domain: integer, specifies communication domain. We use AF_ LOCAL as defined in the POSIX standard for communication between processes on the same host. For communicating between processes on different hosts connected by IPV4, we use AF_INET and AF_I NET 6 for processes connected by IPV6.
+    // type: A SOCK_STREAM: TCP(reliable, connection oriented), type provides sequenced, reliable, two-way connection based byte streams.
+    // protocol: Protocol value for Internet Protocol(IP), which is 0. This is the same number which appears on protocol field in the IP header of a packet.(man protocols for more details)
+    server_fd = socket(AF_INET, SOCK_STREAM, 0); // ! use this for the project
     if (server_fd == 0)
     {
         perror("Fail to set socket\n");
@@ -123,7 +129,7 @@ int  main(void)
                 exit(EXIT_FAILURE);
             }
             //inform user of socket number - used in send and receive commands 
-            printf("New connection , socket fd is %d , ip is : %s , port : %d\n" , new_socket , inet_ntoa(server_address.sin_addr) , ntohs(server_address.sin_port));  
+            printf("New connection , socket fd is %d , ip is : %s , sin_port : %d\n" , new_socket , inet_ntoa(server_address.sin_addr) , ntohs(server_address.sin_port));  
 
             // send new connection greeting message
             if (send(new_socket, message, strlen(message), 0) != strlen(message))
@@ -137,11 +143,19 @@ int  main(void)
                 if (client_socket[i] == 0)
                 {
                     client_socket[i] = new_socket;
-                    printf("Adding to list of sockets as %d\n", i);
+                    printf("Adding to list of sockets at position of %d\n", i);
 
                     break ;
                 }
             }
+
+            // Print all opened socket:
+            printf("List of opened socket:\n");
+            for (i = 0; i < max_clients; i++)
+            {
+                printf("%d ", client_socket[i]);
+            }
+            printf("\n");
         }
 
         // else, it comes fromt IO operation on some other socket
