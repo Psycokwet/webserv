@@ -330,11 +330,18 @@ Node::t_node_list Node::getChildrenByFirstName(std::string key)
 	return tmp;
 }
 
-Node::t_node_map &Node::getDirectChildrens()
+Node::t_node_list &Node::getDirectChildrensList()
 {
 	if(HAS_TYPE(this->_type, LIST))
-		throw IllegalGetterException();
-	return this->_inner_map;
+		return this->_inner_list;
+	throw IllegalGetterException();
+}
+
+Node::t_node_map &Node::getDirectChildrensMap()
+{
+	if(HAS_TYPE(this->_type, HASHMAP))
+		return this->_inner_map;
+	throw IllegalGetterException();
 }
 
 
@@ -355,4 +362,8 @@ e_type Node::getType() const
 	return this->_type;
 }
 
+Node::t_inner_args_container &Node::getInnerArgs()
+{
+	return this->_inner_args;
+}
 /* ************************************************************************** */

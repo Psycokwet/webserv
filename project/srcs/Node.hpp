@@ -43,8 +43,11 @@ class Node
 		
 		t_node_list &getChildrenByFullName(std::string key); //for listen port pwot, it would be ;listen;port;pwot I guess you won't really need this one
 		t_node_list getChildrenByFirstName(std::string key); //for listen port pwot, it would be listen
-		t_node_map &getDirectChildrens(); // in a server { pwit pwot pwet} objet, your would get the map to pwit pwot pwet, warning ! you will get a list a pwit, a list of pwot and a list of pwet, in case there is multiple occurences of them. They are stored in list by full args contracted. See about "inner_args_toString"
+		
+		Node::t_node_list &getDirectChildrensList();
+		Node::t_node_map &getDirectChildrensMap();	// in a server { pwit pwot pwet} objet, your would get the map to pwit pwot pwet, warning ! you will get a list a pwit, a list of pwot and a list of pwet, in case there is multiple occurences of them. They are stored in list by full args contracted. See about "inner_args_toString"
 
+		Node::t_inner_args_container &getInnerArgs();
         class IllegalGetterException : public std::exception
         {
             public:
@@ -76,6 +79,11 @@ class Node
 		e_type _type; //necessary so that we can have multiple types
 		Node *_parent;
 		int _deepness; //object intrication
+		// first node is 0 and a Hashmap
+		// server node is a 1 and a list, then contains a hashmap
+		// with deepness 2. Only hashmap node shoule be considered when post treatment are done
+
+
 		t_inner_args_container _inner_args; //first arg is the identifier of
 											//the node server{localhost{node ah que coucou bob}}
 											//would have identifier server.localhost.node and
