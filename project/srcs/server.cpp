@@ -8,7 +8,8 @@
 #include <unistd.h> // for read
 #include <sys/select.h> // for FD_CLR, FD_ZERO, FD_SET, FD_ISSET macros
 #include <errno.h> // for errno, EINTR
-#include <arpa/inet.h> 
+#include <arpa/inet.h>
+#include <cstring> 
 
 
 #define PORT 8080
@@ -26,7 +27,8 @@ int  main(void)
     int new_socket;
     int valread;
     char buffer[1024];
-    char message[] = "This message is sent from server\n";
+    char message[] = "HTTP/1.1 200 OK\nDate:Fri, 16 Mar 2020 17:21:12 GMT\nServer: my_server\nContent-Type: text/html;charset=UTF-8\nContent-Length: 1846\n\n<!DOCTYPE html>\n<html>Hello world</html>\n";
+    // char message[] = "<!DOCTYPE html>\n<html>Hello world</html>\n"; // ! This does not work, need to have full form of RESPONSE as above for browser to understand
     int i;
     int max_clients = 3;
     int client_socket[max_clients];
@@ -156,6 +158,21 @@ int  main(void)
                 printf("%d ", client_socket[i]);
             }
             printf("\n");
+
+            const uint EASILY_ENOUGH = 100000;
+            char* buffer_recv = new char[EASILY_ENOUGH + 1];
+            int bytesRead = recv(new_socket, buffer_recv, EASILY_ENOUGH, MSG_WAITALL); // FREEZES UNTIL I KILL THE CLIENT
+            // auto bytesRead = recv(new_fd, buffer_recv, EASILY_ENOUGH, 0); // DOES NOT READ FULL REQUEST
+            if (bytesRead == -1) {
+                perror("recv");
+                close(new_socket);
+                continue;
+            }
+            buffer_recv[bytesRead] = 0;
+
+            printf("bytes read: %d\n", bytesRead);
+            printf("Sent from Client:\n---------------------------\n%s----------------------------\n", buffer_recv);
+            delete[] buffer_recv;
         }
 
         // else, it comes fromt IO operation on some other socket
