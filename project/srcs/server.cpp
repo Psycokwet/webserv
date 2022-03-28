@@ -17,7 +17,8 @@
 #define FALSE 0
 
 // Todo: following is setting up ONE server that can serve multiple clients.
-// ! Do we need to setup server to several websites?
+// Todo: Set up SEVERAL severs, each can serve multiple clients.
+// Todo: How to get all the port?
 
 int  main(void)
 {
@@ -37,9 +38,9 @@ int  main(void)
     int max_sd;
     int sd;
     int activity;
-
     // set of socket descriptors
     fd_set readfds;
+
     
     // initialize add client socket to 0, so not checked
     for (i = 0; i < max_clients; i++) // ! max_client is set in the config file or not?
@@ -69,7 +70,7 @@ int  main(void)
     }
     // type of socket created:
     server_address.sin_family = AF_INET;
-    server_address.sin_addr.s_addr = INADDR_ANY;
+    server_address.sin_addr.s_addr = htonl("thi-nguy.42.fr");
     server_address.sin_port = htons(PORT);
 
     // bind the socket to localhost port 8080
