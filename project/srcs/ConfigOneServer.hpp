@@ -10,13 +10,13 @@
 class ConfigOneServer
 {
     public:
-        ConfigOneServer();
-        ConfigOneServer(const ConfigOneServer & src);
-        ConfigOneServer & operator=(const ConfigOneServer & rhs);
-        ~ConfigOneServer();
+        // ConfigOneServer();
+        // ConfigOneServer(const ConfigOneServer & src);
+        // ConfigOneServer & operator=(const ConfigOneServer & rhs);
+        // ~ConfigOneServer();
 
         // Todo: parse content of one server from Node. 
-        // parseOneServer();
+        void parseOneServer();
 
     private:
         std::vector< std::pair<int, std::string> >      _listen;

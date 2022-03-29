@@ -34,8 +34,8 @@ int		main(int ac, char *av[])
 	else config_path = av[1];
 
 	master_server.parseConfig(config_path);
-	if (master_server.setup() == -1)
-		return (1);
+	// if (master_server.setup() == -1)
+	// 	return (1);
 
 
 

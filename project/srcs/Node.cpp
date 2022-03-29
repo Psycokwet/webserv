@@ -336,6 +336,11 @@ Node::t_node_map &Node::getDirectChildrens()
 	return this->_inner_map;
 }
 
+Node::t_inner_args_container Node::get_inner_args()
+{
+	return (_inner_args);
+}
+
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

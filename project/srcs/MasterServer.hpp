@@ -16,7 +16,7 @@ class MasterServer
         ~MasterServer();
 
         void parseConfig(std::string config_path);
-        int setup();
+        // int setup();
 
     private:
         AllConfig      _allConfig;

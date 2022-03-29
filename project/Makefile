@@ -20,7 +20,7 @@ CPPFLAGS 			=  -Wall -Wextra -Werror -g3  -std=c++98
 
 SRC_PATH			= ./srcs/
 
-SRCS = 	main.cpp Node.cpp
+SRCS = 	main.cpp Node.cpp AllConfig.cpp ConfigOneServer.cpp MasterServer.cpp
 
 SRC_FILES	+=	$(SRCS)
 

@@ -61,6 +61,8 @@ class Node
 					return "The object you are trying to retrieve here are not here.";
 				}
         };
+
+		t_inner_args_container get_inner_args();
 	private:
 		Node(e_type type = NO_TYPE, Node* parent = NULL, int deepness = 0, t_inner_args_container _inner_args = t_inner_args_container());
 		Node( Node const & src, Node* parent = NULL);
