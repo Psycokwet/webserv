@@ -28,7 +28,9 @@ int  main(void)
     int new_socket;
     int valread;
     char buffer[1024];
-    char message[] = "HTTP/1.1 200 OK\nDate:Fri, 16 Mar 2020 17:21:12 GMT\nServer: my_server\nContent-Type: text/html;charset=UTF-8\nContent-Length: 1846\n\n<!DOCTYPE html>\n<html>Hello world</html>\n";
+	char message[] = "HTTP/1.1 200 OK\nDate:Fri, 16 Mar 2020 17:21:12 GMT\nServer: my_server\nContent-Type: text/html;charset=UTF-8\nContent-Length: 1846\n\n<!DOCTYPE html>\n<html><div>Hello world</div><div><form id =\"test\" enctype=\"multipart/form-data\" method=\"post\" action=\"#\"><input id=\"testfile\" name=\"nfile\" type=\"file\"/><input id=\"submit\" type=\"submit\" name=\"submit\"/></form></div></html>\n";
+
+    //char message[] = "HTTP/1.1 200 OK\nDate:Fri, 16 Mar 2020 17:21:12 GMT\nServer: my_server\nContent-Type: text/html;charset=UTF-8\nContent-Length: 1846\n\n<!DOCTYPE html>\n<html>Hello world</html>\n";
     // char message[] = "<!DOCTYPE html>\n<html>Hello world</html>\n"; // ! This does not work, need to have full form of RESPONSE as above for browser to understand
     int i;
     int max_clients = 3;
@@ -70,7 +72,7 @@ int  main(void)
     }
     // type of socket created:
     server_address.sin_family = AF_INET;
-    server_address.sin_addr.s_addr = htonl("thi-nguy.42.fr");
+    server_address.sin_addr.s_addr = INADDR_ANY;
     server_address.sin_port = htons(PORT);
 
     // bind the socket to localhost port 8080
