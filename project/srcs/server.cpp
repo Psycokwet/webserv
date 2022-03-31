@@ -59,7 +59,6 @@ int  main(void)
         exit(EXIT_FAILURE);
     }
     //set master socket (server_fd) to allow multiple connections , 
-    //this is just a good habit, it will work without this //set master socket to allow multiple connections , 
     //this is just a good habit, it will work without this 
     // SO_REUSEADDR    enables local server_address reuse
     // SO_REUSEPORT    enables duplicate server_address and port bindings
