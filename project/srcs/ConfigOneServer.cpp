@@ -1,43 +1,80 @@
 #include "ConfigOneServer.hpp"
 
-ConfigOneServer::ConfigOneServer()
-:
-    _listen(NULL),
-    _root(NULL),
-    _server_name(NULL),
-    _autoindex(NULL);
-    _location(NULL)
-{}
-
-
-void ConfigOneServer::parseDirective(std::list<Node*> directive_list, std::string directive_name)
+ConfigOneServer::ConfigOneServer() //Todo: put default value to each directive
+    // _root(NULL),
+    // _server_name(NULL),
+    // _autoindex(NULL);
+    // _location(NULL)
 {
-    Node::t_node_list   sub_list = directive_list->getChildrenByFirstName(name);
-    if (sub_list.size() == 0) // ! If there is no directive at that name.
-        return ;
-    if (sub_list.size() == 1)
+    std::pair<std::string, int> default_addr1("*", 80);
+    std::pair<std::string, int> default_addr2("*", 8000);
+    _listen.push_back(default_addr1);
+    _listen.push_back(default_addr2);
+
+    _root = "html";
+    _server_name.push_back("");
+
+}
+
+
+void ConfigOneServer::parseDirective(Node::t_node_list::const_iterator directive_list, std::string directive_name)
+{
+    Node::t_node_list   directive_sub_one_server = (*directive_list)->getChildrenByFirstName(directive_name);
+    if (directive_sub_one_server.size() == 0) // ! If there is no directive at that name
     {
+        std::cout << "Root of server with 0 item: (have default values)\n";
+        std::cout << _root << std::endl;
+
+        // std::cout << "Listen of server with 0 item: (have default values)\n";
+        // std::cout << _listen[0].first << " => " << _listen[0].second << "\n";
+        // std::cout << _listen[1].first << " => " << _listen[1].second << "\n";
+
+        return ;
+    }
+    else if (directive_sub_one_server.size() == 1) // There is only one directive at that name
+    {
+        std::cout << "Root of server with 1 item:\n";
         // Todo: parse value to relevant attribute
+        std::cout << **(directive_sub_one_server.begin()) << std::endl;
+
+        std::vector<std::string> inner_args = directive_sub_one_server.front()->get_inner_args();
+        std::cout << "Inner args:\n"; // for example is a vector of string: {root, abc/xyz}, or {listen, 390:2039, server_name}
+        for (unsigned long i = 0; i < inner_args.size(); i++)
+        std::cout << inner_args[i] << std::endl;
+
+        _listen.clear(); // ! clear the default values
+        // Todo: parse inner args into each directive
+        this->parseInnerArgs(inner_args, directive_name);
+        
+        return ;
     }
 
-    if (sub_list.size() > 1) // ! If there is more than one listen, or location ....
+    else if (directive_sub_one_server.size() > 1) // ! If there is more than one directive in a same server (ex: listen, location ....
+    {
+        // Todo: parse a list of value of directive
+        std::cout << "Root of server with >1 items:\n";
+        Node::t_node_list::const_iterator it;
+        for (it = directive_sub_one_server.begin(); it != directive_sub_one_server.end(); it++)
+            std::cout << **(it) << std::endl;
 
-    // Node::t_node_list::const_iterator   it;
-    // for(it = sub_list.begin(); it != sub_list.end(); it++) // ! Loop through each element
-    // {
-    //     std::cout << **it << std::endl; //it is a Node!!
-    //     std::vector<std::string> inner_args = (**it).get_inner_args(); // vector of string
-    //     std::vector<int>::size_type sz = inner_args.size();
-    //     // std::cout << "inner_args contains:\n";
-    //     for (unsigned i=0; i<sz; i++) // ! Loop through each value of one directive
-    //     {
-    //         // Todo: Get each value of a directive into the map of one_server.
-    //         // Todo: how about location?
-            
-            
-    //         std::cout << inner_args[i] << "\n";
-    //     }
+        std::vector<std::string> inner_args = directive_sub_one_server.back()->get_inner_args();
+        std::cout << "Inner args:\n";
+        for (unsigned long i = 0; i < inner_args.size(); i++)
+        std::cout << inner_args[i] << std::endl;
 
-    // }
+        _listen.clear(); // ! clear the default values
+        return ;
+    }
 
+}
+
+# define NAME(x) _##x
+
+void ConfigOneServer::parseInnerArgs(std::vector<std::string> inner_args, std::string directive_name)
+{
+    std::string NAME(myvar)("hello"); // create a varibale: _myvar("hello")
+    std::cout << NAME(myvar) << std::endl; // print _myvar
+
+    inner_args.clear();
+    std::cout << directive_name;
 }

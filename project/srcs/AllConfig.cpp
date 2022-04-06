@@ -16,10 +16,10 @@ void    AllConfig::parse(std::string config_path)
     for(it = server_list.begin(); it != server_list.end(); it++) // ! Loop through each server's config
     {
         ConfigOneServer one_server;
-        one_server.parseDirective(*it, "listen");
-        one_server.parseDirective(*it, "listen");
-        one_server.parseDirective(*it, "listen");
-        one_server.parseDirective(*it, "listen");
+        // one_server.parseDirective(it, "listen");
+        // one_server.parseDirective(it, "root");
+        // one_server.parseDirective(it, "location");
+        one_server.parseDirective(it, "server_name");
 
         // ! After getting all directives, we add that one_server to _config_all_servers
         _config_all_servers.push_back(one_server);

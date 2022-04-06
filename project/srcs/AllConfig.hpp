@@ -19,8 +19,7 @@ class AllConfig
 
 
     private:
-        // std::vector<ConfigOneServer> _config_all_servers;
-        ConfigOneServer         _config_all_servers; 
+        std::vector<ConfigOneServer> _config_all_servers;
 
 };
 
