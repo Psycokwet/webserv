@@ -11,17 +11,18 @@ class ActionForKey
 
 	public:
 
-		ActionForKey(int min = 0 , int max = 0, void (ConfigConsumer::*consume)(void*) const = NULL);
+		ActionForKey(int min = 0 , int max = 0);
 		ActionForKey( ActionForKey const & src );
 		~ActionForKey();
 
 		ActionForKey &		operator=( ActionForKey const & rhs );
 		bool isValid(int level) const;
+		int getMinLevel() const;
+		int getMaxLevel() const;
 
 	private:
 		int _min_level;
 		int _max_level;
-		void (ConfigConsumer::*_consume)(void*) const;
 
 };
 

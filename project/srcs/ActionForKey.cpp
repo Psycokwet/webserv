@@ -4,11 +4,11 @@
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-ActionForKey::ActionForKey(int min, int max, void (ConfigConsumer::*consume)(void* accumulator) const): _min_level(min), _max_level(max), _consume(consume)
+ActionForKey::ActionForKey(int min, int max): _min_level(min), _max_level(max)
 {
 }
 
-ActionForKey::ActionForKey( const ActionForKey & src ): _min_level(src._min_level), _max_level(src._max_level), _consume(src._consume)
+ActionForKey::ActionForKey( const ActionForKey & src ): _min_level(src._min_level), _max_level(src._max_level)
 {
 }
 
@@ -32,7 +32,6 @@ ActionForKey &				ActionForKey::operator=( ActionForKey const & rhs )
 	{
 		this->_max_level = rhs._max_level;
 		this->_min_level = rhs._min_level;
-		this->_consume = rhs._consume;
 	}
 	return *this;
 }
@@ -40,7 +39,7 @@ ActionForKey &				ActionForKey::operator=( ActionForKey const & rhs )
 std::ostream &			operator<<( std::ostream & o, ActionForKey const & i )
 {
 	(void)i;
-	//o << "Value = " << i.getValue();
+	o << "min = " << i.getMinLevel() << "max = " << i.getMaxLevel();
 	return o;
 }
 
@@ -61,5 +60,15 @@ bool ActionForKey::isValid(int level) const
 ** --------------------------------- ACCESSOR ---------------------------------
 */
 
+
+int ActionForKey::getMinLevel() const
+{
+	return this->_min_level;
+}
+
+int ActionForKey::getMaxLevel() const
+{
+	return this->_max_level;
+}
 
 /* ************************************************************************** */

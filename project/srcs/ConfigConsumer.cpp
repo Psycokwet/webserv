@@ -11,7 +11,7 @@
 // 	return LIST_ACTIONS();
 // }
 
-#define ADD_ONE_CONSUMER(key, actionDefinition, map) { \
+#define ADD_ONE_LEVEL_ACTION(key, actionDefinition, map) { \
 	LIST_ACTIONS tmplist; \
 	tmplist.push_back(actionDefinition); \
 	map[key] = tmplist; \
@@ -20,8 +20,8 @@
 ACTION_MAP ConfigConsumer::initializeActionMap()
 {
     ACTION_MAP map;
-	ADD_ONE_CONSUMER("server", ActionForKey(0, 2, &ConfigConsumer::consume), map) 
-	ADD_ONE_CONSUMER("listen", ActionForKey(2, 4, &ConfigConsumer::consume), map) 
+	ADD_ONE_LEVEL_ACTION("server", ActionForKey(0, 2), map) 
+	ADD_ONE_LEVEL_ACTION("listen", ActionForKey(2, 4), map) 
     return map;
 }
 
