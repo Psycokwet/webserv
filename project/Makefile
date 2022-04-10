@@ -6,7 +6,7 @@
 #    By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#              #
-#    Updated: 2022/04/10 20:19:27 by scarboni         ###   ########.fr        #
+#    Updated: 2022/04/10 20:22:03 by scarboni         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -67,6 +67,7 @@ define tester_sep
 	@echo
 	@echo
 	@echo "____.--.--.____.--.--.____.--.--.____.--.--.__** $(1) **__.--.--.____.--.--.____.--.--.____.--.--.____"
+	$(MAKE) $(1)
 endef
 testParser:	$(NAME)
 	$(LEAKS) ./$(NAME)
@@ -82,9 +83,7 @@ testConfig: $(NAME)
 
 test:
 	$(call tester_sep,testParser)
-	$(MAKE) testParser
 	$(call tester_sep,testConfig)
-	$(MAKE) testConfig
 
 	
 
