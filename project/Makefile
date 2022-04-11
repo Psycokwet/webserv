@@ -6,7 +6,7 @@
 #    By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#              #
-#    Updated: 2022/03/25 09:01:37 by scarboni         ###   ########.fr        #
+#    Updated: 2022/03/27 09:31:00 by scarboni         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,7 +20,7 @@ CPPFLAGS 			=  -Wall -Wextra -Werror -g3  -std=c++98
 
 SRC_PATH			= ./srcs/
 
-SRCS = 	main.cpp Node.cpp AllConfig.cpp ConfigOneServer.cpp MasterServer.cpp
+SRCS = 	main.cpp Node.cpp ConfigConsumer.cpp ActionForKey.cpp AllConfig.cpp ConfigOneServer.cpp MasterServer.cpp
 
 SRC_FILES	+=	$(SRCS)
 
@@ -65,11 +65,15 @@ SEPARATOR = @echo "____.--.--.____.--.--.____.--.--.____.--.--.__Weeeeeeeeee__.-
 test:	$(NAME)
 	$(LEAKS) ./$(NAME)
 	$(SEPARATOR)
+	$(LEAKS) ./$(NAME) $(CONFIG_FOLDER)IDontExist.conf too much args
+	$(SEPARATOR)
 	$(LEAKS) ./$(NAME) $(CONFIG_FOLDER)IDontExist.conf
 	$(SEPARATOR)
 	$(LEAKS) ./$(NAME) $(CONFIG_FOLDER)bad_syntax.conf
 	$(SEPARATOR)
 	$(LEAKS) ./$(NAME) $(CONFIG_FOLDER)example_nginx_base.conf
+	$(SEPARATOR)
+	$(LEAKS) ./$(NAME) $(CONFIG_FOLDER)almost_empty.conf
 
 
 .PHONY: clean fclean re bonus

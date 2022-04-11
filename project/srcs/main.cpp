@@ -6,13 +6,14 @@
 /*   By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#             */
-/*   Updated: 2022/03/25 09:02:41 by scarboni         ###   ########.fr       */
+/*   Updated: 2022/03/25 16:36:23 by scarboni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/webserv.h"
 #include "Node.hpp"
 #include "MasterServer.hpp"
+#include "ConfigConsumer.hpp"
 
 #define DEFAULT_CONFIG_PATH "./config_files/default.conf"
 
@@ -55,5 +56,10 @@ int		main(int ac, char *av[])
 		
 	// }
 	// delete firstNode;
+	ConfigConsumer *config = ConfigConsumer::validateEntry(config_path);
+	if(!config)
+		return 0;
+	std::cout << *config << std::endl;
+	delete config;
 	return 0;
 }
