@@ -34,12 +34,9 @@ int		main(int ac, char *av[])
 	}
 	else config_path = av[1];
 
-	master_server.parseConfig(config_path);
+	// master_server.parseConfig(config_path);
 	// if (master_server.setup() == -1)
 	// 	return (1);
-
-
-
 
 	// Node *firstNode = Node::digestConfigurationFile(config_path);
 	// if( !firstNode)
@@ -59,7 +56,7 @@ int		main(int ac, char *av[])
 	ConfigConsumer *config = ConfigConsumer::validateEntry(config_path);
 	if(!config)
 		return 0;
-	std::cout << *config << std::endl;
+	std::cout << "\n" << *config << std::endl;
 	delete config;
 	return 0;
 }
