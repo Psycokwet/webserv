@@ -6,7 +6,7 @@
 #    By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#              #
-#    Updated: 2022/04/10 20:22:03 by scarboni         ###   ########.fr        #
+#    Updated: 2022/04/11 16:19:37 by scarboni         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,7 +20,23 @@ CPPFLAGS 			=  -Wall -Wextra -Werror -g3  -std=c++98
 
 SRC_PATH			= ./srcs/
 
-SRCS = 	main.cpp Node.cpp
+TESTCONFIGRULE		= testConfigRule
+TESTCONFIG			= testConfig
+TESTPARSERRULE		= testParserRule
+TESTPARSER			= testParser
+
+SRCS = 	main.cpp
+
+ifeq ($(TESTS), $(TESTPARSERRULE))
+	SRCS = mainParserTest.cpp
+	NAME = $(TESTPARSER)
+endif
+
+ifndef TESTS
+	TESTS=""
+endif
+
+SRCS += Node.cpp
 
 SRC_FILES	+=	$(SRCS)
 
@@ -52,6 +68,7 @@ fclean:
 	@rm -rf $(OBJ_PATH)
 	@echo "\nDeleting executable..."
 	@rm -f $(NAME)
+	@rm -f $(TESTPARSER)
 	@echo "\033[0m"		
 
 re: fclean all
@@ -59,34 +76,46 @@ re: fclean all
 
 LEAKS = 
 LEAKS = valgrind --leak-check=full
+
 CONFIG_FOLDER = ./config_files/
-SEPARATOR = @echo "____.--.--.____.--.--.____.--.--.____.--.--.__Weeeeeeeeee__.--.--.____.--.--.____.--.--.____.--.--.____"
+
 define tester_sep
-	@echo
-	@echo
-	@echo
-	@echo
-	@echo "____.--.--.____.--.--.____.--.--.____.--.--.__** $(1) **__.--.--.____.--.--.____.--.--.____.--.--.____"
-	$(MAKE) $(1)
+	printf "\n\n\n\n____.--.--.____.--.--.____.--.--.____.--.--.__** $(1) **__.--.--.____.--.--.____.--.--.____.--.--.____\n" ;\
+	$(MAKE) $(1) TESTS=$(1) 
 endef
-testParser:	$(NAME)
-	$(LEAKS) ./$(NAME)
 
-testConfig: $(NAME)
-	$(LEAKS) ./$(NAME)
-	$(SEPARATOR)
-	$(LEAKS) ./$(NAME) $(CONFIG_FOLDER)IDontExist.conf
-	$(SEPARATOR)
-	$(LEAKS) ./$(NAME) $(CONFIG_FOLDER)bad_syntax.conf
-	$(SEPARATOR)
-	$(LEAKS) ./$(NAME) $(CONFIG_FOLDER)example_nginx_base.conf
+define launch_one_test_without_sep
+	$(LEAKS) ./$(NAME) $(1)
+endef
 
-test:
-	$(call tester_sep,testParser)
-	$(call tester_sep,testConfig)
+define launch_one_test_with_sep
+	$(call launch_one_test_without_sep,$(1)) ;\
+	printf "____.--.--.____.--.--.____.--.--.____.--.--.__Weeeeeeeeee__.--.--.____.--.--.____.--.--.____.--.--.____\n" ;\
+	printf "Command : $(LEAKS) ./$(NAME) $(1) \n" 
+endef
 
-	
+define launch_only_legal_tests
+	@ if [ $(TESTS) = $(1) ]; then \
+		$(2)
+	fi ;
+	@ if [ $(TESTS) != $(1) ]; then \
+		$(call tester_sep,$(1)) ;\
+	fi ;
+endef
 
+$(TESTPARSERRULE):	$(NAME)
+	$(call launch_only_legal_tests,$(TESTPARSERRULE),\
+		$(call launch_one_test_with_sep,"example1") ;\
+		$(call launch_one_test_without_sep,"example2") ;\)
+
+$(TESTCONFIG): $(NAME)
+	$(call launch_only_legal_tests,$(TESTCONFIG),\
+		$(call launch_one_test_with_sep) ;\
+		$(call launch_one_test_with_sep,$(CONFIG_FOLDER)IDontExist.conf) ;\
+		$(call launch_one_test_with_sep,$(CONFIG_FOLDER)bad_syntax.conf) ;\
+		$(call launch_one_test_without_sep,$(CONFIG_FOLDER)example_nginx_base.conf) ;\)
+
+test: $(TESTPARSERRULE) $(TESTCONFIG)
 
 
 .PHONY: clean fclean re bonus
