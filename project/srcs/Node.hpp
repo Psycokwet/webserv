@@ -48,6 +48,7 @@ class Node
 		Node::t_node_map &getDirectChildrensMap();	// in a server { pwit pwot pwet} objet, your would get the map to pwit pwot pwet, warning ! you will get a list a pwit, a list of pwot and a list of pwet, in case there is multiple occurences of them. They are stored in list by full args contracted. See about "inner_args_toString"
 
 		Node::t_inner_args_container &getInnerArgs();
+		// Node::t_node_map &getInnerMap();
         class IllegalGetterException : public std::exception
         {
             public:

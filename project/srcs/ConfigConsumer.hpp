@@ -12,6 +12,7 @@ class ActionForKey;
 
 #define LIST_ACTIONS std::list<ActionForKey>
 #define ACTION_MAP std::map<std::string, LIST_ACTIONS>
+
 class ConfigConsumer
 {
 
@@ -24,7 +25,7 @@ class ConfigConsumer
 
 	private:
 		static int checkDirectChildrens(Node::t_node_map &childrens);
-		static int isValid(std::string key, int raw_deepness);
+		static int isValid(std::string key, int raw_deepness, Node *raw_parents);
 		static ACTION_MAP initializeActionMap();
 		static ACTION_MAP _authorize_key_and_actions;	
 		

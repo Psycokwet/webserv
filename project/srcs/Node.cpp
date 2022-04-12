@@ -371,4 +371,9 @@ Node::t_inner_args_container &Node::getInnerArgs()
 {
 	return this->_inner_args;
 }
+
+// Node::t_node_map &Node::getInnerMap()
+// {
+// 	return this->_inner_map;
+// }
 /* ************************************************************************** */
