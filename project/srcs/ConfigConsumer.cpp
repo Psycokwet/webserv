@@ -20,21 +20,22 @@
 ACTION_MAP ConfigConsumer::initializeActionMap()
 {
     ACTION_MAP map;
-	ADD_ONE_LEVEL_ACTION("server", ActionForKey(0, 2), map) // ! Action For Key? min = 0, max = 2 for the key "server" meaning: server can be at the deepness < 4 and > 2.
+	ADD_ONE_LEVEL_ACTION("server", ActionForKey(0, 2), map) // ! Action For Key? min = 0, max = 2 for the key "server" meaning: server can be at the deepness < 2 and > 4.
 	ADD_ONE_LEVEL_ACTION("listen", ActionForKey(2, 4), map) // ! min, max is the allowed Deepness level of the directive.
 	ADD_ONE_LEVEL_ACTION("root", ActionForKey(2, 6), map) // ! min, max is the allowed Deepness level of the directive.
 	ADD_ONE_LEVEL_ACTION("server_name", ActionForKey(2, 4), map) // ! min, max is the allowed Deepness level of the directive.
 	ADD_ONE_LEVEL_ACTION("index", ActionForKey(2, 6), map) 
-
-	ADD_ONE_LEVEL_ACTION("autoindex?", ActionForKey(2, 4), map) 
-	ADD_ONE_LEVEL_ACTION("location", ActionForKey(2, 4), map) 
-	ADD_ONE_LEVEL_ACTION("error_page", ActionForKey(2, 4), map) 
-	ADD_ONE_LEVEL_ACTION("cgi", ActionForKey(2, 4), map) 
-	ADD_ONE_LEVEL_ACTION("cgi_pass", ActionForKey(2, 4), map) 
-	ADD_ONE_LEVEL_ACTION("method", ActionForKey(2, 4), map) 
-	ADD_ONE_LEVEL_ACTION("client_max_body_size", ActionForKey(2, 4), map) 
+	ADD_ONE_LEVEL_ACTION("autoindex", ActionForKey(2, 6), map) 
+	ADD_ONE_LEVEL_ACTION("location", ActionForKey(2, 6), map) 
+	ADD_ONE_LEVEL_ACTION("error_page", ActionForKey(2, 6), map) 
+	ADD_ONE_LEVEL_ACTION("method", ActionForKey(2, 6), map) 
+	ADD_ONE_LEVEL_ACTION("client_max_body_size", ActionForKey(2, 6), map); 
+	ADD_ONE_LEVEL_ACTION("cgi", ActionForKey(2, 6), map) 
+	ADD_ONE_LEVEL_ACTION("cgi_pass", ActionForKey(2, 6), map) 
     return map;
 }
+
+// Todo: Check parents / context
 
 ACTION_MAP ConfigConsumer::_authorize_key_and_actions = ConfigConsumer::initializeActionMap();
 
