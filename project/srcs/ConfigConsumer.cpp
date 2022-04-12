@@ -49,19 +49,22 @@ int ConfigConsumer::isValid(std::string key, int deepness, Node *raw_parents) //
 
 	for(LIST_ACTIONS::const_iterator it_list = available_actions->second.begin(); it_list != available_actions->second.end(); it_list++)
 	{
-		std::cout << "testing... for "<< key << ": at deepness = "<< deepness << std::endl;
-		// std::cout << "testing... for Parents Node: "<< *raw_parents << std::endl;
-		Node::t_node_map inner_parent_map = raw_parents->getInnerMap();
-		std::cout << "inner map: " << inner_parent_map["listen"] << "\n";
-
-		// _inner_map.begin(); it != this->_inner_map.end(); it++)
-
-
-
-		if(it_list->isValid(deepness, "add_name_of_parents_here") == true)
-			return true;
-		std::cout << "error for "<< key << " : "<<deepness<<std::endl;
+		Node::t_inner_args_container inner_args = raw_parents->getInnerArgs();
+		std::cout << "testing... for "<< key << ": at deepness = "<< deepness;
+		if (inner_args.size() != 0)
+		{
+			std::cout << " with parent = " << inner_args[0] << std::endl;
+			if(it_list->isValid(deepness, inner_args[0]) == true)
+				return true;
+		}
+		else
+		{
+			std::cout << " with parent = " " " << std::endl;
+			if(it_list->isValid(deepness, "") == true)
+				return true;
+		}
 	}
+	std::cout << "error for "<< key << " : "<<deepness<<std::endl;
 	return false;
 }
 
@@ -105,7 +108,7 @@ ConfigConsumer *ConfigConsumer::validateEntry(std::string config_path)
 	if (ConfigConsumer::checkDirectChildrens(firstNode->getDirectChildrensMap()) != EXIT_SUCCESS)
 	{
 		delete firstNode;
-		std::cout << "Invalid configuration file : Some arguments are not supported" << std::endl;
+		std::cout << "Invalid configuration file : Directives are not supported or in wrong Context." << std::endl;
 		return NULL;
 	}
 	// Node::t_node_list servers = firstNode->getChildrenByFirstName("server");
