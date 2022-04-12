@@ -6,7 +6,7 @@
 #    By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#              #
-#    Updated: 2022/04/11 16:19:37 by scarboni         ###   ########.fr        #
+#    Updated: 2022/04/12 17:37:15 by scarboni         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -36,7 +36,7 @@ ifndef TESTS
 	TESTS=""
 endif
 
-SRCS += Node.cpp
+SRCS += Node.cpp ConfigConsumer.cpp ActionForKey.cpp
 
 SRC_FILES	+=	$(SRCS)
 
