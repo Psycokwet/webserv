@@ -6,7 +6,7 @@
 #    By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#              #
-#    Updated: 2022/04/13 11:58:41 by scarboni         ###   ########.fr        #
+#    Updated: 2022/04/13 15:09:41 by scarboni         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -80,7 +80,6 @@ fclean:
 re: fclean all
 
 
-CONFIG_FOLDER = ./config_files/
 
 define tester_sep
 	printf "\n\n\n\n____.--.--.____.--.--.____.--.--.____.--.--.__** $(1) **__.--.--.____.--.--.____.--.--.____.--.--.____\n" ;\
@@ -106,32 +105,38 @@ define launch_only_legal_tests
 endef
 
 REQUESTS_FOLDER=requests_samples/
-EXAMPLE_REQUESTS_RAW=get_likeAPony post_almost_empty_file post_pdf post_xmp_file
+EXAMPLE_REQUESTS_RAW=get_likeAPony post_almost_empty_file post_pdf post_xpm_file
 EXAMPLE_REQUESTS=$(addprefix $(REQUESTS_FOLDER), $(EXAMPLE_REQUESTS_RAW))
 
-
-
 define launch_test_from_array_args
-	$(call launch_only_legal_tests,$(2),\
-		COUNT=0;\
-		for ARG in $(1) ; do \
-			COUNT=$$(( 1 + $$COUNT ));\
-			LAST=$$ARG;\
-			[ "$(words $(1))" -eq $$COUNT ] && break ;\
-			$(call launch_one_test_with_sep,$$ARG) ;\
-		done ;\
-		$(call launch_one_test_without_sep,$$LAST) ;\)
+	COUNT=0;\
+	for ARG in $(1) ; do \
+		COUNT=$$(( 1 + $$COUNT ));\
+		LAST=$$ARG;\
+		[ "$(words $(1))" -eq $$COUNT ] && break ;\
+		$(call launch_one_test_with_sep,$$ARG) ;\
+	done ;\
+	$(call launch_one_test_without_sep,$$LAST)
 endef
 
 $(TESTPARSERRULE):	$(NAME)
-	$(call launch_test_from_array_args,$(EXAMPLE_REQUESTS),$(TESTPARSERRULE))
+	$(call launch_only_legal_tests,$(TESTPARSERRULE),\
+		$(call launch_test_from_array_args,$(EXAMPLE_REQUESTS)) ;\)
+
+
+CONFIG_FOLDER = ./config_files/
+CONFIG_FILE_EXT = .conf
+ARGS_CONFIGS_TESTS_RAW= IDontExist bad_syntax example_nginx_base
+ARGS_CONFIGS_TESTS_RAW_PREF=$(addprefix $(CONFIG_FOLDER), $(ARGS_CONFIGS_TESTS_RAW))
+ARGS_CONFIGS_TESTS=$(addsuffix $(CONFIG_FILE_EXT), $(ARGS_CONFIGS_TESTS_RAW_PREF))
+
 
 $(TESTCONFIG): $(NAME)
+	echo $(ARGS_CONFIGS_TESTS)
 	$(call launch_only_legal_tests,$(TESTCONFIG),\
 		$(call launch_one_test_with_sep) ;\
-		$(call launch_one_test_with_sep,$(CONFIG_FOLDER)IDontExist.conf) ;\
-		$(call launch_one_test_with_sep,$(CONFIG_FOLDER)bad_syntax.conf) ;\
-		$(call launch_one_test_without_sep,$(CONFIG_FOLDER)example_nginx_base.conf) ;\)
+		$(call launch_one_test_with_sep, Too much args) ;\
+		$(call launch_test_from_array_args,$(ARGS_CONFIGS_TESTS)) ;\)
 
 test: $(TESTPARSERRULE) $(TESTCONFIG)
 
