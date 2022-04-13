@@ -1,0 +1,30 @@
+POST / HTTP/1.1
+Host: localhost:8080
+Connection: keep-alive
+Content-Length: 304
+Cache-Control: max-age=0
+Origin: http://localhost:8080
+Upgrade-Insecure-Requests: 1
+DNT: 1
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundarypItSUvmOBTdFkVv4
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.162 Safari/537.36
+Sec-Fetch-Dest: document
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+Sec-Fetch-Site: same-origin
+Sec-Fetch-Mode: navigate
+Sec-Fetch-User: ?1
+Referer: http://localhost:8080/
+Accept-Encoding: gzip, deflate, br
+Accept-Language: en-GB,en;q=0.9,fr-FR;q=0.8,fr;q=0.7,de-DE;q=0.6,de;q=0.5,en-US;q=0.4
+
+------WebKitFormBoundarypItSUvmOBTdFkVv4
+Content-Disposition: form-data; name="nfile"; filename="empty_or_almost.txt"
+Content-Type: text/plain
+
+EMPTY FILE
+------WebKitFormBoundarypItSUvmOBTdFkVv4
+Content-Disposition: form-data; name="submit"
+
+Valider
+------WebKitFormBoundarypItSUvmOBTdFkVv4--
+----------------------------
