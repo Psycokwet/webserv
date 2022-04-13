@@ -6,7 +6,7 @@
 #    By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#              #
-#    Updated: 2022/04/13 07:26:48 by scarboni         ###   ########.fr        #
+#    Updated: 2022/04/13 07:42:26 by scarboni         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -35,6 +35,12 @@ endif
 ifndef TESTS
 	TESTS=""
 endif
+
+ifndef LEAKS
+	LEAKS = 
+	LEAKS = valgrind --leak-check=full
+endif
+
 
 SRCS += Node.cpp ConfigConsumer.cpp ActionForKey.cpp
 
@@ -74,14 +80,11 @@ fclean:
 re: fclean all
 
 
-LEAKS = 
-LEAKS = valgrind --leak-check=full
-
 CONFIG_FOLDER = ./config_files/
 
 define tester_sep
 	printf "\n\n\n\n____.--.--.____.--.--.____.--.--.____.--.--.__** $(1) **__.--.--.____.--.--.____.--.--.____.--.--.____\n" ;\
-	$(MAKE) $(1) TESTS=$(1) 
+	$(MAKE) $(1) TESTS=$(1) LEAKS="$(LEAKS)"
 endef
 
 define launch_one_test_without_sep
