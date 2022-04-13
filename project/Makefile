@@ -6,7 +6,7 @@
 #    By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#              #
-#    Updated: 2022/04/12 17:37:15 by scarboni         ###   ########.fr        #
+#    Updated: 2022/04/13 07:26:48 by scarboni         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -97,8 +97,7 @@ endef
 define launch_only_legal_tests
 	@ if [ $(TESTS) = $(1) ]; then \
 		$(2)
-	fi ;
-	@ if [ $(TESTS) != $(1) ]; then \
+	else \
 		$(call tester_sep,$(1)) ;\
 	fi ;
 endef
