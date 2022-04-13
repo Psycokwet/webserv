@@ -11,7 +11,7 @@ class ActionForKey
 
 	public:
 
-		ActionForKey(int min = 0 , int max = 0, std::string parent1 = "", std::string parent2="");
+		ActionForKey(int min = 0 , int max = 0, std::vector<std::string> parents=std::vector<std::string>());
 		ActionForKey( ActionForKey const & src );
 		~ActionForKey();
 
@@ -19,15 +19,12 @@ class ActionForKey
 		bool isValid(int level, std::string parents) const;
 		int getMinLevel() const;
 		int getMaxLevel() const;
-		std::string getParents1() const;
-		std::string getParents2() const;
+		std::vector<std::string> getParents() const;
 
 	private:
-		int _min_level;
-		int _max_level;
-		std::string _parents1;
-		std::string _parents2;
-
+		int 			_min_level;
+		int 			_max_level;
+		std::vector<std::string>		_parents;
 };
 
 std::ostream &			operator<<( std::ostream & o, ActionForKey const & i );

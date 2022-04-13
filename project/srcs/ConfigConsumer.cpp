@@ -20,18 +20,25 @@
 ACTION_MAP ConfigConsumer::initializeActionMap()
 {
     ACTION_MAP map;
-	ADD_ONE_LEVEL_ACTION("server", ActionForKey(0, 2), map) // ! Action For Key? min = 0, max = 2 for the key "server" meaning: server can be at the deepness < 2 and > 4.
-	ADD_ONE_LEVEL_ACTION("listen", ActionForKey(2, 4, "server"), map) // ! min, max is the allowed Deepness level of the directive.
-	ADD_ONE_LEVEL_ACTION("server_name", ActionForKey(2, 4, "server"), map) // ! min, max is the allowed Deepness level of the directive.
-	ADD_ONE_LEVEL_ACTION("location", ActionForKey(2, 6, "server"), map) 
-	ADD_ONE_LEVEL_ACTION("root", ActionForKey(2, 6, "server", "location"), map) // ! min, max is the allowed Deepness level of the directive.
-	ADD_ONE_LEVEL_ACTION("index", ActionForKey(2, 6, "server", "location"), map) 
-	ADD_ONE_LEVEL_ACTION("autoindex", ActionForKey(2, 6, "server", "location"), map) 
-	ADD_ONE_LEVEL_ACTION("error_page", ActionForKey(2, 6, "server", "location"), map) 
-	ADD_ONE_LEVEL_ACTION("method", ActionForKey(2, 6, "server", "location"), map) 
-	ADD_ONE_LEVEL_ACTION("client_max_body_size", ActionForKey(2, 6, "server", "location"), map); 
-	ADD_ONE_LEVEL_ACTION("cgi", ActionForKey(2, 6, "server", "location"), map) 
-	ADD_ONE_LEVEL_ACTION("cgi_pass", ActionForKey(2, 6, "server", "location"), map) 
+	std::vector<std::string> allowed_parents;
+
+	allowed_parents.push_back(""); // ! "server" has no parent
+	ADD_ONE_LEVEL_ACTION("server", ActionForKey(0, 2, allowed_parents), map) // ! min = 0, max = 2 for the key "server" meaning: server can be at the deepness < 2 and > 4.
+	
+	allowed_parents.push_back("server");
+	ADD_ONE_LEVEL_ACTION("listen", ActionForKey(2, 4, allowed_parents), map) // ! min, max is the allowed Deepness level of the directive.
+	ADD_ONE_LEVEL_ACTION("server_name", ActionForKey(2, 4, allowed_parents), map)
+	ADD_ONE_LEVEL_ACTION("location", ActionForKey(2, 6, allowed_parents), map) 
+
+	allowed_parents.push_back("location");
+	ADD_ONE_LEVEL_ACTION("root", ActionForKey(2, 6, allowed_parents), map)
+	ADD_ONE_LEVEL_ACTION("index", ActionForKey(2, 6, allowed_parents), map) 
+	ADD_ONE_LEVEL_ACTION("autoindex", ActionForKey(2, 6, allowed_parents), map) 
+	ADD_ONE_LEVEL_ACTION("error_page", ActionForKey(2, 6, allowed_parents), map) 
+	ADD_ONE_LEVEL_ACTION("method", ActionForKey(2, 6, allowed_parents), map) 
+	ADD_ONE_LEVEL_ACTION("client_max_body_size", ActionForKey(2, 6, allowed_parents), map); 
+	ADD_ONE_LEVEL_ACTION("cgi", ActionForKey(2, 6, allowed_parents), map) 
+	ADD_ONE_LEVEL_ACTION("cgi_pass", ActionForKey(2, 6, allowed_parents), map) 
     return map;
 }
 
@@ -41,7 +48,7 @@ ACTION_MAP ConfigConsumer::initializeActionMap()
 ACTION_MAP ConfigConsumer::_authorize_key_and_actions = ConfigConsumer::initializeActionMap();
 
 	
-int ConfigConsumer::isValid(std::string key, int deepness, Node *raw_parents) // ! check the deepness of directive is valid or not
+int ConfigConsumer::isValid(std::string key, int deepness, Node *raw_parents) // ! check the deepness and parent of directive is valid or not
 {
 	ACTION_MAP::iterator available_actions = ConfigConsumer::_authorize_key_and_actions.find(key);
 	if(available_actions == ConfigConsumer::_authorize_key_and_actions.end()) // ! If there is no action key that is predefined, return (false = not supported)
@@ -50,6 +57,7 @@ int ConfigConsumer::isValid(std::string key, int deepness, Node *raw_parents) //
 	for(LIST_ACTIONS::const_iterator it_list = available_actions->second.begin(); it_list != available_actions->second.end(); it_list++)
 	{
 		Node::t_inner_args_container inner_args = raw_parents->getInnerArgs();
+		
 		std::cout << "testing... for "<< key << ": at deepness = "<< deepness;
 		if (inner_args.size() != 0)
 		{
@@ -59,13 +67,13 @@ int ConfigConsumer::isValid(std::string key, int deepness, Node *raw_parents) //
 		}
 		else
 		{
-			std::cout << " with parent = " " " << std::endl;
+			std::cout << " with parent = /* nothing */ " << std::endl;
 			if(it_list->isValid(deepness, "") == true)
 				return true;
 		}
 	}
 	std::cout << "error for "<< key << " : "<<deepness<<std::endl;
-	return false;
+	return false; // ! If the deepness and parents is not valid, return (false = wrong Context)
 }
 
 int	ConfigConsumer::checkDirectChildrens(Node::t_node_map &childrens)
