@@ -22,21 +22,21 @@ class ConfigConsumer
 		static ConfigConsumer *validateEntry(std::string config_path);
 		std::ostream & print(std::ostream & o) const;
 
+		void consume() const;//example
 
 	private:
+		static ACTION_MAP _authorize_key_and_actions;	
+		Node *_node;
+
 		static int checkDirectChildrens(Node::t_node_map &childrens);
 		static int isValid(std::string key, int raw_deepness, Node *raw_parents);
 		static ACTION_MAP initializeActionMap();
-		static ACTION_MAP _authorize_key_and_actions;	
 		
-		void consume(void *accumulator) const;//example
+		// void consume(void *accumulator) const;//example
 
 		ConfigConsumer(Node *node = NULL);
 		ConfigConsumer( ConfigConsumer const & src );
 		ConfigConsumer &		operator=( ConfigConsumer const & rhs );
-
-
-		Node *_node;
 
 };
 

@@ -28,7 +28,7 @@ int  main(void)
     int new_socket;
     int valread;
     char buffer[1024];
-    char message[] = "HTTP/1.1 200 OK\nDate:Fri, 16 Mar 2020 17:21:12 GMT\nServer: my_server\nContent-Type: text/html;charset=UTF-8\nContent-Length: 1846\n\n<!DOCTYPE html>\n<html>Hello world</html>\n";
+    char message[] = "HTTP/1.1 200 OK\nDate:Fri, 16 Mar 2020 17:21:12 GMT\nServer: my_server\nContent-Type: text/html;charset=UTF-8\nContent-Length: 1846\n\n<!DOCTYPE html>\n<html><h1>Hello world</h1></html>\n";
     // char message[] = "<!DOCTYPE html>\n<html>Hello world</html>\n"; // ! This does not work, need to have full form of RESPONSE as above for browser to understand
     int i;
     int max_clients = 3;
@@ -171,6 +171,7 @@ int  main(void)
             buffer_recv[bytesRead] = 0;
 
             printf("bytes read: %d\n", bytesRead);
+            printf("Request from Browser:\n%s", buffer_recv);
             printf("Sent from Client:\n---------------------------\n%s----------------------------\n", buffer_recv);
             delete[] buffer_recv;
         }

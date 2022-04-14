@@ -184,10 +184,13 @@ std::ostream &			operator<<( std::ostream & o, ConfigConsumer const & i )
 ** --------------------------------- METHODS ----------------------------------
 */
 
-void ConfigConsumer::consume(void *accumulator) const//example pointer to function?
+// void ConfigConsumer::consume(void *accumulator) const//example pointer to function?
+void ConfigConsumer::consume() const//example pointer to function?
 {
-	(void)accumulator;
+	// (void)accumulator;
+
 	std::cout << "You should replace me by a real implementation !" << std::endl;
+	
 }
 
 /*

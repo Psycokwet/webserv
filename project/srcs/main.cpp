@@ -57,6 +57,8 @@ int		main(int ac, char *av[])
 	if(!config)
 		return 0;
 	std::cout << "\n" << *config << std::endl;
+
+	config->consume();
 	delete config;
 	return 0;
 }

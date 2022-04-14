@@ -25,13 +25,13 @@ class ConfigOneServer
         t_inner_map    getInnerMap() const;
     private:
         t_inner_map      _inner_map_one_server; // !
-        // std::vector< std::pair<std::string, int> >      _listen; // !
-        // std::string                                     _root;
-        // std::vector< std::string >                      _server_name;
-        // std::vector< std::string >                      _autoindex;
-        // std::map< std::string, ConfigOneServer >        _location; // !
+        std::vector< std::pair<std::string, int> >      _listen; // !
+        std::string                                     _root;
+        std::vector< std::string >                      _server_name;
+        std::vector< std::string >                      _autoindex;
+        std::map< std::string, ConfigOneServer >        _location; // !
         // Todo: add more directives related to the project: error_page, cgi, cig_pass, methods, client_max_body_size (what else?)
-        // ! Some directives are not in the ref of NGINX because it follows the project!
+        // ! Some directives are not in the list of NGINX because we need to follow the project!
 
 
 };
