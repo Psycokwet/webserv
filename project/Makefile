@@ -6,7 +6,7 @@
 #    By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#              #
-#    Updated: 2022/04/13 15:09:41 by scarboni         ###   ########.fr        #
+#    Updated: 2022/04/14 14:37:03 by scarboni         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -104,9 +104,11 @@ define launch_only_legal_tests
 	fi ;
 endef
 
+PARSER_FILE_EXT = .yml
 REQUESTS_FOLDER=requests_samples/
 EXAMPLE_REQUESTS_RAW=get_likeAPony post_almost_empty_file post_pdf post_xpm_file
-EXAMPLE_REQUESTS=$(addprefix $(REQUESTS_FOLDER), $(EXAMPLE_REQUESTS_RAW))
+EXAMPLE_REQUESTS_PREF=$(addprefix $(REQUESTS_FOLDER), $(EXAMPLE_REQUESTS_RAW))
+EXAMPLE_REQUESTS=$(addsuffix $(PARSER_FILE_EXT), $(EXAMPLE_REQUESTS_PREF))
 
 define launch_test_from_array_args
 	COUNT=0;\
