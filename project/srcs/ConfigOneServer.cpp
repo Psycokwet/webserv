@@ -71,12 +71,12 @@ void ConfigOneServer::parseDirective(Node::t_node_list::const_iterator directive
 
 // # define NAME(x) _##x
 
-void ConfigOneServer::parseInnerArgs(std::vector<std::string> inner_args, std::string directive_name)
-{
-    _inner_map_one_server.insert( std::pair<std::string, std::vector<std::string> >(directive_name, inner_args) );
-}
+// void ConfigOneServer::parseInnerArgs(std::vector<std::string> inner_args, std::string directive_name)
+// {
+//     _inner_map_one_server.insert( std::pair<std::string, std::vector<std::string> >(directive_name, inner_args) );
+// }
 
-ConfigOneServer::t_inner_map ConfigOneServer::getInnerMap() const
-{
-    return (_inner_map_one_server);
-}
+// ConfigOneServer::t_inner_map ConfigOneServer::getInnerMap() const
+// {
+//     return (_inner_map_one_server);
+// }

@@ -23,12 +23,12 @@ ACTION_MAP ConfigConsumer::initializeActionMap()
 	std::vector<std::string> allowed_parents;
 
 	allowed_parents.push_back(""); // ! "server" has no parent
-	ADD_ONE_LEVEL_ACTION("server", ActionForKey(0, 2, allowed_parents), map) // ! min = 0, max = 2 for the key "server" meaning: server can be at the deepness < 2 and > 4.
+	ADD_ONE_LEVEL_ACTION("server", ActionForKey(0, 2, allowed_parents, createServer), map) // ! min = 0, max = 2 for the key "server" meaning: server can be at the deepness < 2 and > 4.
 	
 	allowed_parents.push_back("server");
-	ADD_ONE_LEVEL_ACTION("listen", ActionForKey(2, 4, allowed_parents), map) // ! min, max is the allowed Deepness level of the directive.
-	ADD_ONE_LEVEL_ACTION("server_name", ActionForKey(2, 4, allowed_parents), map)
-	ADD_ONE_LEVEL_ACTION("location", ActionForKey(2, 6, allowed_parents), map) 
+	ADD_ONE_LEVEL_ACTION("listen", ActionForKey(2, 4, allowed_parents, initListen), map) // ! min, max is the allowed Deepness level of the directive.
+	ADD_ONE_LEVEL_ACTION("server_name", ActionForKey(2, 4, allowed_parents, setServerName), map)
+	ADD_ONE_LEVEL_ACTION("location", ActionForKey(2, 6, allowed_parents, initLocation), map) 
 
 	allowed_parents.push_back("location");
 	ADD_ONE_LEVEL_ACTION("root", ActionForKey(2, 6, allowed_parents), map)
@@ -76,27 +76,45 @@ int ConfigConsumer::isValid(std::string key, int deepness, Node *raw_parents) //
 	return false; // ! If the deepness and parents is not valid, return (false = wrong Context)
 }
 
-int	ConfigConsumer::checkDirectChildrens(Node::t_node_map &childrens)
+int	ConfigConsumer::checkDirectChildrens(Node::t_node_map &childrens, void* baseCurrentPointer )
 {
 	try
 	{
 		for(Node::t_node_map ::const_iterator it_map = childrens.begin(); it_map != childrens.end(); it_map++)
 		{
+			void *currentPointer = baseCurrentPointer;
+
+			Node::t_inner_args_container &inner_args = it_map->second->getInnerArgs();
+			std::cout << "... Key is: " << *(inner_args.begin()) << std::endl;
+			// It would be better to change the position of the validity check at before going on some under object, for parsing reasons
+			if(inner_args.size() != 0 && ConfigConsumer::isValid(*(inner_args.begin()), it_map->second->getDeepness(), it_map->second->getParent()) == false)
+				return -EXIT_FAILURE;
+			if((currentPointer = it_list->consume(currentPointer)) == NULL)
+				throw someError; // if it returns null, parsing have met with a terribale fate for some reason, you could alternatively throw an error from parsing itself
+
 			Node::t_node_list &list_childrens = it_map->second->getDirectChildrensList();
 			
-			// std::cout << "list_children is : " << **(list_childrens.begin()) << std::endl;
-
 			for(Node::t_node_list ::const_iterator it_list = list_childrens.begin(); it_list != list_childrens.end(); it_list++)
 			{
 				if (ConfigConsumer::checkDirectChildrens((*it_list)->getDirectChildrensMap()) != EXIT_SUCCESS)
 					return -EXIT_FAILURE;
 			}
-			Node::t_inner_args_container &inner_args = it_map->second->getInnerArgs();
 
-			std::cout << "....Key is: " << *(inner_args.begin()) << std::endl;
+			// Node::t_node_list &list_childrens = it_map->second->getDirectChildrensList();
+			
+			// // std::cout << "list_children is : " << **(list_childrens.begin()) << std::endl;
 
-			if(inner_args.size() != 0 && ConfigConsumer::isValid(*(inner_args.begin()), it_map->second->getDeepness(), it_map->second->getParent()) == false)
-				return -EXIT_FAILURE;
+			// for(Node::t_node_list ::const_iterator it_list = list_childrens.begin(); it_list != list_childrens.end(); it_list++)
+			// {
+			// 	if (ConfigConsumer::checkDirectChildrens((*it_list)->getDirectChildrensMap()) != EXIT_SUCCESS)
+			// 		return -EXIT_FAILURE;
+			// }
+			// Node::t_inner_args_container &inner_args = it_map->second->getInnerArgs();
+
+			// std::cout << "....Key is: " << *(inner_args.begin()) << std::endl;
+
+			// if(inner_args.size() != 0 && ConfigConsumer::isValid(*(inner_args.begin()), it_map->second->getDeepness(), it_map->second->getParent()) == false)
+			// 	return -EXIT_FAILURE;
 		}
 	}
 	catch(const std::exception& e)
@@ -113,7 +131,7 @@ ConfigConsumer *ConfigConsumer::validateEntry(std::string config_path)
 	if( !firstNode)
 		return NULL;
 	// // you can get all servers objects like that :
-	if (ConfigConsumer::checkDirectChildrens(firstNode->getDirectChildrensMap()) != EXIT_SUCCESS)
+	if (ConfigConsumer::checkDirectChildrens(firstNode->getDirectChildrensMap(), MasterServer) != EXIT_SUCCESS)
 	{
 		delete firstNode;
 		std::cout << "Invalid configuration file : Directives are not supported or in wrong Context." << std::endl;

@@ -28,7 +28,7 @@ class ConfigConsumer
 		static ACTION_MAP _authorize_key_and_actions;	
 		Node *_node;
 
-		static int checkDirectChildrens(Node::t_node_map &childrens);
+		static int checkDirectChildrens(Node::t_node_map &childrens, void* baseCurrentPointer);
 		static int isValid(std::string key, int raw_deepness, Node *raw_parents);
 		static ACTION_MAP initializeActionMap();
 		

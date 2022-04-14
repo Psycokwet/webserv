@@ -18,13 +18,10 @@ void    AllConfig::parse(std::string config_path)
         ConfigOneServer one_server;
         one_server.parseDirective(it, "listen");
         one_server.parseDirective(it, "root");
-        // one_server.parseDirective(it, "location");
+        one_server.parseDirective(it, "location");
         one_server.parseDirective(it, "server_name");
 
         // ! After getting all directives, we add that one_server to _config_all_servers
-        std::cout << "Inner map of each server:\n";
-        ConfigOneServer::t_inner_map inner_map = one_server.getInnerMap();
-        std::cout << "Inner map['listen'] is: \n" << inner_map["listen"] << std::endl;
         _config_all_servers.push_back(one_server);
 
     }

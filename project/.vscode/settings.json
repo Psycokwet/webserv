@@ -67,6 +67,14 @@
         "unordered_map": "cpp",
         "utility": "cpp",
         "vector": "cpp",
-        "filesystem": "cpp"
+        "filesystem": "cpp",
+        "*.tcc": "cpp",
+        "clocale": "cpp",
+        "compare": "cpp",
+        "concepts": "cpp",
+        "memory_resource": "cpp",
+        "numeric": "cpp",
+        "random": "cpp",
+        "ranges": "cpp"
     }
 }
