@@ -69,7 +69,7 @@ int  main(void)
     }
     // type of socket created:
     server_address.sin_family = AF_INET;
-    server_address.sin_addr.s_addr = htonl("thi-nguy.42.fr");
+    server_address.sin_addr.s_addr = htonl(INADDR_ANY); // ! need to change this to our server_name
     server_address.sin_port = htons(PORT);
 
     // bind the socket to localhost port 8080
