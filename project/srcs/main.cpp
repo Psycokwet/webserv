@@ -12,7 +12,7 @@
 
 #include "../includes/webserv.h"
 #include "Node.hpp"
-#include "MasterServer.hpp"
+// #include "MasterServer.hpp"
 #include "ConfigConsumer.hpp"
 
 #define DEFAULT_CONFIG_PATH "./config_files/default.conf"
@@ -20,7 +20,7 @@
 int		main(int ac, char *av[])
 {
 	std::string config_path;
-	MasterServer master_server;
+	// MasterServer master_server;
 
 	if (ac > 2)
 	{
@@ -56,7 +56,7 @@ int		main(int ac, char *av[])
 	ConfigConsumer *config = ConfigConsumer::validateEntry(config_path);
 	if(!config)
 		return 0;
-	std::cout << "\n" << *config << std::endl;
+	// std::cout << "\n" << *config << std::endl;
 
 	config->consume();
 	delete config;

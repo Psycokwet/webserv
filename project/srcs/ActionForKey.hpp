@@ -25,6 +25,7 @@ class ActionForKey
 		int 			_min_level;
 		int 			_max_level;
 		std::vector<std::string>		_parents;
+		void			_action;
 };
 
 std::ostream &			operator<<( std::ostream & o, ActionForKey const & i );

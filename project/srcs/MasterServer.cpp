@@ -11,15 +11,9 @@ MasterServer::MasterServer(const MasterServer & src)
 
 MasterServer & MasterServer::operator=(const MasterServer & rhs)
 {
-    this->_allConfig = rhs._allConfig;
+    this->_configAllServer = rhs._configAllServer;
     return (*this);
 }
 
 MasterServer::~MasterServer()
 {}
-
-void    MasterServer::parseConfig(std::string config_path)
-{
-    _allConfig.parse(config_path);
-    
-}

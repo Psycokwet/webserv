@@ -8,6 +8,7 @@
 # include <sstream>
 # include "Node.hpp"
 # include "ActionForKey.hpp"
+# include "OneServer.hpp"
 class ActionForKey;
 
 #define LIST_ACTIONS std::list<ActionForKey>
@@ -22,14 +23,26 @@ class ConfigConsumer
 		static ConfigConsumer *validateEntry(std::string config_path);
 		std::ostream & print(std::ostream & o) const;
 
-		void consume() const;//example
+
+		class WrongSyntaxError : public std::exception
+        {
+            public:
+                virtual const char *what() const throw()
+				{
+					return "Directive has wrong syntax.";
+				}
+        };
+
+		void consume(void *accumulator) const;
 
 	private:
 		static ACTION_MAP _authorize_key_and_actions;	
 		Node *_node;
 
-		static int checkDirectChildrens(Node::t_node_map &childrens, void* baseCurrentPointer);
 		static int isValid(std::string key, int raw_deepness, Node *raw_parents);
+
+		static int checkDirectChildrens(Node::t_node_map &childrens, void* baseCurrentPointer);
+		// static int checkDirectChildrens(Node::t_node_map &childrens);
 		static ACTION_MAP initializeActionMap();
 		
 		// void consume(void *accumulator) const;//example
@@ -37,6 +50,8 @@ class ConfigConsumer
 		ConfigConsumer(Node *node = NULL);
 		ConfigConsumer( ConfigConsumer const & src );
 		ConfigConsumer &		operator=( ConfigConsumer const & rhs );
+
+
 
 };
 
