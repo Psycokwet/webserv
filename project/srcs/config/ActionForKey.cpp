@@ -33,6 +33,7 @@ ActionForKey &				ActionForKey::operator=( ActionForKey const & rhs )
 		this->_max_level = rhs._max_level;
 		this->_min_level = rhs._min_level;
 		this->_parents = rhs._parents;
+		this->_consume = rhs._consume;
 	}
 	return *this;
 }
@@ -68,7 +69,7 @@ AServerItem *ActionForKey::consume(Node *node, AServerItem* currentServerItem) c
 {
 	if(!this->_consume)
 		throw new ConsumerNotDefined();
-	return this->_consume(node, currentServerItem);
+	return this->_consume(node, currentServerItem); // ! return a function coresponded to that directive, and execute that function?
 }
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

@@ -8,6 +8,7 @@ DIRECTIVES_MAP OneServer::initializeDirectivesMap()
 {
     DIRECTIVES_MAP map;
 	map["listen"] = &OneServer::addListen;
+	map["server_name"] = &OneServer::addServerName;
     return map;
 }
 
@@ -37,13 +38,13 @@ OneServer::OneServer() //Todo: put default value to each directive
     // _autoindex(NULL);
     // _location(NULL)
 {
+    _server_name.push_back("");
     // std::pair<std::string, int> default_addr1("*", 80);
     // std::pair<std::string, int> default_addr2("*", 8000);
     // _listen.push_back(default_addr1);
     // _listen.push_back(default_addr2);
 
     // _root = "html";
-    _server_name.push_back("");
 
 }
 
@@ -77,6 +78,13 @@ AServerItem *OneServer::addListen(Node *node)
 	//do something to add listener
 	(void)node;
 	return this;
+}
+
+AServerItem *OneServer::addServerName(Node *node)
+{
+	std::cout << "I'm trying to add a server_name directive from " << *node << std::endl;
+	return this;
+
 }
 
 
