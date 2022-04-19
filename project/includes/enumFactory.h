@@ -14,16 +14,16 @@
 # define ENUM_FACTORY_H
 # include <string.h>
 
-# define HAS_TYPE(current, type) ((current & type) == type)
+# define HAS_TYPE(current, type) ((current & type) == type)// ! Why bitwise AND here ? Why not using logic AND &&? How does it work?
 
 // expansion macro for enum value definition
-# define ENUM_VALUE(name,assign) name assign,
+# define ENUM_VALUE(name,assign) name assign, // ! expanded to "name assign," ?
 
 // expansion macro for enum to string conversion
-# define ENUM_CASE(name,assign) case name: return #name;
+# define ENUM_CASE(name,assign) case name: return #name; // ! why do we have assign here if we don't use it? Expanded to: "case name: return #name"?
 
 // expansion macro for string to enum conversion
-# define ENUM_STRCMP(name,assign) if (std::string(str) == std::string(#name)) return name;
+# define ENUM_STRCMP(name,assign) if (std::string(str) == std::string(#name)) return name; // ! str comes from where?
 
 // expansion macro for enum to string conversion
 # define ENUM_ITERATE(name,assign) if (HAS_TYPE(mix_value, name)) (*fun)(name, raw);

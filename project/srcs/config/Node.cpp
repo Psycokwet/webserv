@@ -344,6 +344,11 @@ Node::t_node_map &Node::getDirectChildrensMap()
 	throw IllegalGetterException();
 }
 
+Node::t_inner_args_container Node::get_inner_args()
+{
+	return (_inner_args);
+}
+
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
@@ -366,4 +371,9 @@ Node::t_inner_args_container &Node::getInnerArgs()
 {
 	return this->_inner_args;
 }
+
+// Node::t_node_map &Node::getInnerMap()
+// {
+// 	return this->_inner_map;
+// }
 /* ************************************************************************** */

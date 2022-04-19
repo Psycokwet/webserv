@@ -1,41 +1,40 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
+/*   mainParserTest.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#             */
-/*   Updated: 2022/04/19 09:14:56 by scarboni         ###   ########.fr       */
+/*   Updated: 2022/04/14 14:16:30 by scarboni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/webserv.h"
-#include "config/ConfigConsumer.hpp"
+# include <ctype.h>
+# include <iostream>
+# include <sstream>
+# include <cstring>
+# include <list>
+# include <map>
+# include <vector>
+# include <algorithm>
+# include <fstream>
 
-#define DEFAULT_CONFIG_PATH "./config_files/default.conf"
-
-int		main(int ac, char *av[])
+int		main(int ac, char **av)
 {
-	std::string config_path;
-
-	if (ac > 2)
+	if (ac != 2)
 	{
-		std::cout << "Usage : ./webserv [configuration file]" << std::endl;
+		std::cout << "I'm only a request parser for test, what do you expect by not giving me any file name to read from?" << std::endl;
 		return 0;
 	}
-	if (ac < 2)
+
+	std::ifstream	ifs(av[1]);
+	std::string		tmp_line = "";
+	std::stringstream ss;
+	while(std::getline(ifs, tmp_line))
 	{
-		config_path = DEFAULT_CONFIG_PATH;
-		std::cout << "Taking default configuration file" << std::endl;
+		std::cout << "I've read :" << tmp_line<< std::endl;
 	}
-	else config_path = av[1];
-
-	MasterServer *ms = ConfigConsumer::validateEntry(config_path);
-	if(!ms)
-		return 0;
-	std::cout <<"Print result " << *ms << std::endl;
-
-	delete ms;
 	return 0;
 }

@@ -1,0 +1,82 @@
+POST / HTTP/1.1
+Host: localhost:8080
+Connection: keep-alive
+Content-Length: 1314960
+Cache-Control: max-age=0
+Origin: http://localhost:8080
+Upgrade-Insecure-Requests: 1
+DNT: 1
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundarys28AIYmK10MrrAGi
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.162 Safari/537.36
+Sec-Fetch-Dest: document
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+Sec-Fetch-Site: same-origin
+Sec-Fetch-Mode: navigate
+Sec-Fetch-User: ?1
+Referer: http://localhost:8080/
+Accept-Encoding: gzip, deflate, br
+Accept-Language: en-GB,en;q=0.9,fr-FR;q=0.8,fr;q=0.7,de-DE;q=0.6,de;q=0.5,en-US;q=0.4
+
+------WebKitFormBoundarys28AIYmK10MrrAGi
+Content-Disposition: form-data; name="nfile"; filename="en.subject.pdf"
+Content-Type: application/pdf
+
+%PDF-1.5
+%����
+19 0 obj
+<<
+/Length 544       
+/Filter /FlateDecode
+>>
+stream
+̠��߷����%8��;����Es4�?��U�������=c�}V��4
+R1L9C��������y��O�&�t��b��$��z6_�
+Q�˪$�� �9�#&�D��L~�e���(�}����cr,8BLFJ� (+J\ŠzێiV�4�紕��H�O�H�Λ���{u7��M3�c�u�M�II�ӌ$���ڌ0Kx�IQx,Sk�>�C]�~��b�,�o/8���`X�Vb�>��]�7z�*�y9�<��S��?����V�[�5���7���w�aҭ9ڴ��4x�qq����8�(WiɓC�Zz皓  ��7
+%H�4�e�o˔��W��΀�:uuB�Yučc�L
+                           w��OAY�O��\�W!��V윭Bq��`۫�b7�J�IX;I*̡�ԃ4�g�3��n"�0�Fr4�:86��W佌�6�f���}����l�
+                                                                                                      �8���\$=�o;������g�S
+endstream
+endobj
+17 0 obj
+<<
+/Type /XObject
+/Subtype /Form
+/FormType 1
+/PTEX.FileName (/Users/benny/go/src/42born2git.42.fr/pedago_world/42-cursus/inner-circle/webserv/resources/latex/back.pdf)
+/PTEX.PageNumber 1
+/PTEX.InfoDict 26 0 R
+/BBox [0 0 595.275574 841.889771]
+/Group 20 0 R
+/Resources <<
+/ExtGState <<
+/a0 <<
+/CA 1
+/ca 1
+>>
+>>/XObject <<
+/x5 27 0 R
+>>>>
+/Length 92
+/Filter /FlateDecode
+>>
+stream
+x��1� 
+      Fὧ�/`�J��^����]<�H����(��`}bo
+M�!%t^po�qR�_���Q�      k�2`=�-��*��r�)�5
+endstream
+endobj
+27 0 obj
+<<
+/Length 28 0 R
+/Filter /FlateDecode
+/Type /XObject
+/Subtype /Image
+/Width 744
+/Height 1052
+/ColorSpace /DeviceRGB
+/Interpolate true
+/BitsPerComponent 8
+>>
+stream
+x���ۚ�6����kM[RzXv*���V��hnA��|��|j�\)   ������?�篿�z���l�!�����z��￣�_���ׯ���������?���F����P�?~����[�NӰ����@��JNz��7�g����~*U?Rp2!��U�eb��H�>�43C���5mN�y�wr���������"{b��p2
+                                                                                                                                                                             V#�k������l�'jC��+���ڂvdgh��-M��%��T��----------------------------
