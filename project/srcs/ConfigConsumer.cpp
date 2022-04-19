@@ -25,7 +25,6 @@ AServerItem *placeholder_consume(Node *node, AServerItem *currentServerItem)
 }
 AServerItem *consumeCreateServer(Node *node, AServerItem *currentServerItem)
 {
-	std::cout<< "HEllo create !"<<std::endl;
 	MasterServer *ms = dynamic_cast<MasterServer*>(currentServerItem);
 	if (!ms)
 		throw ConfigConsumer::UnexpectedStateInConsumer();
@@ -34,7 +33,6 @@ AServerItem *consumeCreateServer(Node *node, AServerItem *currentServerItem)
 }
 AServerItem *consumeSetListen(Node *node, AServerItem *currentServerItem)
 {
-	std::cout<< "HEllo listen !"<<std::endl;
 	OneServer *os = dynamic_cast<OneServer*>(currentServerItem);
 	if (!os)
 		throw ConfigConsumer::UnexpectedStateInConsumer();
@@ -131,10 +129,8 @@ int	ConfigConsumer::checkDirectChildrens(Node::t_node_map &childrens, AServerIte
 			{
 				AServerItem *nextServerItem = currentServerItem;
 				// Doing validity check before going on some under object, for parsing reasons
-				std::cout<< "HEllo bef !" << *it_map->second->get_inner_args().begin()<<it_map->second->get_inner_args().size()<<std::endl;
 				if((nextServerItem = ConfigConsumer::consume(it_map->second->getDeepness(), it_map->second, nextServerItem)) == NULL)
 					return -EXIT_FAILURE;
-				std::cout<< "HEllo aft !"<<std::endl;
 				if (ConfigConsumer::checkDirectChildrens((*it_list)->getDirectChildrensMap(), nextServerItem) != EXIT_SUCCESS)
 					return -EXIT_FAILURE;
 			}
