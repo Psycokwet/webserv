@@ -23,22 +23,35 @@ AServerItem *placeholder_consume(Node *node, AServerItem *currentServerItem)
 	(void)currentServerItem;
 	return NULL;
 }
-AServerItem *consumeCreateServer(Node *node, AServerItem *currentServerItem)
+
+MasterServer* getMasterServerFrom(AServerItem *currentServerItem)
 {
 	MasterServer *ms = dynamic_cast<MasterServer*>(currentServerItem);
 	if (!ms)
 		throw ConfigConsumer::UnexpectedStateInConsumer();
+	return ms;
+}
+
+OneServer* getOneServerFrom(AServerItem *currentServerItem)
+{
+	OneServer *os = dynamic_cast<OneServer*>(currentServerItem);
+	if (!os)
+		throw ConfigConsumer::UnexpectedStateInConsumer();
+	return os;
+}
+
+AServerItem *consumeCreateServer(Node *node, AServerItem *currentServerItem)
+{
+	MasterServer *ms = getMasterServerFrom(currentServerItem);
 	(void)node;
 	return ms->createServer();
 }
 AServerItem *consumeSetListen(Node *node, AServerItem *currentServerItem)
 {
-	OneServer *os = dynamic_cast<OneServer*>(currentServerItem);
-	if (!os)
-		throw ConfigConsumer::UnexpectedStateInConsumer();
+	OneServer *os = getOneServerFrom(currentServerItem);
 	(void)node;
 	//should use node data to initialise listen for the server.
-	return currentServerItem;
+	return os;
 }
 
 ACTION_MAP ConfigConsumer::initializeActionMap()
