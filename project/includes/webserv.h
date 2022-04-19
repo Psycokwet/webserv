@@ -24,7 +24,7 @@
 //select
 # include <poll.h>
 //poll
-# include <sys/epoll.h>
+// # include <sys/epoll.h>
 //epoll epoll_create epoll_ctl epoll_wait
 // # include <sys/kqueue.h> not working for some reasons on my vm, should try at school
 //kqueue kevent

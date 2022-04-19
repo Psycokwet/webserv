@@ -6,7 +6,7 @@
 #    By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#              #
-#    Updated: 2022/04/14 14:37:03 by scarboni         ###   ########.fr        #
+#    Updated: 2022/04/19 13:12:38 by scarboni         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,6 +19,8 @@ CXX 				= c++
 CPPFLAGS 			=  -Wall -Wextra -Werror -g3  -std=c++98
 
 SRC_PATH			= ./srcs/
+CONFIG_PATH			= config/
+SERVER_PATH			= server/
 
 TESTCONFIGRULE		= testConfigRule
 TESTCONFIG			= testConfig
@@ -41,16 +43,24 @@ ifndef LEAKS
 	LEAKS = valgrind --leak-check=full
 endif
 
+OBJ_PATHS			+= $(OBJ_PATH) $(addprefix $(OBJ_PATH), $(CONFIG_PATH) $(SERVER_PATH)) 
 
-SRCS += Node.cpp ConfigConsumer.cpp ActionForKey.cpp
+SERVER_FILES =  MasterServer.cpp \
+				OneServer.cpp \
+				AServerItem.cpp
+SRCS += $(addprefix $(SERVER_PATH), $(SERVER_FILES))
+
+CONFIG_FILES =  Node.cpp \
+				ConfigConsumer.cpp \
+				ActionForKey.cpp
+SRCS += $(addprefix $(CONFIG_PATH), $(CONFIG_FILES))
 
 SRC_FILES	+=	$(SRCS)
-
 
 SRC			= 	$(addprefix $(SRC_PATH), $(SRC_FILES))
 OBJ 		= 	$(addprefix $(OBJ_PATH), $(SRC_FILES:cpp=o))
 
-OBJ_PATHS_INIT			= $(OBJ_PATH)
+OBJ_PATHS_INIT			= $(OBJ_PATHS)
 
 all: $(NAME)
 
@@ -62,7 +72,7 @@ $(NAME): $(OBJ_PATHS_INIT)  $(OBJ)
 	$(CXX) $(CPPFLAGS) -o $(NAME) $(OBJ) $(LDFLAGS)
 
 $(OBJ_PATH)%.o: $(SRC_PATH)%.cpp $(HEADERS_FILES)
-	${CXX} ${CPPFLAGS}   -c $< -o $@ 
+	${CXX} ${CPPFLAGS}   -c $< -o $@
 
 clean:
 	@echo "\033[0;31m\nDeleting objects..."
@@ -87,13 +97,13 @@ define tester_sep
 endef
 
 define launch_one_test_without_sep
+	printf "Command : $(LEAKS) ./$(NAME) $(1) \n"  ;\
 	$(LEAKS) ./$(NAME) $(1)
 endef
 
 define launch_one_test_with_sep
 	$(call launch_one_test_without_sep,$(1)) ;\
-	printf "____.--.--.____.--.--.____.--.--.____.--.--.__Weeeeeeeeee__.--.--.____.--.--.____.--.--.____.--.--.____\n" ;\
-	printf "Command : $(LEAKS) ./$(NAME) $(1) \n" 
+	printf "____.--.--.____.--.--.____.--.--.____.--.--.__Weeeeeeeeee__.--.--.____.--.--.____.--.--.____.--.--.____\n"
 endef
 
 define launch_only_legal_tests
@@ -106,7 +116,7 @@ endef
 
 PARSER_FILE_EXT = .yml
 REQUESTS_FOLDER=requests_samples/
-EXAMPLE_REQUESTS_RAW=get_likeAPony post_almost_empty_file post_pdf post_xpm_file
+EXAMPLE_REQUESTS_RAW=get_likeAPony post_almost_empty_file post_pdf post_xpm_file 
 EXAMPLE_REQUESTS_PREF=$(addprefix $(REQUESTS_FOLDER), $(EXAMPLE_REQUESTS_RAW))
 EXAMPLE_REQUESTS=$(addsuffix $(PARSER_FILE_EXT), $(EXAMPLE_REQUESTS_PREF))
 
@@ -128,19 +138,18 @@ $(TESTPARSERRULE):	$(NAME)
 
 CONFIG_FOLDER = ./config_files/
 CONFIG_FILE_EXT = .conf
-ARGS_CONFIGS_TESTS_RAW= IDontExist bad_syntax example_nginx_base
-ARGS_CONFIGS_TESTS_RAW_PREF=$(addprefix $(CONFIG_FOLDER), $(ARGS_CONFIGS_TESTS_RAW))
-ARGS_CONFIGS_TESTS=$(addsuffix $(CONFIG_FILE_EXT), $(ARGS_CONFIGS_TESTS_RAW_PREF))
+ARGS_CONFIGS_TESTS_RAW = IDontExist bad_syntax example_nginx_base simple
+ARGS_CONFIGS_TESTS_RAW_PREF = $(addprefix $(CONFIG_FOLDER), $(ARGS_CONFIGS_TESTS_RAW))
+ARGS_CONFIGS_TESTS = $(addsuffix $(CONFIG_FILE_EXT), $(ARGS_CONFIGS_TESTS_RAW_PREF))
 
 
 $(TESTCONFIG): $(NAME)
-	echo $(ARGS_CONFIGS_TESTS)
 	$(call launch_only_legal_tests,$(TESTCONFIG),\
 		$(call launch_one_test_with_sep) ;\
 		$(call launch_one_test_with_sep, Too much args) ;\
 		$(call launch_test_from_array_args,$(ARGS_CONFIGS_TESTS)) ;\)
 
-test: $(TESTPARSERRULE) $(TESTCONFIG)
+allTests: $(TESTCONFIG) $(TESTPARSERRULE) 
 
 
 .PHONY: clean fclean re bonus

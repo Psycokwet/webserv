@@ -10,7 +10,7 @@
 # include <vector>
 # include <algorithm>
 # include <fstream>
-# include "../includes/enumFactory.h"
+# include "../../includes/enumFactory.h"
 # define E_TYPE_ENUM(XX) \
     XX(NO_TYPE,=0x00000001) \
     XX(HASHMAP,=0x00000010) \
@@ -48,6 +48,7 @@ class Node
 		Node::t_node_map &getDirectChildrensMap();	// in a server { pwit pwot pwet} objet, your would get the map to pwit pwot pwet, warning ! you will get a list a pwit, a list of pwot and a list of pwet, in case there is multiple occurences of them. They are stored in list by full args contracted. See about "inner_args_toString"
 
 		Node::t_inner_args_container &getInnerArgs();
+		// Node::t_node_map &getInnerMap();
         class IllegalGetterException : public std::exception
         {
             public:
@@ -64,6 +65,8 @@ class Node
 					return "The object you are trying to retrieve here are not here.";
 				}
         };
+
+		t_inner_args_container get_inner_args();
 	private:
 		Node(e_type type = NO_TYPE, Node* parent = NULL, int deepness = 0, t_inner_args_container _inner_args = t_inner_args_container());
 		Node( Node const & src, Node* parent = NULL);
