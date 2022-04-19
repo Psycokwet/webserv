@@ -47,7 +47,6 @@ OneServer::OneServer() //Todo: put default value to each directive
 
 }
 
-
 /*
 ** -------------------------------- DESTRUCTOR --------------------------------
 */
@@ -61,7 +60,6 @@ OneServer::~OneServer()
 ** --------------------------------- OVERLOAD ---------------------------------
 */
 
-
 std::ostream &			OneServer::print( std::ostream & o) const
 {
 	o << "I'm OneServer";
@@ -72,9 +70,6 @@ std::ostream &			OneServer::print( std::ostream & o) const
 /*
 ** --------------------------------- METHODS ----------------------------------
 */
-
-
-
 
 AServerItem *OneServer::addListen(Node *node)
 {
