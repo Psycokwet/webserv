@@ -4,7 +4,7 @@
 # include <iostream>
 # include <string>
 # include "ConfigConsumer.hpp"
-# include "AServerItem.hpp"
+# include "../server/AServerItem.hpp"
 
 class ConfigConsumer;
 class ActionForKey

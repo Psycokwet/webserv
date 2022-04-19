@@ -1,7 +1,7 @@
 #ifndef MASTERSERVER_HPP
 #define MASTERSERVER_HPP
 
-#include "Node.hpp"
+#include "../config/Node.hpp"
 #include "OneServer.hpp"
 #include "AServerItem.hpp"
 #include <sys/select.h> // FD_CLR, FD_ZERO, FD_SET, FD_ISSET macros

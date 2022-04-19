@@ -8,8 +8,8 @@
 # include <sstream>
 # include "Node.hpp"
 # include "ActionForKey.hpp"
-# include "OneServer.hpp"
-# include "MasterServer.hpp"
+# include "../server/OneServer.hpp"
+# include "../server/MasterServer.hpp"
 class ActionForKey;
 
 #define LIST_ACTIONS std::list<ActionForKey>

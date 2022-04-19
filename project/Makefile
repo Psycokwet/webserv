@@ -6,7 +6,7 @@
 #    By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#              #
-#    Updated: 2022/04/18 20:54:53 by scarboni         ###   ########.fr        #
+#    Updated: 2022/04/19 09:26:54 by scarboni         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,9 +19,21 @@ CXX 				= c++
 CPPFLAGS 			=  -Wall -Wextra -Werror -g3  -std=c++98
 
 SRC_PATH			= ./srcs/
+CONFIG_PATH			= config/
+SERVER_PATH			= server/
 
-SRCS = 	main.cpp Node.cpp ConfigConsumer.cpp ActionForKey.cpp MasterServer.cpp OneServer.cpp AServerItem.cpp
-#  AllConfig.cpp ConfigOneServer.cpp MasterServer.cpp
+OBJ_PATHS			+= $(OBJ_PATH) $(addprefix $(OBJ_PATH), $(CONFIG_PATH) $(SERVER_PATH)) 
+
+SRCS = 	main.cpp
+SERVER_FILES =  MasterServer.cpp \
+				OneServer.cpp \
+				AServerItem.cpp
+SRCS += $(addprefix $(SERVER_PATH), $(SERVER_FILES))
+
+CONFIG_FILES =  Node.cpp \
+				ConfigConsumer.cpp \
+				ActionForKey.cpp
+SRCS += $(addprefix $(CONFIG_PATH), $(CONFIG_FILES))
 
 SRC_FILES	+=	$(SRCS)
 
@@ -29,7 +41,7 @@ SRC_FILES	+=	$(SRCS)
 SRC			= 	$(addprefix $(SRC_PATH), $(SRC_FILES))
 OBJ 		= 	$(addprefix $(OBJ_PATH), $(SRC_FILES:cpp=o))
 
-OBJ_PATHS_INIT			= $(OBJ_PATH)
+OBJ_PATHS_INIT			= $(OBJ_PATHS)
 
 all: $(NAME)
 

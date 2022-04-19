@@ -5,7 +5,7 @@
 #include <vector>
 #include <map>
 #include <utility> // std::pair, std::make_pair
-#include "Node.hpp"
+#include "../config/Node.hpp"
 #include "ErrorPage.hpp"
 #include "Listen.hpp"
 #include "AServerItem.hpp"
