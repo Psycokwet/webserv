@@ -1,5 +1,13 @@
 #include "MasterServer.hpp"
 
+/*
+** ---------------------------------- STATIC ----------------------------------
+*/
+
+/*
+** ------------------------------- CONSTRUCTOR --------------------------------
+*/
+
 MasterServer::MasterServer()
 {}
 
@@ -9,20 +17,29 @@ MasterServer::MasterServer(const MasterServer & src): AServerItem()
         *this = src;
 }
 
+/*
+** -------------------------------- DESTRUCTOR --------------------------------
+*/
+
+MasterServer::~MasterServer()
+{
+	for (unsigned int index = 0; index < this->_configAllServer.size(); index++)
+		delete this->_configAllServer[index];
+}
+
+/*
+** --------------------------------- OVERLOAD ---------------------------------
+*/
+
 MasterServer & MasterServer::operator=(const MasterServer & rhs)
 {
     this->_configAllServer = rhs._configAllServer;
     return (*this);
 }
 
-MasterServer::~MasterServer()
-{
-
-	for (unsigned int index = 0; index < this->_configAllServer.size(); index++)
-		delete this->_configAllServer[index];
-	
-}
-
+/*
+** --------------------------------- METHODS ----------------------------------
+*/
 
 OneServer *MasterServer::createServer()
 {
@@ -39,3 +56,9 @@ std::ostream &			MasterServer::print( std::ostream & o) const
 	
 	return o;
 }
+/*
+** --------------------------------- ACCESSOR ---------------------------------
+*/
+
+
+/* ************************************************************************** */

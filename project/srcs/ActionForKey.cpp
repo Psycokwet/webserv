@@ -14,7 +14,6 @@ ActionForKey::ActionForKey( const ActionForKey & src )
 {
 }
 
-
 /*
 ** -------------------------------- DESTRUCTOR --------------------------------
 */
@@ -22,7 +21,6 @@ ActionForKey::ActionForKey( const ActionForKey & src )
 ActionForKey::~ActionForKey()
 {
 }
-
 
 /*
 ** --------------------------------- OVERLOAD ---------------------------------
@@ -49,7 +47,6 @@ std::ostream &			operator<<( std::ostream & o, ActionForKey const & i )
 	return o;
 }
 
-
 /*
 ** --------------------------------- METHODS ----------------------------------
 */
@@ -67,7 +64,6 @@ bool ActionForKey::isValid(int level, std::string *parent) const
 	return true;
 }
 
-
 AServerItem *ActionForKey::consume(Node *node, AServerItem* currentServerItem) const
 {
 	if(!this->_consume)
@@ -77,7 +73,6 @@ AServerItem *ActionForKey::consume(Node *node, AServerItem* currentServerItem) c
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
-
 
 int ActionForKey::getMinLevel() const
 {
