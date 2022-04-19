@@ -11,18 +11,25 @@
 #include "AServerItem.hpp"
 
 // # define NAME(x) _##x;
-
 class OneServer :public AServerItem
 {
+
+	#define DIRECTIVES_MAP std::map<std::string, AServerItem *(OneServer::*)(Node*)>
     public:
         OneServer();
         // OneServer(const OneServer & src);
         // OneServer & operator=(const OneServer & rhs);
-        // ~OneServer();
+        ~OneServer();
 		
+		AServerItem *consume(Node *node);
 		virtual std::ostream & print( std::ostream & o) const;
 
     private:
+		static DIRECTIVES_MAP _directives_to_setter;
+		static DIRECTIVES_MAP initializeDirectivesMap();
+
+		AServerItem * addListen(Node *node);
+
         // Listen                                          _listen; // !
         std::vector< std::string >                      _server_name;
         // std::map< std::string, OneServer >        _location; // !

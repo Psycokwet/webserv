@@ -4,13 +4,6 @@
 ** ------------------------------- STATIC -------------------------------------
 */
 
-// LIST_ACTIONS buildList()
-// {
-// 	LIST_ACTIONS tmp;
-// 	tmp.push_back((t_actions_for_key){0, 2, &ConfigConsumer::consume});
-// 	return LIST_ACTIONS();
-// }
-
 #define ADD_ONE_LEVEL_ACTION(key, actionDefinition, map) { \
 	LIST_ACTIONS tmplist; \
 	tmplist.push_back(actionDefinition); \
@@ -46,11 +39,10 @@ AServerItem *consumeCreateServer(Node *node, AServerItem *currentServerItem)
 	(void)node;
 	return ms->createServer();
 }
-AServerItem *consumeSetListen(Node *node, AServerItem *currentServerItem)
+AServerItem *consumeForOneServer(Node *node, AServerItem *currentServerItem)
 {
 	OneServer *os = getOneServerFrom(currentServerItem);
-	(void)node;
-	//should use node data to initialise listen for the server.
+	os->consume(node);
 	return os;
 }
 
@@ -68,7 +60,7 @@ ACTION_MAP ConfigConsumer::initializeActionMap()
 	ADD_ONE_LEVEL_ACTION("server", ActionForKey(0, 2, allowed_parents, &consumeCreateServer), map) // ! min = 0, max = 2 for the key "server" meaning: server can be at the deepness < 2 and > 4.
 	
 	allowed_parents.push_back("server");
-	ADD_ONE_LEVEL_ACTION("listen", ActionForKey(2, 4, allowed_parents, &consumeSetListen), map) // ! min, max is the allowed Deepness level of the directive.
+	ADD_ONE_LEVEL_ACTION("listen", ActionForKey(2, 4, allowed_parents, &consumeForOneServer), map) // ! min, max is the allowed Deepness level of the directive.
 	ADD_ONE_LEVEL_ACTION("location", ActionForKey(2, 6, allowed_parents, &placeholder_consume), map) 
 	ADD_ONE_LEVEL_ACTION("server_name", ActionForKey(2, 4, allowed_parents, &placeholder_consume), map)
 
