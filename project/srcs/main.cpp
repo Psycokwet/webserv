@@ -6,7 +6,7 @@
 /*   By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#             */
-/*   Updated: 2022/03/25 16:36:23 by scarboni         ###   ########.fr       */
+/*   Updated: 2022/04/19 08:04:53 by scarboni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,12 +53,12 @@ int		main(int ac, char *av[])
 		
 	// }
 	// delete firstNode;
-	ConfigConsumer *config = ConfigConsumer::validateEntry(config_path);
-	if(!config)
+	MasterServer *ms = ConfigConsumer::validateEntry(config_path);
+	if(!ms)
 		return 0;
-	// std::cout << "\n" << *config << std::endl;
+	std::cout <<"Print result " << *ms << std::endl;
 
-	config->consume();
-	delete config;
+	// config->consume();
+	delete ms;
 	return 0;
 }

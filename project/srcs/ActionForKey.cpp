@@ -4,13 +4,13 @@
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-ActionForKey::ActionForKey(int min, int max, std::vector<std::string> parents)
-: _min_level(min), _max_level(max), _parents(parents)
+ActionForKey::ActionForKey(int min, int max, std::vector<std::string> parents, AServerItem *(consume)(Node *node, AServerItem* currentServerItem))
+: _min_level(min), _max_level(max), _parents(parents), _consume(consume)
 {
 }
 
 ActionForKey::ActionForKey( const ActionForKey & src )
-: _min_level(src._min_level), _max_level(src._max_level), _parents(src._parents)
+: _min_level(src._min_level), _max_level(src._max_level), _parents(src._parents), _consume(src._consume)
 {
 }
 
@@ -54,21 +54,26 @@ std::ostream &			operator<<( std::ostream & o, ActionForKey const & i )
 ** --------------------------------- METHODS ----------------------------------
 */
 
-bool ActionForKey::isValid(int level, std::string parents) const
+bool ActionForKey::isValid(int level, std::string *parent) const
 {
 
-	if(level > this->_min_level && level < this->_max_level)
-	{
-		for (unsigned int i = 0; i < this->_parents.size(); i++)
-		{
-			if (parents.compare(this->_parents[i]) == 0)
-				return true;
-		}
+	if(!(level > this->_min_level && level < this->_max_level)) // Better to fail early than have a lot of {} imbrications
 		return false;
+	for (unsigned int i = 0; i < this->_parents.size(); i++)
+	{
+		if ((*parent).compare(this->_parents[i]) != 0)
+			return false;
 	}
-	return false;
+	return true;
 }
 
+
+AServerItem *ActionForKey::consume(Node *node, AServerItem* currentServerItem) const
+{
+	if(!this->_consume)
+		throw new ConsumerNotDefined();
+	return this->_consume(node, currentServerItem);
+}
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */

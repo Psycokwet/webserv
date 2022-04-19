@@ -9,6 +9,7 @@
 # include "Node.hpp"
 # include "ActionForKey.hpp"
 # include "OneServer.hpp"
+# include "MasterServer.hpp"
 class ActionForKey;
 
 #define LIST_ACTIONS std::list<ActionForKey>
@@ -20,9 +21,8 @@ class ConfigConsumer
 	public:
 
 		~ConfigConsumer();
-		static ConfigConsumer *validateEntry(std::string config_path);
+		static MasterServer *validateEntry(std::string config_path);
 		std::ostream & print(std::ostream & o) const;
-
 
 		class WrongSyntaxError : public std::exception
         {
@@ -32,16 +32,22 @@ class ConfigConsumer
 					return "Directive has wrong syntax.";
 				}
         };
-
-		void consume(void *accumulator) const;
+		class UnexpectedStateInConsumer : public std::exception
+        {
+            public:
+                virtual const char *what() const throw()
+				{
+					return "A wrong consumer may have been called, the object given does not hold the right dynamic type.";
+				}
+        };
 
 	private:
 		static ACTION_MAP _authorize_key_and_actions;	
 		Node *_node;
 
-		static int isValid(std::string key, int raw_deepness, Node *raw_parents);
+		static AServerItem *consume(int deepness, Node *node, AServerItem *currentServerItem);
 
-		static int checkDirectChildrens(Node::t_node_map &childrens, void* baseCurrentPointer);
+		static int checkDirectChildrens(Node::t_node_map &childrens, AServerItem* currentServerItem);
 		// static int checkDirectChildrens(Node::t_node_map &childrens);
 		static ACTION_MAP initializeActionMap();
 		
@@ -50,9 +56,6 @@ class ConfigConsumer
 		ConfigConsumer(Node *node = NULL);
 		ConfigConsumer( ConfigConsumer const & src );
 		ConfigConsumer &		operator=( ConfigConsumer const & rhs );
-
-
-
 };
 
 std::ostream &			operator<<( std::ostream & o, ConfigConsumer const & i );

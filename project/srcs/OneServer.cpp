@@ -15,3 +15,10 @@ OneServer::OneServer() //Todo: put default value to each directive
     _server_name.push_back("");
 
 }
+
+
+std::ostream &			OneServer::print( std::ostream & o) const
+{
+	o << "I'm OneServer";
+	return o;
+}

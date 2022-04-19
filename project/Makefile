@@ -6,7 +6,7 @@
 #    By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#              #
-#    Updated: 2022/03/27 09:31:00 by scarboni         ###   ########.fr        #
+#    Updated: 2022/04/18 20:54:53 by scarboni         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,7 +20,7 @@ CPPFLAGS 			=  -Wall -Wextra -Werror -g3  -std=c++98
 
 SRC_PATH			= ./srcs/
 
-SRCS = 	main.cpp Node.cpp ConfigConsumer.cpp ActionForKey.cpp
+SRCS = 	main.cpp Node.cpp ConfigConsumer.cpp ActionForKey.cpp MasterServer.cpp OneServer.cpp AServerItem.cpp
 #  AllConfig.cpp ConfigOneServer.cpp MasterServer.cpp
 
 SRC_FILES	+=	$(SRCS)

@@ -8,16 +8,19 @@
 #include "Node.hpp"
 #include "ErrorPage.hpp"
 #include "Listen.hpp"
+#include "AServerItem.hpp"
 
 // # define NAME(x) _##x;
 
-class OneServer
+class OneServer :public AServerItem
 {
     public:
         OneServer();
         // OneServer(const OneServer & src);
         // OneServer & operator=(const OneServer & rhs);
         // ~OneServer();
+		
+		virtual std::ostream & print( std::ostream & o) const;
 
     private:
         // Listen                                          _listen; // !
