@@ -23,6 +23,14 @@ class OneServer :public AServerItem
       AServerItem *consume(Node *node);
       virtual std::ostream & print( std::ostream & o) const;
 
+      class MultipleDeclareError : public std::exception
+      {
+          public:
+              virtual const char *what() const throw()
+              {
+                return "Directive is not allowed to multiple declared.";
+              }
+      };
     private:
       static DIRECTIVES_MAP _directives_to_setter;
       static DIRECTIVES_MAP initializeDirectivesMap();

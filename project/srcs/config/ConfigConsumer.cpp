@@ -35,14 +35,15 @@ OneServer* getOneServerFrom(AServerItem *currentServerItem)
 
 AServerItem *consumeCreateServer(Node *node, AServerItem *currentServerItem)
 {
-	MasterServer *ms = getMasterServerFrom(currentServerItem);
+	MasterServer *ms = getMasterServerFrom(currentServerItem); // ! get MasterServer
 	(void)node;
 	return ms->createServer();
 }
+
 AServerItem *consumeForOneServer(Node *node, AServerItem *currentServerItem)
 {
-	OneServer *os = getOneServerFrom(currentServerItem);
-	os->consume(node);
+	OneServer *os = getOneServerFrom(currentServerItem); // ! get OneServer
+	os->consume(node); // ! OneServer::consume
 	return os;
 }
 
@@ -50,8 +51,11 @@ ACTION_MAP ConfigConsumer::initializeActionMap()
 {
     ACTION_MAP map;
 	std::vector<std::string> allowed_parents;
-
-	ADD_ONE_LEVEL_ACTION("server", ActionForKey(0, 2, allowed_parents, &consumeCreateServer), map) 
+	
+	// ! &consumeCreateServer: setup the "server", it has _consume with value is MasterServer::createServer
+	// ! &consumeForOneServer: setup the "server_name", it has _consume with value is OneServer::consume
+	// ! OneServer::consume will return 
+	ADD_ONE_LEVEL_ACTION("server", ActionForKey(0, 2, allowed_parents, &consumeCreateServer), map)
 	
 	allowed_parents.push_back("server");
 	ADD_ONE_LEVEL_ACTION("listen", ActionForKey(2, 4, allowed_parents, &consumeForOneServer), map) 
@@ -95,11 +99,11 @@ AServerItem *ConfigConsumer::consume(int deepness, Node *node, AServerItem *curr
 		
 			std::cout << "testing... for "<< key << ": at deepness = "<< deepness;
 			if (parent_inner_args.size() != 0) // ! if parents is something else than "server"
-				parentName = &parent_inner_args[0]; //! parent_inner_args[0] is the parents' name
+				parentName = &parent_inner_args[0];
 		}
 		std::cout << " with parent = " << (parentName ? *parentName : "NO PARENT") << std::endl;
 		if(it_list->isValid(deepness, parentName)) // ! check validity of directive's deepness and its name of parents
-			return it_list->consume(node, currentServerItem); // ! return / execute the function appropriate to that key (Ref. initializeActionMap())
+			return it_list->consume(node, currentServerItem); // ! ActionForKey::consume: return / execute the function appropriate to that key (Ref. initializeActionMap())
 	}
 	std::cout << "error for "<< key << " : "<<deepness<<std::endl;
 	return NULL; 
@@ -109,10 +113,11 @@ int	ConfigConsumer::checkDirectChildrens(Node::t_node_map &childrens, AServerIte
 {
 	try
 	{
-		 // ! Loop through each key. At first there is only server. Later they are directive under a parent {}
+		 // ! Loop through each key/directive. At first there is only server. Later they are directive under a parent {}
 		for(Node::t_node_map ::const_iterator it_map = childrens.begin(); it_map != childrens.end(); it_map++)
 		{
 			Node::t_node_list &list_childrens = it_map->second->getDirectChildrensList(); // ! Get a list of server's / current directive
+			std::cout << "Children size: " << list_childrens.size() << std::endl; // ? How to check number of a directive under a same context?
 			for (Node::t_node_list ::const_iterator it_list = list_childrens.begin(); it_list != list_childrens.end(); it_list++) // ! Loop through each server / directive on that list
 			{
 				AServerItem *nextServerItem = currentServerItem;
@@ -141,7 +146,6 @@ MasterServer *ConfigConsumer::validateEntry(std::string config_path)
 	if( !firstNode)
 		return NULL;
 
-	Node::t_node_map my_map = firstNode->getDirectChildrensMap();
 	MasterServer *ms = new MasterServer();
 
 	if (ConfigConsumer::checkDirectChildrens(firstNode->getDirectChildrensMap(), ms) != EXIT_SUCCESS) 
