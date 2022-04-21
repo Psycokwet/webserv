@@ -6,7 +6,11 @@
 #    By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#              #
+<<<<<<< HEAD
 #    Updated: 2022/04/19 13:12:38 by scarboni         ###   ########.fr        #
+=======
+#    Updated: 2022/04/19 09:26:54 by scarboni         ###   ########.fr        #
+>>>>>>> 040e128bc5de1e00b29143155eef9d7cfff4624e
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,10 +26,18 @@ SRC_PATH			= ./srcs/
 CONFIG_PATH			= config/
 SERVER_PATH			= server/
 
-TESTCONFIGRULE		= testConfigRule
-TESTCONFIG			= testConfig
-TESTPARSERRULE		= testParserRule
-TESTPARSER			= testParser
+OBJ_PATHS			+= $(OBJ_PATH) $(addprefix $(OBJ_PATH), $(CONFIG_PATH) $(SERVER_PATH)) 
+
+SRCS = 	main.cpp
+SERVER_FILES =  MasterServer.cpp \
+				OneServer.cpp \
+				AServerItem.cpp
+SRCS += $(addprefix $(SERVER_PATH), $(SERVER_FILES))
+
+CONFIG_FILES =  Node.cpp \
+				ConfigConsumer.cpp \
+				ActionForKey.cpp
+SRCS += $(addprefix $(CONFIG_PATH), $(CONFIG_FILES))
 
 SRCS = 	main.cpp
 

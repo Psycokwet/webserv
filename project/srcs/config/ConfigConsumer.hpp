@@ -45,14 +45,15 @@ class ConfigConsumer
 		static ACTION_MAP _authorize_key_and_actions;	
 		Node *_node;
 
-		static AServerItem *consume(int deepness, Node *node, AServerItem *currentServerItem);
-
-		static int checkDirectChildrens(Node::t_node_map &childrens, AServerItem* currentServerItem);
-		// static int checkDirectChildrens(Node::t_node_map &childrens);
 		static ACTION_MAP initializeActionMap();
-		
-		// void consume(void *accumulator) const;//example
 
+		//! 1) check validity of directive's deepness and its name of parents. 
+		//! 2) Run the function corresponding to that directive
+		static AServerItem *consume(int deepness, Node *node, AServerItem *currentServerItem);
+		
+		// ! Input is map of what inside {}, change the content of currentServerItem(MasterServer ms), return EXIT_SUCCESS or EXIT_FAILURE
+		static int checkDirectChildrens(Node::t_node_map &childrens, AServerItem* currentServerItem);
+		
 		ConfigConsumer(Node *node = NULL);
 		ConfigConsumer( ConfigConsumer const & src );
 		ConfigConsumer &		operator=( ConfigConsumer const & rhs );
