@@ -1,6 +1,9 @@
 webserv
 testParser
 
+# OSX
+*.DS_Store
+
 # Prerequisites
 *.d
 
