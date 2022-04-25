@@ -4,7 +4,7 @@
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-ActionForKey::ActionForKey(int min, int max, std::vector<std::string> parents, AServerItem *(consume)(Node *node, AServerItem* currentServerItem, bool isLocation))
+ActionForKey::ActionForKey(int min, int max, std::vector<std::string> parents, AServerItem *(consume)(Node *node, AServerItem* currentServerItem))
 : _min_level(min), _max_level(max), _parents(parents), _consume(consume)
 {
 }
@@ -66,11 +66,11 @@ bool ActionForKey::isValid(int level, std::string *parent) const
 	return false;
 }
 
-AServerItem *ActionForKey::consume(Node *node, AServerItem* currentServerItem, bool isLocation) const
+AServerItem *ActionForKey::consume(Node *node, AServerItem* currentServerItem) const
 {
 	if(!this->_consume)
 		throw new ConsumerNotDefined();
-	return this->_consume(node, currentServerItem, isLocation); // ! return a function coresponded to that directive, and execute that function?
+	return this->_consume(node, currentServerItem); // ! return a function coresponded to that directive, and execute that function?
 }
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

@@ -40,12 +40,7 @@ AServerItem *OneServer::consume(Node *node)
 OneServer::OneServer() //Todo: put default value to each directive
 {
     _server_name.push_back("");
-    // std::pair<std::string, int> default_addr1("*", 80);
-    // std::pair<std::string, int> default_addr2("*", 8000);
-    // _listen.push_back(default_addr1);
-    // _listen.push_back(default_addr2);
-
-    // _root = "html";
+	_index.push_back("index.html");
 
 }
 
@@ -75,7 +70,7 @@ std::ostream &			OneServer::print( std::ostream & o) const
 
 AServerItem *OneServer::addListen(Node *node)
 {
-	std::cout << "I'm trying to add a listen directive from " << *node << std::endl;
+	std::cout << "I'm trying to add a listen directive from " << *node;
 	//do something to add listener
 	(void)node;
 	return this;
@@ -83,18 +78,18 @@ AServerItem *OneServer::addListen(Node *node)
 
 AServerItem *OneServer::addServerName(Node *node)
 {
-	std::cout << "I'm trying to add a server_name directive from " << *node << std::endl;
+	std::cout << "I'm trying to add a server_name directive from " << *node;
 	if (this->_server_name[0].compare("") == 0 && this->_server_name.size() == 1 )
 	{
-		std::cout << "Add server name for the first time from: " << *node << std::endl;
-		_server_name.empty();
+		std::cout << "Add server name for the first time from: " << *node;
+		_server_name.clear();
 		Node::t_inner_args_container values = node->get_inner_args();
-		std::cout << "_server_name = ";
 		for (unsigned long i = 1; i < values.size(); i++)
-		{
 			_server_name.push_back(values[i]);
+
+		std::cout << "_server_name = ";
+		for (unsigned long i = 0; i < _server_name.size(); i++)
 			std::cout << _server_name[i] << " ";
-		}
 		std::cout << std::endl;
 		
 	}
@@ -106,36 +101,52 @@ AServerItem *OneServer::addServerName(Node *node)
 
 AServerItem *OneServer::addLocation(Node *node)
 {
-	std::cout << "I'm trying to add a location directive from " << *node << std::endl;
+	std::cout << "I'm trying to add a location directive from " << *node;
 	Node::t_inner_args_container values = node->get_inner_args();
-	std::pair<std::string, OneLocation> one_location;
-	AServerItem * location_value = new OneLocation;
-	one_location = std::make_pair (values[1], *dynamic_cast<OneLocation*>(location_value));
+	std::pair<std::string, OneServer> one_location;
+	AServerItem * location_value = new OneServer();
+	one_location = std::make_pair (values[1], *dynamic_cast<OneServer*>(location_value));
+
 	this->_location.insert(one_location);
+
+	std::cout << "___Key of location_map are: ";
+	for (std::map<std::string, OneServer>::const_iterator it = _location.begin(); it != _location.end(); it++)
+		std::cout << it->first << "     ";
+	std::cout << std::endl;
 	return location_value;
 }
 
 
 AServerItem *OneServer::addIndex(Node *node)
 {
-	std::cout << "I'm trying to add a index directive from " << *node << std::endl;
-	// if (this->_server_name[0].compare("") == 0 && this->_server_name.size() == 1 )
-	// {
-	// 	std::cout << "Add server name for the first time from: " << *node << std::endl;
-	// 	_server_name.empty();
-	// 	Node::t_inner_args_container values = node->get_inner_args();
-	// 	std::cout << "_server_name = ";
-	// 	for (unsigned long i = 1; i < values.size(); i++)
-	// 	{
-	// 		_server_name.push_back(values[i]);
-	// 		std::cout << _server_name[i] << " ";
-	// 	}
-	// 	std::cout << std::endl;
+	std::cout << "I'm trying to add a index directive from " << *node;
+	if (this->_index[0].compare("index.html") == 0 && this->_server_name.size() == 1 )
+	{
+		std::cout << "Add index for the first time from: " << *node;
+		_index.clear();
+		Node::t_inner_args_container values = node->get_inner_args();
+		for (unsigned long i = 1; i < values.size(); i++)
+		{
+			_index.push_back(values[i]);
+			// std::cout << values[i] << " ";
+			// std::cout << _index[i] << " ";
+		}
+
+		std::cout << "_index = ";
+		for (unsigned long i = 0; i < _index.size(); i++)
+			std::cout << _index[i] << " ";
+		std::cout << std::endl;
 		
-	// }
-	// else
-	// 	// std::cout << "... trying to add server name more than one time from: " << *node << " ==> ERROR"<<std::endl;
-	// 	throw MultipleDeclareError();
+	}
+	else
+	{
+		std::cout << "_index = ";
+		for (unsigned long i = 0; i < _index.size(); i++)
+			std::cout << _index[i] << " ";
+		std::cout << std::endl;
+		throw MultipleDeclareError();
+	}
+		// std::cout << "... trying to add server name more than one time from: " << *node << " ==> ERROR"<<std::endl;
 	return this;
 }
 

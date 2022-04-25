@@ -47,8 +47,7 @@ OBJ_PATHS			+= $(OBJ_PATH) $(addprefix $(OBJ_PATH), $(CONFIG_PATH) $(SERVER_PATH
 
 SERVER_FILES =  MasterServer.cpp \
 				OneServer.cpp \
-				AServerItem.cpp \
-				OneLocation.cpp
+				AServerItem.cpp
 SRCS += $(addprefix $(SERVER_PATH), $(SERVER_FILES))
 
 CONFIG_FILES =  Node.cpp \

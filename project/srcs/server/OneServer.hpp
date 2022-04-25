@@ -9,7 +9,6 @@
 // #include "ErrorPage.hpp"
 // #include "Listen.hpp"
 #include "AServerItem.hpp"
-#include "OneLocation.hpp"
 
 class OneServer :public AServerItem
 {
@@ -41,12 +40,12 @@ class OneServer :public AServerItem
       AServerItem * addLocation(Node *node);
       AServerItem * addIndex(Node *node);
 
-      std::vector< std::string >                          _server_name;
+      std::map< std::string, OneServer >               _location; // !
+      std::vector< std::string >                       _server_name;
+      std::vector< std::string>                        _index;
       // Listen                                           _listen; // !
-      std::map< std::string, OneLocation >               _location; // !
       // std::string                                      _root;
       // bool                                             _autoindex;
-      std::vector< std::string>                        _index;
       // ErrorPage                                        _error_page;
       // std::vector< std::string>                        _method;
       // int                                              _client_max_body_size;
