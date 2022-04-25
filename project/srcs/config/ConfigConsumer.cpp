@@ -10,8 +10,9 @@
 	map[key] = tmplist; \
 }
 
-AServerItem *placeholder_consume(Node *node, AServerItem *currentServerItem)
+AServerItem *placeholder_consume(Node *node, AServerItem *currentServerItem, bool isLocation)
 {
+	(void)isLocation;
 	(void)node;
 	(void)currentServerItem;
 	return NULL;
@@ -33,18 +34,37 @@ OneServer* getOneServerFrom(AServerItem *currentServerItem)
 	return os;
 }
 
-AServerItem *consumeCreateServer(Node *node, AServerItem *currentServerItem)
+OneLocation* getOneLocationFrom(AServerItem *currentServerItem)
 {
+	OneLocation *ol = dynamic_cast<OneLocation*>(currentServerItem);
+	if (!ol)
+		throw ConfigConsumer::UnexpectedStateInConsumer();
+	return ol;
+}
+
+AServerItem *consumeCreateServer(Node *node, AServerItem *currentServerItem, bool isLocation)
+{
+	if (isLocation)
+		return NULL;
 	MasterServer *ms = getMasterServerFrom(currentServerItem); // ! get MasterServer
 	(void)node;
 	return ms->createServer();
 }
 
-AServerItem *consumeForOneServer(Node *node, AServerItem *currentServerItem)
+AServerItem *consumeForOneServer(Node *node, AServerItem *currentServerItem, bool isLocation)
 {
-	OneServer *os = getOneServerFrom(currentServerItem); // ! get OneServer
-	os->consume(node); // ! OneServer::consume
-	return os;
+	if (isLocation)
+	{
+		OneLocation *ol = getOneLocationFrom(currentServerItem); // ! get OneLocation
+		ol->consume(node);
+		return ol;
+	}
+	else
+	{
+		OneServer *os = getOneServerFrom(currentServerItem); // ! get OneServer
+		os->consume(node); // ! OneServer::consume
+		return os;
+	}
 }
 
 ACTION_MAP ConfigConsumer::initializeActionMap()
@@ -63,21 +83,21 @@ ACTION_MAP ConfigConsumer::initializeActionMap()
 	ADD_ONE_LEVEL_ACTION("location", ActionForKey(2, 6, allowed_parents, &consumeForOneServer), map) 
 
 	allowed_parents.push_back("location");
-	ADD_ONE_LEVEL_ACTION("index", ActionForKey(2, 6, allowed_parents, &placeholder_consume), map) 
-	ADD_ONE_LEVEL_ACTION("root", ActionForKey(2, 6, allowed_parents, &placeholder_consume), map)
-	ADD_ONE_LEVEL_ACTION("autoindex", ActionForKey(2, 6, allowed_parents, &placeholder_consume), map) 
-	ADD_ONE_LEVEL_ACTION("error_page", ActionForKey(2, 6, allowed_parents, &placeholder_consume), map) 
-	ADD_ONE_LEVEL_ACTION("method", ActionForKey(2, 6, allowed_parents, &placeholder_consume), map) 
-	ADD_ONE_LEVEL_ACTION("client_max_body_size", ActionForKey(2, 6, allowed_parents, &placeholder_consume), map); 
-	ADD_ONE_LEVEL_ACTION("cgi", ActionForKey(2, 6, allowed_parents, &placeholder_consume), map) 
-	ADD_ONE_LEVEL_ACTION("cgi_pass", ActionForKey(2, 6, allowed_parents, &placeholder_consume), map) 
+	ADD_ONE_LEVEL_ACTION("index", ActionForKey(2, 6, allowed_parents, &consumeForOneServer), map) 
+	ADD_ONE_LEVEL_ACTION("root", ActionForKey(2, 6, allowed_parents, &consumeForOneServer), map)
+	ADD_ONE_LEVEL_ACTION("autoindex", ActionForKey(2, 6, allowed_parents, &consumeForOneServer), map) 
+	ADD_ONE_LEVEL_ACTION("error_page", ActionForKey(2, 6, allowed_parents, &consumeForOneServer), map) 
+	ADD_ONE_LEVEL_ACTION("method", ActionForKey(2, 6, allowed_parents, &consumeForOneServer), map) 
+	ADD_ONE_LEVEL_ACTION("client_max_body_size", ActionForKey(2, 6, allowed_parents, &consumeForOneServer), map); 
+	ADD_ONE_LEVEL_ACTION("cgi", ActionForKey(2, 6, allowed_parents, &consumeForOneServer), map) 
+	ADD_ONE_LEVEL_ACTION("cgi_pass", ActionForKey(2, 6, allowed_parents, &consumeForOneServer), map) 
     return map;
 }
 
 ACTION_MAP ConfigConsumer::_authorize_key_and_actions = ConfigConsumer::initializeActionMap();
 
 	
-AServerItem *ConfigConsumer::consume(int deepness, Node *node, AServerItem *currentServerItem) 
+AServerItem *ConfigConsumer::consume(int deepness, Node *node, AServerItem *currentServerItem, bool isLocation) 
 {
 	Node::t_inner_args_container &inner_args = node->getInnerArgs(); // ! inner_args: if location {} will get {location}, if: listen 322:3 abc => get:{listen, 323:3, abc}
 	if (inner_args.size() == 0)
@@ -102,14 +122,20 @@ AServerItem *ConfigConsumer::consume(int deepness, Node *node, AServerItem *curr
 				parentName = &parent_inner_args[0];
 		}
 		std::cout << " with parent = " << (parentName ? *parentName : "NO PARENT") << std::endl;
-		if(it_list->isValid(deepness, parentName)) // ! check validity of directive's deepness and its name of parents
-			return it_list->consume(node, currentServerItem); // ! ActionForKey::consume: return / execute the function appropriate to that key (Ref. initializeActionMap())
+		if (parentName != NULL && parentName->compare("location") == 0)
+			isLocation = true;
+		if (key.compare("server") == 0 && parentName == NULL)
+			return (it_list->consume(node, currentServerItem, isLocation));
+		else if (it_list->isValid(deepness, parentName))
+		{
+			return it_list->consume(node, currentServerItem, isLocation); // ! ActionForKey::consume: return / execute the function appropriate to that key (Ref. initializeActionMap())
+		} // ! check validity of directive's deepness and its name of parents
 	}
 	std::cout << "error for "<< key << " : "<<deepness<<std::endl;
 	return NULL; 
 }
 
-int	ConfigConsumer::checkDirectChildrens(Node::t_node_map &childrens, AServerItem* currentServerItem )
+int	ConfigConsumer::checkDirectChildrens(Node::t_node_map &childrens, AServerItem* currentServerItem, bool isLocation )
 {
 	try
 	{
@@ -117,17 +143,17 @@ int	ConfigConsumer::checkDirectChildrens(Node::t_node_map &childrens, AServerIte
 		for(Node::t_node_map ::const_iterator it_map = childrens.begin(); it_map != childrens.end(); it_map++)
 		{
 			Node::t_node_list &list_childrens = it_map->second->getDirectChildrensList(); // ! Get a list of server's / current directive
-			std::cout << "Children size: " << list_childrens.size() << std::endl; // ? How to check number of a directive under a same context?
-			for (Node::t_node_list ::const_iterator it_list = list_childrens.begin(); it_list != list_childrens.end(); it_list++) // ! Loop through each server / directive on that list
+			// ! Loop through each server / directive on that list
+			for (Node::t_node_list ::const_iterator it_list = list_childrens.begin(); it_list != list_childrens.end(); it_list++)
 			{
 				AServerItem *nextServerItem = currentServerItem;
 				// ! Doing this first. (Before going on some under object, for parsing reasons)
 				// ! What does consume do here? 1. Validity check. 2. Run the function appropriate to that directive.
-				if((nextServerItem = ConfigConsumer::consume(it_map->second->getDeepness(), it_map->second, nextServerItem)) == NULL)
+				if((nextServerItem = ConfigConsumer::consume(it_map->second->getDeepness(), it_map->second, nextServerItem, isLocation)) == NULL)
 					return -EXIT_FAILURE;
 
 				// ! Go on under objects
-				if (ConfigConsumer::checkDirectChildrens((*it_list)->getDirectChildrensMap(), nextServerItem) != EXIT_SUCCESS)
+				if (ConfigConsumer::checkDirectChildrens((*it_list)->getDirectChildrensMap(), nextServerItem, isLocation) != EXIT_SUCCESS)
 					return -EXIT_FAILURE;
 			}
 		}
@@ -148,7 +174,7 @@ MasterServer *ConfigConsumer::validateEntry(std::string config_path)
 
 	MasterServer *ms = new MasterServer();
 
-	if (ConfigConsumer::checkDirectChildrens(firstNode->getDirectChildrensMap(), ms) != EXIT_SUCCESS) 
+	if (ConfigConsumer::checkDirectChildrens(firstNode->getDirectChildrensMap(), ms, false) != EXIT_SUCCESS) 
 	{
 		delete firstNode;
 		delete ms;

@@ -37,13 +37,15 @@ class OneServer :public AServerItem
 
       AServerItem * addListen(Node *node);
       AServerItem * addServerName(Node *node);
+      AServerItem * addLocation(Node *node);
+      AServerItem * addIndex(Node *node);
 
       std::vector< std::string >                          _server_name;
       // Listen                                           _listen; // !
       // std::map< std::string, OneLocation >               _location; // !
       // std::string                                      _root;
       // bool                                             _autoindex;
-      // std::vector< std::string>                        _index;
+      std::vector< std::string>                        _index;
       // ErrorPage                                        _error_page;
       // std::vector< std::string>                        _method;
       // int                                              _client_max_body_size;

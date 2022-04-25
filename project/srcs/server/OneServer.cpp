@@ -9,6 +9,8 @@ DIRECTIVES_MAP OneServer::initializeDirectivesMap()
     DIRECTIVES_MAP map;
 	map["listen"] = &OneServer::addListen;
 	map["server_name"] = &OneServer::addServerName;
+	map["location"] = &OneServer::addLocation;
+	map["index"] = &OneServer::addIndex;
     return map;
 }
 
@@ -100,10 +102,38 @@ AServerItem *OneServer::addServerName(Node *node)
 		// std::cout << "... trying to add server name more than one time from: " << *node << " ==> ERROR"<<std::endl;
 		throw MultipleDeclareError();
 	return this;
+}
 
+AServerItem *OneServer::addLocation(Node *node)
+{
+	std::cout << "I'm trying to add a location directive from " << *node << std::endl;
+	(void)node;
+	return this;
 }
 
 
+AServerItem *OneServer::addIndex(Node *node)
+{
+	std::cout << "I'm trying to add a index directive from " << *node << std::endl;
+	// if (this->_server_name[0].compare("") == 0 && this->_server_name.size() == 1 )
+	// {
+	// 	std::cout << "Add server name for the first time from: " << *node << std::endl;
+	// 	_server_name.empty();
+	// 	Node::t_inner_args_container values = node->get_inner_args();
+	// 	std::cout << "_server_name = ";
+	// 	for (unsigned long i = 1; i < values.size(); i++)
+	// 	{
+	// 		_server_name.push_back(values[i]);
+	// 		std::cout << _server_name[i] << " ";
+	// 	}
+	// 	std::cout << std::endl;
+		
+	// }
+	// else
+	// 	// std::cout << "... trying to add server name more than one time from: " << *node << " ==> ERROR"<<std::endl;
+	// 	throw MultipleDeclareError();
+	return this;
+}
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

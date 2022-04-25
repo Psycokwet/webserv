@@ -9,7 +9,7 @@
 
 class OneLocation: public AServerItem
 {
-    #define DIRECTIVES_MAP std::map<std::string, AServerItem *(OneLocation::*)(Node*)>
+    #define LOCATION_DIRECTIVES_MAP std::map<std::string, AServerItem *(OneLocation::*)(Node*)>
 
     public:
         OneLocation();
@@ -20,13 +20,14 @@ class OneLocation: public AServerItem
         virtual std::ostream & print(std::ostream & o) const;
 
     private:
-        static DIRECTIVES_MAP _directives_to_setter;
-        static DIRECTIVES_MAP initializeDirectivesMap();
+        static LOCATION_DIRECTIVES_MAP _directives_to_setter;
+        static LOCATION_DIRECTIVES_MAP initializeDirectivesMap();
 
-        AServerItem * addRoot(Node *node);
-        std::string                                      _root;
+        AServerItem * addIndex(Node *node);
+
+        // std::string                                      _root;
+        std::vector< std::string>                        _index;
         // bool                                             _autoindex;
-        // std::vector< std::string>                        _index;
         // ErrorPage                                        _error_page;
         // std::vector< std::string>                        _method;
         // int                                              _client_max_body_size;

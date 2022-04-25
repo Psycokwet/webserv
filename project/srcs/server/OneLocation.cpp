@@ -4,14 +4,14 @@
 ** ---------------------------------- STATIC ----------------------------------
 */
 
-DIRECTIVES_MAP OneLocation::initializeDirectivesMap()
+LOCATION_DIRECTIVES_MAP OneLocation::initializeDirectivesMap()
 {
-    DIRECTIVES_MAP map;
-	map["root"] = &OneLocation::addRoot;
+    LOCATION_DIRECTIVES_MAP map;
+	map["index"] = &OneLocation::addIndex;
     return map;
 }
 
-DIRECTIVES_MAP OneLocation::_directives_to_setter = OneLocation::initializeDirectivesMap();
+LOCATION_DIRECTIVES_MAP OneLocation::_directives_to_setter = OneLocation::initializeDirectivesMap();
 
 
 AServerItem *OneLocation::consume(Node *node)
@@ -36,7 +36,6 @@ AServerItem *OneLocation::consume(Node *node)
 
 OneLocation::OneLocation() //Todo: put default value to each directive
 {
-    _root = "html";
 
 }
 
@@ -58,9 +57,9 @@ std::ostream &			OneLocation::print( std::ostream & o) const
 ** --------------------------------- METHODS ----------------------------------
 */
 
-AServerItem *OneLocation::addRoot(Node *node)
+AServerItem *OneLocation::addIndex(Node *node)
 {
-	std::cout << "I'm trying to add a root directive from " << *node << std::endl;
+	std::cout << "I'm trying to add a index directive to Location parent, from " << *node << std::endl;
 	(void)node;
 	return this;
 }

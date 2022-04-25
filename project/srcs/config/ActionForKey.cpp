@@ -4,7 +4,7 @@
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-ActionForKey::ActionForKey(int min, int max, std::vector<std::string> parents, AServerItem *(consume)(Node *node, AServerItem* currentServerItem))
+ActionForKey::ActionForKey(int min, int max, std::vector<std::string> parents, AServerItem *(consume)(Node *node, AServerItem* currentServerItem, bool isLocation))
 : _min_level(min), _max_level(max), _parents(parents), _consume(consume)
 {
 }
@@ -57,19 +57,20 @@ bool ActionForKey::isValid(int level, std::string *parent) const
 
 	if(!(level > this->_min_level && level < this->_max_level)) // Better to fail early than have a lot of {} imbrications
 		return false;
+	// ! Directive has only one parent, check only one valid parent in the set is enough
 	for (unsigned int i = 0; i < this->_parents.size(); i++)
 	{
-		if ((*parent).compare(this->_parents[i]) != 0)
-			return false;
+		if ((*parent).compare(this->_parents[i]) == 0)
+			return true;
 	}
-	return true;
+	return false;
 }
 
-AServerItem *ActionForKey::consume(Node *node, AServerItem* currentServerItem) const
+AServerItem *ActionForKey::consume(Node *node, AServerItem* currentServerItem, bool isLocation) const
 {
 	if(!this->_consume)
 		throw new ConsumerNotDefined();
-	return this->_consume(node, currentServerItem); // ! return a function coresponded to that directive, and execute that function?
+	return this->_consume(node, currentServerItem, isLocation); // ! return a function coresponded to that directive, and execute that function?
 }
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
