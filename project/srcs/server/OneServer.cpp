@@ -107,8 +107,12 @@ AServerItem *OneServer::addServerName(Node *node)
 AServerItem *OneServer::addLocation(Node *node)
 {
 	std::cout << "I'm trying to add a location directive from " << *node << std::endl;
-	(void)node;
-	return this;
+	Node::t_inner_args_container values = node->get_inner_args();
+	std::pair<std::string, OneLocation> one_location;
+	AServerItem * location_value = new OneLocation;
+	one_location = std::make_pair (values[1], *dynamic_cast<OneLocation*>(location_value));
+	this->_location.insert(one_location);
+	return location_value;
 }
 
 

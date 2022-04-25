@@ -9,6 +9,7 @@
 // #include "ErrorPage.hpp"
 // #include "Listen.hpp"
 #include "AServerItem.hpp"
+#include "OneLocation.hpp"
 
 class OneServer :public AServerItem
 {
@@ -42,7 +43,7 @@ class OneServer :public AServerItem
 
       std::vector< std::string >                          _server_name;
       // Listen                                           _listen; // !
-      // std::map< std::string, OneLocation >               _location; // !
+      std::map< std::string, OneLocation >               _location; // !
       // std::string                                      _root;
       // bool                                             _autoindex;
       std::vector< std::string>                        _index;

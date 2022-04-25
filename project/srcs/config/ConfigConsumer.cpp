@@ -125,7 +125,7 @@ AServerItem *ConfigConsumer::consume(int deepness, Node *node, AServerItem *curr
 		if (parentName != NULL && parentName->compare("location") == 0)
 			isLocation = true;
 		if (key.compare("server") == 0 && parentName == NULL)
-			return (it_list->consume(node, currentServerItem, isLocation));
+			return it_list->consume(node, currentServerItem, isLocation);
 		else if (it_list->isValid(deepness, parentName))
 		{
 			return it_list->consume(node, currentServerItem, isLocation); // ! ActionForKey::consume: return / execute the function appropriate to that key (Ref. initializeActionMap())
