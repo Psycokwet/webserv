@@ -6,7 +6,7 @@
 #    By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#              #
-#    Updated: 2022/04/19 13:12:38 by scarboni         ###   ########.fr        #
+#    Updated: 2022/04/25 15:51:48 by scarboni         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,11 +16,12 @@ OBJ_PATH			= bin/
 
 CXX 				= c++
 
-CPPFLAGS 			=  -Wall -Wextra -Werror -g3  -std=c++98
+CPPFLAGS 			=  -Wall -Wextra -Werror -g3  -std=c++98 -DGRAMMAR_FILE="/grammar/grammar_request_onliners_light.gram"
 
 SRC_PATH			= ./srcs/
 CONFIG_PATH			= config/
 SERVER_PATH			= server/
+REQUEST_PATH		= requests/
 
 TESTCONFIGRULE		= testConfigRule
 TESTCONFIG			= testConfig
@@ -43,7 +44,14 @@ ifndef LEAKS
 	LEAKS = valgrind --leak-check=full
 endif
 
-OBJ_PATHS			+= $(OBJ_PATH) $(addprefix $(OBJ_PATH), $(CONFIG_PATH) $(SERVER_PATH)) 
+OBJ_PATHS			+= $(OBJ_PATH) $(addprefix $(OBJ_PATH), $(CONFIG_PATH) $(SERVER_PATH) $(REQUEST_PATH) )
+
+REQUESTS_FILES = # AGrammar.cpp \
+				ALeaf.cpp \
+				OneString.cpp \
+				OneValue.cpp \
+				Intervals.cpp
+SRCS += $(addprefix $(REQUEST_PATH), $(REQUESTS_FILES))
 
 SERVER_FILES =  MasterServer.cpp \
 				OneServer.cpp \
