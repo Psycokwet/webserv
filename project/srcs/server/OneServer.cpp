@@ -8,10 +8,7 @@ DIRECTIVES_MAP OneServer::initializeDirectivesMap()
 {
     DIRECTIVES_MAP map;
 	map["listen"] = &OneServer::addListen;
-<<<<<<< HEAD
-=======
 	map["server_name"] = &OneServer::addServerName;
->>>>>>> 040e128bc5de1e00b29143155eef9d7cfff4624e
     return map;
 }
 
@@ -25,12 +22,6 @@ AServerItem *OneServer::consume(Node *node)
 	Node::t_inner_args_container &inner_args = node->getInnerArgs(); // ! get all elements of server key (get all servers)
 	if (inner_args.size() == 0)
 		return NULL; // Or throw, whichever feels best
-<<<<<<< HEAD
-	AServerItem *(OneServer::*directiveConsumer)(Node*) = OneServer::_directives_to_setter[*(inner_args.begin())];
-	if(!directiveConsumer)
-		return NULL; // Or throw, whichever feels best
-	return (this->*directiveConsumer)(node);
-=======
 	// ! Get corresponding function to function pointer named directiveConsumer, based on the name of the directive
 	AServerItem *(OneServer::*directiveConsumer)(Node*) = OneServer::_directives_to_setter[*(inner_args.begin())];
 	if(!directiveConsumer)
@@ -38,7 +29,6 @@ AServerItem *OneServer::consume(Node *node)
 	// ! Call and Run the corresponding function, but how to change/add value to the same OneServer???
 	// ! The function does some job and change inside value of OneServer object. (return this)
 	return (this->*directiveConsumer)(node); 
->>>>>>> 040e128bc5de1e00b29143155eef9d7cfff4624e
 }
 
 /*
@@ -54,10 +44,6 @@ OneServer::OneServer() //Todo: put default value to each directive
     // _listen.push_back(default_addr2);
 
     // _root = "html";
-<<<<<<< HEAD
-    _server_name.push_back("");
-=======
->>>>>>> 040e128bc5de1e00b29143155eef9d7cfff4624e
 
 }
 
@@ -93,8 +79,6 @@ AServerItem *OneServer::addListen(Node *node)
 	return this;
 }
 
-<<<<<<< HEAD
-=======
 AServerItem *OneServer::addServerName(Node *node)
 {
 	std::cout << "I'm trying to add a server_name directive from " << *node << std::endl;
@@ -119,7 +103,6 @@ AServerItem *OneServer::addServerName(Node *node)
 
 }
 
->>>>>>> 040e128bc5de1e00b29143155eef9d7cfff4624e
 
 
 /*

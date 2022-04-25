@@ -146,35 +146,15 @@ MasterServer *ConfigConsumer::validateEntry(std::string config_path)
 	if( !firstNode)
 		return NULL;
 
-<<<<<<< HEAD
-	Node::t_node_map my_map = firstNode->getDirectChildrensMap();
-
-	// ? To parse config for MasterServer or already build a MasterServer?
-	// ! Start off with an empty MasterServer (No child server or any config done there, or default config only if you need some)
-	MasterServer *ms = new MasterServer();
-	if (ConfigConsumer::checkDirectChildrens(firstNode->getDirectChildrensMap(), ms) != EXIT_SUCCESS)
-=======
 	MasterServer *ms = new MasterServer();
 
 	if (ConfigConsumer::checkDirectChildrens(firstNode->getDirectChildrensMap(), ms) != EXIT_SUCCESS) 
->>>>>>> 040e128bc5de1e00b29143155eef9d7cfff4624e
 	{
 		delete firstNode;
 		delete ms;
 		std::cout << "Invalid configuration file : Directives are not supported or in wrong Context." << std::endl;
 		return NULL;
 	}
-<<<<<<< HEAD
-
-	// Node::t_node_list servers = firstNode->getChildrenByFirstName("server");
-	// for(Node::t_node_list ::const_iterator it = servers.begin(); it != servers.end(); it++)
-	// 	std::cout << **it << std::endl; //two * because the list contain pointers to nodes
-	// // you can get all listen objects like that too :
-	// Node::t_node_list listen_sub_first_server = (*servers.begin())->getChildrenByFirstName("listen");
-	// for(Node::t_node_list ::const_iterator it = listen_sub_first_server.begin(); it != listen_sub_first_server.end(); it++)
-	// 	std::cout << **it << std::endl; //two * because the list contain pointers to nodes
-=======
->>>>>>> 040e128bc5de1e00b29143155eef9d7cfff4624e
 	delete firstNode;
 	return ms;
 }
