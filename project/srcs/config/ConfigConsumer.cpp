@@ -103,14 +103,12 @@ AServerItem *ConfigConsumer::consume(int deepness, Node *node, AServerItem *curr
 				parentName = &parent_inner_args[0];
 		}
 		std::cout << " with parent = " << (parentName ? *parentName : "NO PARENT") << std::endl;
-		// if (parentName != NULL && parentName->compare("location") == 0)
-		// 	isLocation = true;
 		if (key.compare("server") == 0 && parentName == NULL)
 			return it_list->consume(node, currentServerItem);
 		else if (it_list->isValid(deepness, parentName))
-		{
-			return it_list->consume(node, currentServerItem); // ! ActionForKey::consume: return / execute the function appropriate to that key (Ref. initializeActionMap())
-		} // ! check validity of directive's deepness and its name of parents
+			// ! check validity of directive's deepness and its name of parents
+			// ! ActionForKey::consume: return / execute the function appropriate to that key (Ref. initializeActionMap())
+			return it_list->consume(node, currentServerItem);
 	}
 	std::cout << "error for "<< key << " : "<<deepness<<std::endl;
 	return NULL; 

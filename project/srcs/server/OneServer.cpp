@@ -102,17 +102,19 @@ AServerItem *OneServer::addServerName(Node *node)
 AServerItem *OneServer::addLocation(Node *node)
 {
 	std::cout << "I'm trying to add a location directive from " << *node;
-	Node::t_inner_args_container values = node->get_inner_args();
-	std::pair<std::string, OneServer> one_location;
-	AServerItem * location_value = new OneServer();
-	one_location = std::make_pair (values[1], *dynamic_cast<OneServer*>(location_value));
 
-	this->_location.insert(one_location);
+	Node::t_inner_args_container values = node->get_inner_args();
+	// AServerItem * location_value = new OneLocation();
+	new OneLocation *location_value;
+
+	// ! Todo: check if key is already there
+	// _location[values[1]] =  location_value;
 
 	std::cout << "___Key of location_map are: ";
 	for (std::map<std::string, OneServer>::const_iterator it = _location.begin(); it != _location.end(); it++)
 		std::cout << it->first << "     ";
 	std::cout << std::endl;
+
 	return location_value;
 }
 

@@ -10,6 +10,8 @@
 // #include "Listen.hpp"
 #include "AServerItem.hpp"
 
+class OneLocation;
+
 class OneServer :public AServerItem
 {
     #define DIRECTIVES_MAP std::map<std::string, AServerItem *(OneServer::*)(Node*)>
@@ -40,7 +42,7 @@ class OneServer :public AServerItem
       AServerItem * addLocation(Node *node);
       AServerItem * addIndex(Node *node);
 
-      std::map< std::string, OneServer >               _location; // !
+      std::map< std::string, OneLocation >             _location; // !
       std::vector< std::string >                       _server_name;
       std::vector< std::string>                        _index;
       // Listen                                           _listen; // !
