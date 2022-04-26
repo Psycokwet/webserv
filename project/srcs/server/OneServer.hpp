@@ -10,6 +10,7 @@
 // #include "Listen.hpp"
 #include "AServerItem.hpp"
 
+
 class OneLocation;
 
 class OneServer :public AServerItem
@@ -34,16 +35,19 @@ class OneServer :public AServerItem
               }
       };
     private:
-      static DIRECTIVES_MAP _directives_to_setter;
-      static DIRECTIVES_MAP initializeDirectivesMap();
-
       AServerItem * addListen(Node *node);
       AServerItem * addServerName(Node *node);
       AServerItem * addLocation(Node *node);
-      AServerItem * addIndex(Node *node);
 
       std::map< std::string, OneLocation >             _location; // !
       std::vector< std::string >                       _server_name;
+
+    protected:
+      static DIRECTIVES_MAP _directives_to_setter;
+      static DIRECTIVES_MAP initializeDirectivesMap();
+
+      AServerItem * addIndex(Node *node);
+
       std::vector< std::string>                        _index;
       // Listen                                           _listen; // !
       // std::string                                      _root;
