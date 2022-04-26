@@ -39,7 +39,7 @@ OneLocation* getOneLocationFrom(AServerItem *currentServerItem)
 	OneLocation *ol = dynamic_cast<OneLocation*>(currentServerItem);
 	if (!ol)
 	{
-		std::cout << " \n Bug's here\n\n";
+		std::cout << " \n Bug's here " << ol<< "\n\n";
 		throw ConfigConsumer::UnexpectedStateInConsumer();
 
 	}

@@ -42,6 +42,7 @@ OneServer::OneServer() //Todo: put default value to each directive
 {
     _server_name.push_back("");
 	_index.push_back("index.html");
+	std::cout << "HELLO ONE SERVER HERE ----------------------------------------------\n" << this<< std::endl << std::endl;
 
 }
 
@@ -51,6 +52,8 @@ OneServer::OneServer() //Todo: put default value to each directive
 
 OneServer::~OneServer()
 {
+	for(std::map< std::string, OneLocation* >::const_iterator it = this->_location.begin(); it != this->_location.end(); it++)
+		delete it->second;
 }
 
 
@@ -105,12 +108,14 @@ AServerItem *OneServer::addLocation(Node *node)
 	std::cout << "I'm trying to add a location directive from " << *node;
 
 	Node::t_inner_args_container values = node->get_inner_args();
-	AServerItem * location_value = new OneLocation;
+	if(values.size() != 2) // necessary because juste after you try to read values[1]
+		throw IncompleteLocation();
+	OneLocation * location_value = new OneLocation();
 
 	if (_location.find(values[1]) != _location.end())
 		throw DuplicateUriError();
 
-	_location[values[1]] =  *dynamic_cast<OneLocation*>(location_value);
+	_location[values[1]] =  location_value;
 
 	// std::cout << "___Key of location_map are: ";
 	// for (std::map<std::string, OneLocation>::iterator it = _location.begin(); it != _location.end(); it++)

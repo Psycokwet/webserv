@@ -34,6 +34,14 @@ class OneServer :public AServerItem
                 return "ERROR: Directive is multiple declared.";
               }
       };
+      class IncompleteLocation : public std::exception
+      {
+          public:
+              virtual const char *what() const throw()
+              {
+                return "ERROR: Location doesn't have an argument, or too much args";
+              }
+      };
 
       class DuplicateUriError : public std::exception
       {
@@ -48,7 +56,7 @@ class OneServer :public AServerItem
       AServerItem * addServerName(Node *node);
       AServerItem * addLocation(Node *node);
 
-      std::map< std::string, OneLocation >             _location; // !
+      std::map< std::string, OneLocation* >             _location; // !
       std::vector< std::string >                       _server_name;
 
     protected:
