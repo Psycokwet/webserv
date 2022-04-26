@@ -9,7 +9,9 @@
 # include "Node.hpp"
 # include "ActionForKey.hpp"
 # include "../server/OneServer.hpp"
+# include "../server/OneLocation.hpp"
 # include "../server/MasterServer.hpp"
+
 class ActionForKey;
 
 #define LIST_ACTIONS std::list<ActionForKey>

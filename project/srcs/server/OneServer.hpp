@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <utility> // std::pair, std::make_pair
+# include <typeinfo> //typeid
 #include "../config/Node.hpp"
 // #include "ErrorPage.hpp"
 // #include "Listen.hpp"
@@ -31,7 +31,16 @@ class OneServer :public AServerItem
           public:
               virtual const char *what() const throw()
               {
-                return "Directive is not allowed to multiple declared.";
+                return "ERROR: Directive is multiple declared.";
+              }
+      };
+
+      class DuplicateUriError : public std::exception
+      {
+          public:
+              virtual const char *what() const throw()
+              {
+                return "ERROR: Uri is duplicated.";
               }
       };
     private:

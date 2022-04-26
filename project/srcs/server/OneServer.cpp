@@ -105,18 +105,19 @@ AServerItem *OneServer::addLocation(Node *node)
 	std::cout << "I'm trying to add a location directive from " << *node;
 
 	Node::t_inner_args_container values = node->get_inner_args();
-	// AServerItem * location_value = new OneLocation();
-	OneLocation *location_value = new OneLocation;
+	AServerItem * location_value = new OneLocation;
 
-	// ! Todo: check if key is already there
-	_location[values[1]] =  *location_value;
+	if (_location.find(values[1]) != _location.end())
+		throw DuplicateUriError();
 
-	std::cout << "___Key of location_map are: ";
-	for (std::map<std::string, OneLocation>::iterator it = _location.begin(); it != _location.end(); it++)
-		std::cout << it->first << "     ";
-	std::cout << std::endl;
+	_location[values[1]] =  *dynamic_cast<OneLocation*>(location_value);
 
-	return dynamic_cast<AServerItem*>(location_value);
+	// std::cout << "___Key of location_map are: ";
+	// for (std::map<std::string, OneLocation>::iterator it = _location.begin(); it != _location.end(); it++)
+	// 	std::cout << it->first << "     ";
+	// std::cout << std::endl;
+
+	return location_value;
 }
 
 

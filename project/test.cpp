@@ -1,19 +1,37 @@
 #include <iostream>
 #include <string>
+#include <map>
+
+class GrandParent 
+{
+  virtal void print()
+  {
+    std::cout << "Grand Parent\n";
+  }
+
+};
+
+class Parent: public GrandParent
+{
+  void print()
+  {
+    std::cout << "Parent\n";
+  }
+}
+
+class Kid: public Parent
+{
+  void print()
+  {
+    std::cout << "Kid\n";
+  }
+
+}
 
 int main ()
 {
-  std::string str="We think in generalities, but we live in details.";
-                                           // (quoting Alfred N. Whitehead)
-
-  std::string str2 = str.substr (3,5);     // "think"
-
-  std::string a_word = "live";
-  std::size_t pos = str.find(a_word);      // position of "live" in str
-
-  std::string str3 = str.substr (pos + a_word.size());     // get from "live" to the end
-
-  std::cout << str3 << '\n';
-
-  return 0;
+  Parents parent;
+  GrandParent *gp= dynamic_cast<GrandParent*>(&parent);
+  
+  
 }
