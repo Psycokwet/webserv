@@ -46,29 +46,25 @@ OneLocation* getOneLocationFrom(AServerItem *currentServerItem)
 	return ol;
 }
 
-AServerItem *consumeCreateServer(Node *node, AServerItem *currentServerItem, bool isLocation)
+AServerItem *consumeCreateServer(Node *node, AServerItem *currentServerItem)
 {
-	if (isLocation)
-		throw ConfigConsumer::UnexpectedStateInConsumer();
 	MasterServer *ms = getMasterServerFrom(currentServerItem); // ! get MasterServer
 	(void)node;
 	return ms->createServer();
 }
 
-AServerItem *consumeForOneServer(Node *node, AServerItem *currentServerItem, bool isLocation)
+AServerItem *consumeForOneServer(Node *node, AServerItem *currentServerItem)
 {
-	if (isLocation)
-	{
-		OneLocation *ol = getOneLocationFrom(currentServerItem);
-		ol->consume(node);
-		return ol;
-	}
-	else
-	{
-		OneServer *os = getOneServerFrom(currentServerItem); // ! get OneServer
-		os->consume(node); // ! OneServer::consume
-		return os;
-	}
+	OneServer *os = getOneServerFrom(currentServerItem); // ! get OneServer
+	os->consume(node); // ! OneServer::consume
+	return os;
+}
+
+AServerItem *consumeForOneLocation(Node *node, AServerItem *currentServerItem)
+{
+	OneLocation *ol = getOneLocationFrom(currentServerItem); // ! get OneServer
+	ol->consume(node); // ! OneServer::consume
+	return ol;
 }
 
 ACTION_MAP ConfigConsumer::initializeActionMap()
@@ -127,17 +123,12 @@ AServerItem *ConfigConsumer::consume(int deepness, Node *node, AServerItem *curr
 				parentName = &parent_inner_args[0];
 		}
 		std::cout << " with parent = " << (parentName ? *parentName : "NO PARENT") << std::endl;
-
-		bool isLocation = false;
-		
 		if (key.compare("server") == 0 && parentName == NULL)
-			return it_list->consume(node, currentServerItem, isLocation);
-		if (parentName->compare("location") == 0)
-			isLocation = true;
+			return it_list->consume(node, currentServerItem);
 		if (it_list->isValid(deepness, parentName))
 			// ! check validity of directive's deepness and its name of parents
 			// ! ActionForKey::consume: return / execute the function appropriate to that key (Ref. initializeActionMap())
-			return it_list->consume(node, currentServerItem, isLocation);
+			return it_list->consume(node, currentServerItem);
 	}
 	std::cout << "error for "<< key << " : "<<deepness<<std::endl;
 	return NULL; 

@@ -52,7 +52,7 @@ OneServer::OneServer() //Todo: put default value to each directive
 
 OneServer::~OneServer()
 {
-	for(std::map< std::string, OneLocation* >::const_iterator it = this->_location.begin(); it != this->_location.end(); it++)
+	for (std::map< std::string, OneLocation* >::const_iterator it = this->_location.begin(); it != this->_location.end(); it++)
 		delete it->second;
 }
 
@@ -63,7 +63,10 @@ OneServer::~OneServer()
 
 std::ostream &			OneServer::print( std::ostream & o) const
 {
-	o << "I'm OneServer";
+	o << "\tI'm OneServer" << std::endl;
+	for (std::map< std::string, OneLocation* >::const_iterator it = this->_location.begin(); it != this->_location.end(); it++)
+		o << "\t\t" << *(it->second) << std::endl;
+	
 	return o;
 }
 

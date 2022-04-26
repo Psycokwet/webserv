@@ -16,3 +16,14 @@ OneLocation::OneLocation()
 OneLocation::~OneLocation()
 {
 }
+
+/*
+** --------------------------------- OVERLOAD ---------------------------------
+*/
+
+std::ostream &			OneLocation::print( std::ostream & o) const
+{
+	o << "I'm OneLocation";
+	return o;
+}
+

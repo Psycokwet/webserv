@@ -16,6 +16,7 @@ class OneLocation :public OneServer
     public:
         OneLocation();
         ~OneLocation();
+    	virtual std::ostream & print( std::ostream & o) const;
 
         
 };
