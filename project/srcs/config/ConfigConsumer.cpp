@@ -10,22 +10,13 @@
 	map[key] = tmplist; \
 }
 
-AServerItem *placeholder_consume(Node *node, AServerItem *currentServerItem, bool isLocation)
-{
-	(void)isLocation;
-	(void)node;
-	(void)currentServerItem;
-	return NULL;
-}
+// ! There is no more _consume in ActionForKey 
 
 ACTION_MAP ConfigConsumer::initializeActionMap()
 {
     ACTION_MAP map;
 	std::vector<std::string> allowed_parents;
 	
-	// ! &consumeCreateServer: setup the "server", it has _consume with value is MasterServer::createServer
-	// ! &consumeForOneServer: setup the "server_name", it has _consume with value is OneServer::consume
-	// ! OneServer::consume will return 
 	ADD_ONE_LEVEL_ACTION("server", ActionForKey(0, 2, allowed_parents), map)
 	
 	allowed_parents.push_back("server");

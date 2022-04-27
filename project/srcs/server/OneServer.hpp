@@ -4,13 +4,11 @@
 #include <string>
 #include <vector>
 #include <map>
-# include <typeinfo> //typeid
 #include "../config/Node.hpp"
-// #include "ErrorPage.hpp"
-// #include "Listen.hpp"
 #include "AServerItem.hpp"
 #include "ALocation.hpp"
 #include "OneLocation.hpp"
+
 class OneLocation ;
 class OneServer :public ALocation
 {
@@ -27,18 +25,19 @@ class OneServer :public ALocation
     private:
       virtual AServerItem * addServerName(Node *node);
       virtual AServerItem * addLocation(Node *node);
+      // virtual AServerItem * addListen(Node *node);
 
-      std::map< std::string, OneLocation* >             _location; // !
-      std::vector< std::string >                       _server_name;
+      std::map< std::string, OneLocation* >   _location;
+      std::vector< std::string >              _server_name;
+      // Listen                                  _listen;
 
-      // Listen                                           _listen; // !
-      // std::string                                      _root;
-      // bool                                             _autoindex;
-      // ErrorPage                                        _error_page;
-      // std::vector< std::string>                        _method;
-      // int                                              _client_max_body_size;
     protected:
       virtual AServerItem * addIndex(Node *node);
+      virtual AServerItem * addRoot(Node *node);
+      virtual AServerItem * addAutoIndex(Node *node);
+      virtual AServerItem * addMethod(Node *node);
+      virtual AServerItem * addMaxSize(Node *node);
+
       static DIRECTIVES_MAP _directives_to_setter;
       virtual DIRECTIVES_MAP & getDirectiveMap();
 };

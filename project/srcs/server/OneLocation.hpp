@@ -16,8 +16,14 @@ class OneLocation :public ALocation
         OneLocation();
         ~OneLocation();
     	virtual std::ostream & print( std::ostream & o) const;
-		virtual AServerItem *addIndex(Node *node);
       	static DIRECTIVES_MAP initializeDirectivesMap();
+
+		virtual AServerItem *addIndex(Node *node);
+		virtual AServerItem *addRoot(Node *node);
+		virtual AServerItem *addAutoIndex(Node *node);
+		virtual AServerItem *addMethod(Node *node);
+		virtual AServerItem *addMaxSize(Node *node);
+
 	protected:
      	static DIRECTIVES_MAP _directives_to_setter;
       	virtual DIRECTIVES_MAP & getDirectiveMap();

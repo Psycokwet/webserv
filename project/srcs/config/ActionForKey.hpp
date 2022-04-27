@@ -29,7 +29,6 @@ class ActionForKey
 		int 							_min_level;
 		int 							_max_level;
 		std::vector<std::string>		_parents;
-		AServerItem *(*_consume)(Node *, AServerItem *); // ! function pointer to an appropriate function
 };
 
 std::ostream &			operator<<( std::ostream & o, ActionForKey const & i );

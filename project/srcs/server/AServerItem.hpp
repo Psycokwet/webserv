@@ -29,12 +29,12 @@ class AServerItem
                 return "ERROR: Directive is multiple declared.";
               }
       };
-      class IncompleteLocation : public std::exception
+      class IncompleteDirective : public std::exception
       {
           public:
               virtual const char *what() const throw()
               {
-                return "ERROR: Location doesn't have an argument, or too much args";
+                return "ERROR: Directive doesn't have an argument, or too much args";
               }
       };
 
@@ -52,6 +52,14 @@ class AServerItem
               virtual const char *what() const throw()
               {
                 return "ALocation childs should have this function reimplemented";
+              }
+      };
+      class InvalidValueError : public std::exception
+      {
+          public:
+              virtual const char *what() const throw()
+              {
+                return "ERROR: invalid value for directive";
               }
       };
 

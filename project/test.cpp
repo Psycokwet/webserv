@@ -2,36 +2,19 @@
 #include <string>
 #include <map>
 
-class GrandParent 
-{
-  virtal void print()
-  {
-    std::cout << "Grand Parent\n";
-  }
+#include <sstream>
 
-};
+#include <iostream>
 
-class Parent: public GrandParent
-{
-  void print()
-  {
-    std::cout << "Parent\n";
-  }
-}
+using namespace std;
 
-class Kid: public Parent
-{
-  void print()
-  {
-    std::cout << "Kid\n";
-  }
+int main() {
+    string s = "999s";
 
-}
+    stringstream degree(s);
 
-int main ()
-{
-  Parents parent;
-  GrandParent *gp= dynamic_cast<GrandParent*>(&parent);
-  
-  
+    int x = 0;
+    degree >> x;
+
+    cout << "Value of x: " << x;
 }
