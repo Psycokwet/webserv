@@ -18,55 +18,6 @@ AServerItem *placeholder_consume(Node *node, AServerItem *currentServerItem, boo
 	return NULL;
 }
 
-MasterServer* getMasterServerFrom(AServerItem *currentServerItem)
-{
-	MasterServer *ms = dynamic_cast<MasterServer*>(currentServerItem);
-	if (!ms)
-		throw ConfigConsumer::UnexpectedStateInConsumer();
-	return ms;
-}
-
-OneServer* getOneServerFrom(AServerItem *currentServerItem)
-{
-	OneServer *os = dynamic_cast<OneServer*>(currentServerItem);
-	if (!os)
-		throw ConfigConsumer::UnexpectedStateInConsumer();
-	return os;
-}
-
-OneLocation* getOneLocationFrom(AServerItem *currentServerItem)
-{
-	OneLocation *ol = dynamic_cast<OneLocation*>(currentServerItem);
-	if (!ol)
-	{
-		std::cout << " \n Bug's here " << ol<< "\n\n";
-		throw ConfigConsumer::UnexpectedStateInConsumer();
-
-	}
-	return ol;
-}
-
-AServerItem *consumeCreateServer(Node *node, AServerItem *currentServerItem)
-{
-	MasterServer *ms = getMasterServerFrom(currentServerItem); // ! get MasterServer
-	(void)node;
-	return ms->createServer();
-}
-
-AServerItem *consumeForOneServer(Node *node, AServerItem *currentServerItem)
-{
-	OneServer *os = getOneServerFrom(currentServerItem); // ! get OneServer
-	os->consume(node); // ! OneServer::consume
-	return os;
-}
-
-AServerItem *consumeForOneLocation(Node *node, AServerItem *currentServerItem)
-{
-	OneLocation *ol = getOneLocationFrom(currentServerItem); // ! get OneServer
-	ol->consume(node); // ! OneServer::consume
-	return ol;
-}
-
 ACTION_MAP ConfigConsumer::initializeActionMap()
 {
     ACTION_MAP map;
@@ -75,22 +26,22 @@ ACTION_MAP ConfigConsumer::initializeActionMap()
 	// ! &consumeCreateServer: setup the "server", it has _consume with value is MasterServer::createServer
 	// ! &consumeForOneServer: setup the "server_name", it has _consume with value is OneServer::consume
 	// ! OneServer::consume will return 
-	ADD_ONE_LEVEL_ACTION("server", ActionForKey(0, 2, allowed_parents, &consumeCreateServer), map)
+	ADD_ONE_LEVEL_ACTION("server", ActionForKey(0, 2, allowed_parents), map)
 	
 	allowed_parents.push_back("server");
-	ADD_ONE_LEVEL_ACTION("listen", ActionForKey(2, 4, allowed_parents, &consumeForOneServer), map) 
-	ADD_ONE_LEVEL_ACTION("server_name", ActionForKey(2, 4, allowed_parents, &consumeForOneServer), map)
-	ADD_ONE_LEVEL_ACTION("location", ActionForKey(2, 6, allowed_parents, &consumeForOneServer), map) 
+	ADD_ONE_LEVEL_ACTION("listen", ActionForKey(2, 4, allowed_parents), map) 
+	ADD_ONE_LEVEL_ACTION("server_name", ActionForKey(2, 4, allowed_parents), map)
+	ADD_ONE_LEVEL_ACTION("location", ActionForKey(2, 6, allowed_parents), map) 
 
 	allowed_parents.push_back("location");
-	ADD_ONE_LEVEL_ACTION("index", ActionForKey(2, 6, allowed_parents, &consumeForOneServer), map) 
-	ADD_ONE_LEVEL_ACTION("root", ActionForKey(2, 6, allowed_parents, &consumeForOneServer), map)
-	ADD_ONE_LEVEL_ACTION("autoindex", ActionForKey(2, 6, allowed_parents, &consumeForOneServer), map) 
-	ADD_ONE_LEVEL_ACTION("error_page", ActionForKey(2, 6, allowed_parents, &consumeForOneServer), map) 
-	ADD_ONE_LEVEL_ACTION("method", ActionForKey(2, 6, allowed_parents, &consumeForOneServer), map) 
-	ADD_ONE_LEVEL_ACTION("client_max_body_size", ActionForKey(2, 6, allowed_parents, &consumeForOneServer), map); 
-	ADD_ONE_LEVEL_ACTION("cgi", ActionForKey(2, 6, allowed_parents, &consumeForOneServer), map) 
-	ADD_ONE_LEVEL_ACTION("cgi_pass", ActionForKey(2, 6, allowed_parents, &consumeForOneServer), map) 
+	ADD_ONE_LEVEL_ACTION("index", ActionForKey(2, 6, allowed_parents), map) 
+	ADD_ONE_LEVEL_ACTION("root", ActionForKey(2, 6, allowed_parents), map)
+	ADD_ONE_LEVEL_ACTION("autoindex", ActionForKey(2, 6, allowed_parents), map) 
+	ADD_ONE_LEVEL_ACTION("error_page", ActionForKey(2, 6, allowed_parents), map) 
+	ADD_ONE_LEVEL_ACTION("method", ActionForKey(2, 6, allowed_parents), map) 
+	ADD_ONE_LEVEL_ACTION("client_max_body_size", ActionForKey(2, 6, allowed_parents), map); 
+	ADD_ONE_LEVEL_ACTION("cgi", ActionForKey(2, 6, allowed_parents), map) 
+	ADD_ONE_LEVEL_ACTION("cgi_pass", ActionForKey(2, 6, allowed_parents), map) 
     return map;
 }
 
@@ -123,12 +74,8 @@ AServerItem *ConfigConsumer::consume(int deepness, Node *node, AServerItem *curr
 				parentName = &parent_inner_args[0];
 		}
 		std::cout << " with parent = " << (parentName ? *parentName : "NO PARENT") << std::endl;
-		if (key.compare("server") == 0 && parentName == NULL)
-			return it_list->consume(node, currentServerItem);
 		if (it_list->isValid(deepness, parentName))
-			// ! check validity of directive's deepness and its name of parents
-			// ! ActionForKey::consume: return / execute the function appropriate to that key (Ref. initializeActionMap())
-			return it_list->consume(node, currentServerItem);
+			return currentServerItem->consume(node);
 	}
 	std::cout << "error for "<< key << " : "<<deepness<<std::endl;
 	return NULL; 
@@ -173,7 +120,6 @@ MasterServer *ConfigConsumer::validateEntry(std::string config_path)
 	Node *firstNode = Node::digestConfigurationFile(config_path);
 	if( !firstNode)
 		return NULL;
-
 	MasterServer *ms = new MasterServer();
 
 	if (ConfigConsumer::checkDirectChildrens(firstNode->getDirectChildrensMap(), ms) != EXIT_SUCCESS) 

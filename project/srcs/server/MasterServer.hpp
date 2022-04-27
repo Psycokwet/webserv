@@ -15,13 +15,14 @@ class MasterServer :public AServerItem
         MasterServer(const MasterServer & src);
         MasterServer & operator=(const MasterServer & rhs);
         virtual ~MasterServer();
-		OneServer *createServer();
+      	virtual AServerItem *consume(Node *node);
 
 		std::ostream & print( std::ostream & o) const;
         // int setup();
 
     private:
         std::vector< OneServer* >      _configAllServer;
+		OneServer *createServer();
 
 };
 

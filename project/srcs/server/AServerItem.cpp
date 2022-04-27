@@ -55,6 +55,11 @@ std::ostream &			AServerItem::print( std::ostream & o) const
 ** --------------------------------- METHODS ----------------------------------
 */
 
+AServerItem *AServerItem::consume(Node *node)
+{
+	(void)node;
+	throw new IncompleteTypeError();
+}
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

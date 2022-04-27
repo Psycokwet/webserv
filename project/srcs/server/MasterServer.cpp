@@ -37,6 +37,13 @@ MasterServer & MasterServer::operator=(const MasterServer & rhs)
     return (*this);
 }
 
+
+AServerItem *MasterServer::consume(Node *node)
+{
+	(void)node;
+	return this->createServer();
+}
+
 /*
 ** --------------------------------- METHODS ----------------------------------
 */

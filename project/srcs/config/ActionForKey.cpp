@@ -4,13 +4,13 @@
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-ActionForKey::ActionForKey(int min, int max, std::vector<std::string> parents, AServerItem *(consume)(Node *node, AServerItem* currentServerItem))
-: _min_level(min), _max_level(max), _parents(parents), _consume(consume)
+ActionForKey::ActionForKey(int min, int max, std::vector<std::string> parents)
+: _min_level(min), _max_level(max), _parents(parents)
 {
 }
 
 ActionForKey::ActionForKey( const ActionForKey & src )
-: _min_level(src._min_level), _max_level(src._max_level), _parents(src._parents), _consume(src._consume)
+: _min_level(src._min_level), _max_level(src._max_level), _parents(src._parents)
 {
 }
 
@@ -33,7 +33,6 @@ ActionForKey &				ActionForKey::operator=( ActionForKey const & rhs )
 		this->_max_level = rhs._max_level;
 		this->_min_level = rhs._min_level;
 		this->_parents = rhs._parents;
-		this->_consume = rhs._consume;
 	}
 	return *this;
 }
@@ -54,7 +53,6 @@ std::ostream &			operator<<( std::ostream & o, ActionForKey const & i )
 
 bool ActionForKey::isValid(int level, std::string *parent) const
 {
-
 	if(!(level > this->_min_level && level < this->_max_level)) // Better to fail early than have a lot of {} imbrications
 		return false;
 	// ! Directive has only one parent, check only one valid parent in the set is enough
@@ -63,15 +61,11 @@ bool ActionForKey::isValid(int level, std::string *parent) const
 		if ((*parent).compare(this->_parents[i]) == 0)
 			return true;
 	}
+	if(this->_parents.size() == 0 && parent == NULL)
+		return true;
 	return false;
 }
 
-AServerItem *ActionForKey::consume(Node *node, AServerItem* currentServerItem) const
-{
-	if(!this->_consume)
-		throw new ConsumerNotDefined();
-	return this->_consume(node, currentServerItem); // ! return a function coresponded to that directive, and execute that function?
-}
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */

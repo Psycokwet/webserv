@@ -15,8 +15,7 @@ class ActionForKey
 		ActionForKey(
 				int min = 0, // ! min, max is the allowed Deepness level of the directive.
 				int max = 0, // ! min = 0, max = 2 for the key "server" meaning: server can be at the deepness < 2 and > 4.
-				std::vector<std::string> parents = std::vector<std::string>(),
-				AServerItem *(consume)(Node *, AServerItem *) = NULL);
+				std::vector<std::string> parents = std::vector<std::string>());
 		ActionForKey( ActionForKey const & src );
 		virtual ~ActionForKey();
 
@@ -25,17 +24,6 @@ class ActionForKey
 		int getMinLevel() const;
 		int getMaxLevel() const;
 		std::vector<std::string> getParents() const;
-		AServerItem *consume(Node *node, AServerItem *currentServerItem) const;
-
-		class ConsumerNotDefined : public std::exception
-        {
-            public:
-                virtual const char *what() const throw()
-				{
-					return "Consumer function cannot be used since it haven't been defined.";
-				}
-        };
-
 
 	private:
 		int 							_min_level;

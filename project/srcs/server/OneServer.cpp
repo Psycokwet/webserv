@@ -1,5 +1,4 @@
 #include "OneServer.hpp"
-#include "OneLocation.hpp"
 
 /*
 ** ---------------------------------- STATIC ----------------------------------
@@ -7,11 +6,11 @@
 
 DIRECTIVES_MAP OneServer::initializeDirectivesMap()
 {
-    DIRECTIVES_MAP map;
-	map["listen"] = &OneServer::addListen;
-	map["server_name"] = &OneServer::addServerName;
-	map["location"] = &OneServer::addLocation;
-	map["index"] = &OneServer::addIndex;
+	DIRECTIVES_MAP map;
+	map["server_name"] = &ALocation::addServerName;
+	map["location"] = &ALocation::addLocation;
+	map["index"] = &ALocation::addIndex;
+	map["listen"] = &ALocation::addListen;
     return map;
 }
 
@@ -42,8 +41,6 @@ OneServer::OneServer() //Todo: put default value to each directive
 {
     _server_name.push_back("");
 	_index.push_back("index.html");
-	std::cout << "HELLO ONE SERVER HERE ----------------------------------------------\n" << this<< std::endl << std::endl;
-
 }
 
 /*
@@ -63,29 +60,26 @@ OneServer::~OneServer()
 
 std::ostream &			OneServer::print( std::ostream & o) const
 {
-	o << "\tI'm OneServer" << std::endl;
+	o << "\tI'm OneServer and I have as _server_name = ";
+	for (unsigned long i = 0; i < _server_name.size(); i++)
+		o << _server_name[i] << " ";
+	o << "\tAnd I have as _index = ";
+	for (unsigned long i = 0; i < _index.size(); i++)
+		o << _index[i] << " ";
+	o << std::endl;
 	for (std::map< std::string, OneLocation* >::const_iterator it = this->_location.begin(); it != this->_location.end(); it++)
 		o << "\t\t" << *(it->second) << std::endl;
 	
 	return o;
 }
 
-
 /*
 ** --------------------------------- METHODS ----------------------------------
 */
 
-AServerItem *OneServer::addListen(Node *node)
-{
-	std::cout << "I'm trying to add a listen directive from " << *node;
-	//do something to add listener
-	(void)node;
-	return this;
-}
-
 AServerItem *OneServer::addServerName(Node *node)
 {
-	std::cout << "I'm trying to add a server_name directive from " << *node;
+	std::cout << "OneServer I'm trying to add a server_name directive from " << *node;
 	if (this->_server_name[0].compare("") == 0 && this->_server_name.size() == 1 )
 	{
 		std::cout << "Add server name for the first time from: " << *node;
@@ -108,7 +102,7 @@ AServerItem *OneServer::addServerName(Node *node)
 
 AServerItem *OneServer::addLocation(Node *node)
 {
-	std::cout << "I'm trying to add a location directive from " << *node;
+	std::cout << "OneServer I'm trying to add a location directive from " << *node;
 
 	Node::t_inner_args_container values = node->get_inner_args();
 	if(values.size() != 2) // necessary because juste after you try to read values[1]
@@ -128,10 +122,9 @@ AServerItem *OneServer::addLocation(Node *node)
 	return location_value;
 }
 
-
 AServerItem *OneServer::addIndex(Node *node)
 {
-	std::cout << "I'm trying to add a index directive from " << *node;
+	std::cout << "OneServer I'm trying to add a index directive from " << *node ;
 	if (this->_index[0].compare("index.html") == 0 && this->_server_name.size() == 1 )
 	{
 		std::cout << "Add index for the first time from: " << *node;
@@ -152,7 +145,7 @@ AServerItem *OneServer::addIndex(Node *node)
 	}
 	else
 	{
-		std::cout << "_index = ";
+		std::cout << "_index is here ? = " << *node;
 		for (unsigned long i = 0; i < _index.size(); i++)
 			std::cout << _index[i] << " ";
 		std::cout << std::endl;
@@ -165,6 +158,11 @@ AServerItem *OneServer::addIndex(Node *node)
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
+
+DIRECTIVES_MAP & OneServer::getDirectiveMap()
+{
+	return this->_directives_to_setter;
+}
 
 
 /* ************************************************************************** */
