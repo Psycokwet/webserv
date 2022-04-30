@@ -5,32 +5,7 @@ DEFINE_ENUM(e_type, E_TYPE_ENUM)
 ** ---------------------------------- STATIC ----------------------------------
 */
 
-void ltrim(std::string &s)
-{
-	s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(isblank))));
-}
-
-void rtrim(std::string &s)
-{
-	s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(isblank))).base(), s.end());
-}
-
-void trim(std::string &s)
-{
-	ltrim(s);
-	rtrim(s);
-}
-
 #define PARSING_ERROR -1
-
-std::string conttoString(Node::t_inner_args_container &cont) 
-{
-	std::string tmp = "";
-
-	for(Node::t_inner_args_container::const_iterator it = cont.begin(); it != cont.end(); it++)
-		tmp = tmp + ";" + *it;
-	return tmp;
-}
 int Node::splitAddToNode(std::string &s, Node **current_node)
 {
 	std::string tmp_block;
@@ -66,9 +41,7 @@ int Node::splitAddToNode(std::string &s, Node **current_node)
 			((*current_node) = (*current_node)->getParent()->getParent());
 			return EXIT_SUCCESS;
 		}else 
-		{
 			tmp_inner_args.push_back(tmp_block);
-		}
 	}
 	if(tmp_inner_args.size() > 0)
 	{
