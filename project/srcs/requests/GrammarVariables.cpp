@@ -61,4 +61,9 @@ std::string				GrammarVariables::getName() const
 	return this->_name;
 }
 
+std::vector<std::string> &GrammarVariables::getTokens()
+{
+	return this->_tokens;
+}
+
 /* ************************************************************************** */

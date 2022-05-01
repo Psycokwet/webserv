@@ -17,6 +17,7 @@ class GrammarVariables
 		GrammarVariables &		operator=( GrammarVariables const & rhs );
 		std::ostream &			print( std::ostream & o) const;
 		std::string				getName() const;
+		std::vector<std::string> &getTokens();
 
 	private:
 		std::string _name;

@@ -71,7 +71,7 @@ IPv6address = 6 ( h16 ":" ) ls32 	/ "::" 5 ( h16 ":" ) ls32 	/ [ h16 ] "::" 4 ( 
 
 IPv4address = dec_octet "." dec_octet "." dec_octet "." dec_octet
 
-segment_nz = 1* (pchar)
+segment_nz = 1* ( pchar )
 
 reg_name = * ( unreserved / pct_encoded / sub_delims )
 

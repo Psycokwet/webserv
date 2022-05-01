@@ -22,22 +22,68 @@ bool check_MULTI (std::string token, t_grammar_map &gm)
 {
 	(void)gm;
 	size_t multiPos = token.find("*");
-	if (multiPos == std::string::npos || token.find("*", multiPos + 1) != std::string::npos)
+	if (multiPos != std::string::npos && token.find("*", multiPos + 1) != std::string::npos)
 		return false;
+	std::string tmp_block;
+	std::stringstream ss(token);
+	while(std::getline(ss, tmp_block, '*'))
+	{
+		for (size_t i = 0; i < tmp_block.length(); i++)
+		{
+			if(! isdigit(tmp_block.at(i)))
+				return false;
+		}
+	}
 	return true;
 }
 
-bool check_INTERVAL (std::string token, t_grammar_map &gm)
+bool check_VALUE (std::string token, t_grammar_map &gm)
 {	
 	(void)gm;
-	(void)token;
+	if (token.length() == 4 && token.rfind("0x", 0) == 0 && isItTwoDigitHexa(token.substr(2, 4)))
+		return true;
+	return false;
+}
+
+bool check_QUOTEVALUE (std::string token, t_grammar_map &gm)
+{	
+	(void)gm;
+	if (token.length() == 3 && token.at(0) == '\'' && token.at(2) == '\'')
+		return true;
+	return false;
+}
+
+bool check_INTERVAL (std::string token, t_grammar_map &gm)
+{
+	(void)gm;
+	std::string tmp_block;
+	if (token.length() > 4 && (token.length() - 4) % 3 == 0 && token.rfind("0x", 0) == 0)
+	{
+		std::stringstream ss(token.substr(2, token.length()));
+		while(std::getline(ss, tmp_block, '-'))
+		{
+			if (!isItTwoDigitHexa(tmp_block))
+				return false;
+		}
+		return true;
+	}
 	return false;
 }
 
 bool check_MULTIVALUES (std::string token, t_grammar_map &gm)
 {
 	(void)gm;
-	(void)token;
+	std::string tmp_block;
+	if (token.length() > 4 && (token.length() - 4) % 3 == 0 && token.rfind("0x", 0) == 0)
+	{
+		std::stringstream ss(token.substr(2, token.length()));
+		while(std::getline(ss, tmp_block, '.'))
+		{
+			if (!isItTwoDigitHexa(tmp_block))
+				return false;
+		}
+		return true;
+	}
 	return false;
 }
 
@@ -96,6 +142,8 @@ GrammarParser::t_builder_dictionary GrammarParser::initBuilderDictionnary()
 	// vector.push_back(t_pair_checker_consume(&check_VAR, &consume_VAR));
 	vector.push_back(std::make_pair(&check_OR, &placeholder_parser)); // / 
 	vector.push_back(std::make_pair(&check_MULTI, &placeholder_parser)); // x*y
+	vector.push_back(std::make_pair(&check_VALUE, &placeholder_parser)); //  0x35
+	vector.push_back(std::make_pair(&check_QUOTEVALUE, &placeholder_parser)); //  'x'
 	vector.push_back(std::make_pair(&check_INTERVAL, &placeholder_parser)); //  0x35-45
 	vector.push_back(std::make_pair(&check_MULTIVALUES, &placeholder_parser)); // 0x45.35
 	vector.push_back(std::make_pair(&check_BLOCK, &placeholder_parser)); // ()
@@ -134,9 +182,37 @@ GrammarVariables *parseVar(std::string tmp_line)
 	return gv;
 }
 
+#define NON_VALID -1
+
+int checkValidityForToken(std::string token, t_grammar_map &gramMap)
+{
+	for (size_t i = 0; i < GrammarParser::_builderDictionnary.size(); i++)
+	{
+		if(GrammarParser::_builderDictionnary[i].first(token, gramMap))
+			return i;
+	}
+	return NON_VALID;
+}
+
+bool checkValidityForVar(GrammarVariables *gv, t_grammar_map &gramMap)
+{
+	std::vector<std::string> &tokens = gv->getTokens();
+	for (size_t i = 0; i < tokens.size(); i++)
+	{
+		if(checkValidityForToken(tokens[i], gramMap) == NON_VALID)
+			return false;
+	}
+	return true;
+}
+
 bool isGrammarMapValid(t_grammar_map &gramMap)
 {
-	(void)gramMap;
+
+	for(t_grammar_map::const_iterator it = gramMap.begin(); it != gramMap.end(); it++)
+	{
+		if (!checkValidityForVar((*it).second, gramMap))
+			return false;
+	}
 	return true;
 }
 
