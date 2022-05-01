@@ -1,22 +1,112 @@
 #include "GrammarParser.hpp"
 
 /*
+** ---------------------------------- LOCAL ----------------------------------
+*/
+bool isItTwoDigitHexa(std::string token)
+{
+	if(token.length() != 2 || ! isxdigit(token.at(0)) || ! isxdigit(token.at(1)))
+		return false;
+	return true;
+}
+
+bool check_OR (std::string token, t_grammar_map &gm)
+{
+	(void)gm;
+	if(token == "/")
+		return true;
+	return false;
+}
+
+bool check_MULTI (std::string token, t_grammar_map &gm)
+{
+	(void)gm;
+	size_t multiPos = token.find("*");
+	if (multiPos == std::string::npos || token.find("*", multiPos + 1) != std::string::npos)
+		return false;
+	return true;
+}
+
+bool check_INTERVAL (std::string token, t_grammar_map &gm)
+{	
+	(void)gm;
+	(void)token;
+	return false;
+}
+
+bool check_MULTIVALUES (std::string token, t_grammar_map &gm)
+{
+	(void)gm;
+	(void)token;
+	return false;
+}
+
+bool check_BLOCK (std::string token, t_grammar_map &gm)
+{
+	(void)gm;
+	if(token == "(" || token == ")")
+		return true;
+	return false;
+}
+
+bool check_STRING (std::string token, t_grammar_map &gm)
+{
+	(void)gm;
+	if (token.length() >= 2 && token.at(0) == '"' && token.at(token.length() - 1) == '"' )
+		return true;
+	return false;
+}
+
+bool check_OPTIONAL (std::string token, t_grammar_map &gm)
+{
+	(void)gm;
+	if(token == "[" || token == "]")
+		return true;
+	return false;
+}
+
+bool check_VAR (std::string token, t_grammar_map &gm)
+{
+	if (gm.find(token) != gm.end())
+		return true;
+	return false;
+}
+
+GrammarParserBuilderMarker placeholder_parser(	std::string token,	GrammarParserBuilderMarker gp)
+{
+	(void)token;
+	return gp;
+}
+
+
+/*
 ** ---------------------------------- STATIC ----------------------------------
 */
 
-t_builder_dictionary GrammarParser::initBuilderDictionnary()
+GrammarParser::t_builder_dictionary GrammarParser::initBuilderDictionnary()
 {
     t_builder_dictionary vector;
-	vector.push_back(t_pair_checker_consume(&check_OR, &consume_OR));
-	vector.push_back(t_pair_checker_consume(&check_MULTI, &consume_MULTI));
-	vector.push_back(t_pair_checker_consume(&check_INTERVAL, &consume_INTERVAL));
-	vector.push_back(t_pair_checker_consume(&check_MULTIVALUES, &consume_MULTIVALUES));
-	vector.push_back(t_pair_checker_consume(&check_STRING, &consume_STRING));
-	vector.push_back(t_pair_checker_consume(&check_VAR, &consume_VAR));
-    return map;
+	// vector.push_back(t_pair_checker_consume(&check_OR, &consume_OR));
+	// vector.push_back(t_pair_checker_consume(&check_MULTI, &consume_MULTI));
+	// vector.push_back(t_pair_checker_consume(&check_INTERVAL, &consume_INTERVAL));
+	// vector.push_back(t_pair_checker_consume(&check_MULTIVALUES, &consume_MULTIVALUES));
+	// vector.push_back(t_pair_checker_consume(&check_BLOCK, &consume_BLOCK));
+	// vector.push_back(t_pair_checker_consume(&check_STRING, &consume_STRING));
+	// vector.push_back(t_pair_checker_consume(&check_OPTIONAL, &consume_OPTIONAL));
+	// vector.push_back(t_pair_checker_consume(&check_VAR, &consume_VAR));
+	vector.push_back(std::make_pair(&check_OR, &placeholder_parser)); // / 
+	vector.push_back(std::make_pair(&check_MULTI, &placeholder_parser)); // x*y
+	vector.push_back(std::make_pair(&check_INTERVAL, &placeholder_parser)); //  0x35-45
+	vector.push_back(std::make_pair(&check_MULTIVALUES, &placeholder_parser)); // 0x45.35
+	vector.push_back(std::make_pair(&check_BLOCK, &placeholder_parser)); // ()
+	vector.push_back(std::make_pair(&check_STRING, &placeholder_parser)); // ""
+	vector.push_back(std::make_pair(&check_OPTIONAL, &placeholder_parser)); // []
+	vector.push_back(std::make_pair(&check_VAR, &placeholder_parser)); //known var
+    return vector;
 }
 
-t_builder_dictionary GrammarParser::_directives_to_setter = GrammarParser::initBuilderDictionnary();
+GrammarParser::t_builder_dictionary GrammarParser::_builderDictionnary = GrammarParser::initBuilderDictionnary();
+
 #define PREPARE_AND_SKIP_EMPTY_LIGNES(str) std::replace_if(str.begin(), str.end(), isblank, ' '); \
 		trim(str);\
 		if(str == "" || str[0] == ';')\

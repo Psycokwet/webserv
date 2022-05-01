@@ -4,11 +4,11 @@
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-GrammarParserBuilderMarker::GrammarParserBuilderMarker()
+GrammarParserBuilderMarker::GrammarParserBuilderMarker(int deepness) :_deepness(deepness)
 {
 }
 
-GrammarParserBuilderMarker::GrammarParserBuilderMarker( const GrammarParserBuilderMarker & src )
+GrammarParserBuilderMarker::GrammarParserBuilderMarker( const GrammarParserBuilderMarker & src ) :_deepness(src._deepness)
 {
 }
 
@@ -28,6 +28,7 @@ GrammarParserBuilderMarker::~GrammarParserBuilderMarker()
 
 GrammarParserBuilderMarker &				GrammarParserBuilderMarker::operator=( GrammarParserBuilderMarker const & rhs )
 {
+	this->_deepness = rhs._deepness;
 	//if ( this != &rhs )
 	//{
 		//this->_value = rhs.getValue();
@@ -41,11 +42,9 @@ std::ostream &			operator<<( std::ostream & o, GrammarParserBuilderMarker const 
 }
 
 
-std::ostream &			GrammarVariables::print( std::ostream & o) const
+std::ostream &			GrammarParserBuilderMarker::print( std::ostream & o) const
 {
-	o << this->_name << " = ";
-	for(std::vector<std::string>::const_iterator it = this->_tokens.begin(); it != this->_tokens.end(); it++)
-		o << *it << " ";
+	o << this->_deepness;
 	return o;
 }
 

@@ -8,6 +8,7 @@
 # include <cstring>
 # include <list>
 # include <map>
+# include <algorithm>
 # include <vector>
 # include "GrammarVariables.hpp"
 # include "GrammarParserBuilderMarker.hpp"
@@ -15,8 +16,8 @@
 
 typedef std::map<std::string, GrammarVariables*> t_grammar_map;
 class GrammarParser
-{						//checker				token			//consume										token			state request parsing
-	typedef std::pair<bool (GrammarParser::*)(	std::string),	GrammarParserBuilderMarker (GrammarParser::*)(	std::string,	GrammarParserBuilderMarker)> t_pair_checker_consume;
+{						//checker	token			//vars				//consume						token			state request parsing
+	typedef std::pair<	bool (*)(	std::string, 	 t_grammar_map &gm),GrammarParserBuilderMarker (*)(	std::string,	GrammarParserBuilderMarker)> t_pair_checker_consume;
 	typedef std::vector< t_pair_checker_consume > t_builder_dictionary;
 	public:
 
@@ -29,6 +30,7 @@ class GrammarParser
 		static GrammarParser *build(std::string filename);
 		static t_builder_dictionary _builderDictionnary;
 		static t_builder_dictionary initBuilderDictionnary();
+
 
 	private:
 		GrammarParser(t_grammar_map vars = t_grammar_map());
