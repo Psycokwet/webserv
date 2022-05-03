@@ -48,7 +48,7 @@ std::ostream &			operator<<( std::ostream & o, GrammarParserBuilderMarker const 
 std::ostream &			GrammarParserBuilderMarker::print( std::ostream & o) const
 {
 	o << "this->_deepness " << this->_deepness << " ; ";
-	o << "this->_gv " << this->_gv << " ; ";
+	o << "this->_gv [" << *this->_gv << "] ; ";
 	o << "this->_tokenIndex " << this->_tokenIndex << " ; ";
 	return o;
 }
@@ -83,6 +83,11 @@ int GrammarParserBuilderMarker::sizeTokens() const
 int GrammarParserBuilderMarker::getDeepness() const
 {
 	return this->_deepness;
+}
+
+int GrammarParserBuilderMarker::getTokenIndex() const
+{
+	return this->_tokenIndex;
 }
 
 /*

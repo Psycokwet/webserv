@@ -6,7 +6,7 @@
 /*   By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#             */
-/*   Updated: 2022/05/01 10:02:13 by scarboni         ###   ########.fr       */
+/*   Updated: 2022/05/03 18:42:09 by scarboni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,15 +33,18 @@ int		main(int ac, char **av)
 	GrammarParser *gp = GrammarParser::build(GRAMMAR_FILE);
 	if(!gp)
 		return 0;
-	std::cout << *gp << std::endl;
+	// std::cout << *gp << std::endl;
 	std::cout << "Grammar parser is valid" << std::endl;
+
+	std::ifstream	ifs(av[1]);
+	std::string		tmp_line = "";
+	std::stringstream ss;
+	while(std::getline(ifs, tmp_line))
+	{
+		gp->feed(tmp_line + "\n\r");
+		std::cout << "I've read :" << tmp_line<< std::endl;
+	}
+	std::cout << GetString(gp->parse()) << tmp_line<< std::endl;
 	delete gp;
-	// std::ifstream	ifs(av[1]);
-	// std::string		tmp_line = "";
-	// std::stringstream ss;
-	// while(std::getline(ifs, tmp_line))
-	// {
-	// 	std::cout << "I've read :" << tmp_line<< std::endl;
-	// }
 	return 0;
 }

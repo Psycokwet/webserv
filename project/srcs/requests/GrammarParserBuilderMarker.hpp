@@ -27,6 +27,7 @@ class GrammarParserBuilderMarker
 
 		GrammarVariables *getVar();
 		std::string getCurrentToken();
+		int getTokenIndex() const;
 		bool incToken();
 		int sizeTokens() const;
 		int getDeepness() const;

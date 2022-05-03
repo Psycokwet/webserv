@@ -113,7 +113,8 @@ absolute_path = 1* ( "/" segment )
 
 tchar = "!" / "#" / "$" / "%" / "&" / "\'" / "*" / "+" / "-" / "." / "^" / "_" / "\`" / "|" / "~" / DIGIT / ALPHA
 
-HTTP_name = 0x48.54.54.50 ; HTTP
+HTTP_name = "HTTP"
+;HTTP_name = 0x48.54.54.50 ; HTTP
 
 asterisk_form = "*"
 
@@ -133,19 +134,19 @@ field_content = field_vchar [ 1* ( SP / HTAB ) field_vchar ]
 
 token = 1* tchar
 
-HTTP_version = HTTP_name "/" DIGIT "." DIGIT
+ONLY_VALUE!HTTP_version = HTTP_name "/" DIGIT "." DIGIT
 
-request_target = origin_form / absolute_form / authority_form / asterisk_form
+ONLY_VALUE!request_target = origin_form / absolute_form / authority_form / asterisk_form
 
-method = token
+ONLY_VALUE!method = token
 
-field_value = * ( field_content / obs_fold )
+VALUE!field_value = * ( field_content / obs_fold )
 
-field_name = token
+KEY!field_name = token
 
 request_line = method SP request_target SP HTTP_version CRLF
 
-message_body = * OCTET
+ONLY_VALUE!message_body = * OCTET
 
 header_field = field_name ":" OWS field_value OWS
 

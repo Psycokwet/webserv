@@ -1,5 +1,6 @@
 #include "GrammarParser.hpp"
 
+DEFINE_ENUM(e_parsing_states, E_PARSING_STATE_ENUM)
 /*
 ** ---------------------------------- LOCAL ----------------------------------
 */
@@ -151,6 +152,7 @@ GrammarVariables *parseVar(std::string tmp_line)
 {
 	std::string tmp_block;
 	std::string name;
+	std::string type = GetString(NO_VAR_TYPE);
 	std::vector<std::string> tokens;
 	std::stringstream ss(tmp_line);
 	while(std::getline(ss, tmp_block, ' '))
@@ -164,8 +166,18 @@ GrammarVariables *parseVar(std::string tmp_line)
 	if(tokens.size() <= 2 || tokens[1] != "=")
 		return NULL;
 	name = tokens.front();
+	if(name.find("!") != std::string::npos)
+	{
+		std::stringstream ss(name);
+		if(!std::getline(ss, tmp_block, '!'))
+			return NULL;
+		type = tmp_block;
+		if(!std::getline(ss, tmp_block, '!'))
+			return NULL;
+		name = tmp_block;
+	}
 	tokens.erase(tokens.begin(), tokens.begin() + 2);
-	GrammarVariables *gv = new GrammarVariables(name, tokens);
+	GrammarVariables *gv = new GrammarVariables(name, tokens, Gete_var_typeValue(type.c_str()));
 	return gv;
 }
 
@@ -181,13 +193,55 @@ int getBuilderIDForToken(std::string token, t_grammar_map &gramMap)
 	return NON_VALID;
 }
 
+#define RESET   "\033[0m"
+#define BLACK   "\033[30m"      /* Black */
+#define RED     "\033[31m"      /* Red */
+#define GREEN   "\033[32m"      /* Green */
+#define YELLOW  "\033[33m"      /* Yellow */
+#define BLUE    "\033[34m"      /* Blue */
+#define MAGENTA "\033[35m"      /* Magenta */
+#define CYAN    "\033[36m"      /* Cyan */
+#define WHITE   "\033[37m"      /* White */
+#define BOLDBLACK   "\033[1m\033[30m"      /* Bold Black */
+#define BOLDRED     "\033[1m\033[31m"      /* Bold Red */
+#define BOLDGREEN   "\033[1m\033[32m"      /* Bold Green */
+#define BOLDYELLOW  "\033[1m\033[33m"      /* Bold Yellow */
+#define BOLDBLUE    "\033[1m\033[34m"      /* Bold Blue */
+#define BOLDMAGENTA "\033[1m\033[35m"      /* Bold Magenta */
+#define BOLDCYAN    "\033[1m\033[36m"      /* Bold Cyan */
+#define BOLDWHITE   "\033[1m\033[37m"      /* Bold White */
+
+static const char *COLORS[] = {
+  BOLDGREEN,
+  YELLOW,
+  RED,
+  MAGENTA,
+  BOLDRED,
+  WHITE,
+  BOLDBLUE,
+  BOLDMAGENTA,
+  BOLDCYAN,
+  GREEN,
+  BOLDYELLOW,
+  BLUE,
+  CYAN,
+  BOLDWHITE,
+  BOLDBLACK,
+  BLACK,
+  NULL
+};
+
+
 bool checkValidityForVar(GrammarVariables *gv, t_grammar_map &gramMap)
 {
 	std::vector<std::string> &tokens = gv->getTokens();
+	int id = NON_VALID;
 	for (size_t i = 0; i < tokens.size(); i++)
 	{
-		if(getBuilderIDForToken(tokens[i], gramMap) == NON_VALID)
+		if((id = getBuilderIDForToken(tokens[i], gramMap)) == NON_VALID)
 			return false;
+		if (!DEBUG)
+			std::cout << COLORS[id] << " "<<tokens[i] << " "<< RESET;
 	}
 	return true;
 }
@@ -240,11 +294,25 @@ GrammarParser *GrammarParser::build(std::string filename)
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-GrammarParser::GrammarParser(t_grammar_map vars, std::string request) : _vars(vars), _request(request), _priority_states(), _statementsOpened()
+GrammarParser::GrammarParser(t_grammar_map vars, std::string request) : 
+	_vars(vars), 
+	_request(request), 
+	_priority_states(), 
+	_statementsOpened(), 
+	_key_buffer(""), 
+	_value_buffer(""), 
+	_current_buffer(NULL)
 {
 }
 
-GrammarParser::GrammarParser( const GrammarParser & src ) : _vars(src._vars), _request(src._request), _priority_states(src._priority_states), _statementsOpened(src._statementsOpened)
+GrammarParser::GrammarParser( const GrammarParser & src ) : 
+	_vars(src._vars), 
+	_request(src._request), 
+	_priority_states(src._priority_states), 
+	_statementsOpened(src._statementsOpened),
+	_key_buffer(src._key_buffer), 
+	_value_buffer(src._value_buffer), 
+	_current_buffer(src._current_buffer)
 {
 	(void)src;
 }
@@ -296,11 +364,24 @@ std::ostream &			operator<<( std::ostream & o, GrammarParser const & i )
 ** --------------------------------- METHODS ----------------------------------
 */
 
-bool GrammarParser::tryIncToken(GrammarParserBuilderMarker *gp)
+bool GrammarParser::addToCurrentBuffer(std::string add)
 {
-	if(!gp->incToken())
+	this->_requestIndex += add.size();
+	if(!this->_current_buffer)
+		return false;
+	if (!DEBUG)
+		std::cout << add;
+	(*this->_current_buffer) += add;
+	return true;
+}
+
+
+bool GrammarParser::tryIncToken()
+{
+	if(!_priority_states.front()->incToken())
 	{
-	 	delete gp;
+		std::cout<<"deleting:"<< *_priority_states.front() <<std::endl;
+	 	delete _priority_states.front();
 		_priority_states.pop_front();
 		return false;
 	}
@@ -315,23 +396,49 @@ void GrammarParser::feed(std::string buff)
 
 void GrammarParser::clear()
 {
+	this->_parsed_datas.clear();
 	this->_request = "";
+	this->_requestIndex = 0;
+	this->_value_buffer = "";
+	this->_key_buffer = "";
+	this->_current_buffer = NULL;
 }
 
 void GrammarParser::initParse()
 {
-	if (_priority_states.size() == 0)
-		_priority_states.push_back(new GrammarParserBuilderMarker(0, this->_vars[ID_BASE_REQUEST], 0));
+	if (_priority_states.size() != 0)
+		return;
+	this->_parsed_datas.clear();
+	this->_value_buffer = "";
+	this->_key_buffer = "";
+	this->_current_buffer = NULL;
+	this->_requestIndex = 0;
+	_priority_states.push_back(new GrammarParserBuilderMarker(0, this->_vars[ID_BASE_REQUEST], 0));
 }
-int GrammarParser::parse()
+e_parsing_states GrammarParser::parse()
 {
 	initParse();
-	std::string token = _priority_states.front()->getCurrentToken();
-	int id = getBuilderIDForToken(token, this->_vars);
-	if(id == NON_VALID)
-		return -1;
-	(this->*GrammarParser::_builderDictionnary[id].second)(token, _priority_states.front());
-	return 0;
+
+int i = 0;
+	e_parsing_states current;
+	do {
+		if(this->_requestIndex >= this->_request.size())
+			return PARSE_NOTHING_MORE;
+		if(i++ > 50)
+			return PARSE_QUIT_DEBUG;
+		std::string token = _priority_states.front()->getCurrentToken();
+		int id = getBuilderIDForToken(token, this->_vars);
+		if(id == NON_VALID)
+			return PARSE_FATAL_FAILURE;
+		if (!DEBUG)
+			std::cout << COLORS[id];
+		std::cout<< *_priority_states.front() <<"::"<< id <<"::"<< this->_requestIndex << "::"<<std::endl;
+		current = (this->*GrammarParser::_builderDictionnary[id].second)(token, _priority_states.front());
+		if (!DEBUG)
+			std::cout << RESET;
+	}
+	while(current != PARSE_NOT_ENOUGH_DATAS && current != PARSE_FATAL_FAILURE);
+	return current;
 	// std::vector<std::string> &tokens = gv->getTokens();
 	// for (size_t i = 0; i < tokens.size(); i++)
 	// {
@@ -342,87 +449,152 @@ int GrammarParser::parse()
 }
 
 
-int GrammarParser::consume_OR(std::string token,	GrammarParserBuilderMarker *gp)
+e_parsing_states GrammarParser::consume_OR(std::string token,	GrammarParserBuilderMarker *gp)
 {
+	tryIncToken();
 	(void)token;
 	(void)gp;
-	return 0;
+	return PARSE_SUCCESS;
 }
 
-int GrammarParser::consume_MULTI(std::string token,	GrammarParserBuilderMarker *gp)
+e_parsing_states GrammarParser::consume_MULTI(std::string token,	GrammarParserBuilderMarker *gp)
 {
+	tryIncToken();
+
+	std::string tmp_block;
+	int min = 0;
+	int max = INT_MAX;
+	std::stringstream ss(token);
+	if(!std::getline(ss, tmp_block, '*'))
+		return PARSE_FAILURE;
+	if(tmp_block.size() > 0)
+		min = strtol(tmp_block.c_str(), NULL, 10);
+
+	if(!std::getline(ss, tmp_block, '*'))
+		return PARSE_FAILURE;
+	if(tmp_block.size() > 0)
+		max = strtol(tmp_block.c_str(), NULL, 10);
+	max -= min;
+	// for (int i = 0; i < min; i++)
+	// {
+	// 	_priority_states.push_front(new GrammarParserBuilderMarker(gp->getVar()->generateSubVar(gp->getTokenIndex())));
+	// 	tryIncToken();
+	// 	/* code */
+	// }
+	
 	(void)token;
 	(void)gp;
-	return 0;
+	return PARSE_SUCCESS;
 }
 
-int GrammarParser::consume_VALUE(std::string token,	GrammarParserBuilderMarker *gp)
+e_parsing_states GrammarParser::consume_VALUE(std::string token,	GrammarParserBuilderMarker *gp)
 {
+	(void)gp;
+	long valid_value = strtol(token.substr(2).c_str(), NULL, 16);
+	char c = this->_request.at(this->_requestIndex);
+	std::string tmp ;
+	tmp += c;
+	if(c != valid_value)
+		return PARSE_FAILURE;
+	tryIncToken();
+	std::cout<<"CHAR IS :" << tmp << " NEEED "<< valid_value<<std::endl;
+	addToCurrentBuffer(tmp);
+	return PARSE_SUCCESS;
+}
+
+e_parsing_states GrammarParser::consume_QUOTEVALUE(std::string token,	GrammarParserBuilderMarker *gp)
+{
+	tryIncToken();
 	(void)token;
 	(void)gp;
-	return 0;
+	return PARSE_SUCCESS;
 }
 
-int GrammarParser::consume_QUOTEVALUE(std::string token,	GrammarParserBuilderMarker *gp)
+e_parsing_states GrammarParser::consume_INTERVAL(std::string token,	GrammarParserBuilderMarker *gp)
 {
+	tryIncToken();
+
+	long valid_min = strtol(token.substr(2, 4).c_str(), NULL, 16);
+	long valid_max = strtol(token.substr(5, 7).c_str(), NULL, 16);
+	char c = this->_request.at(this->_requestIndex);
+	if(c > valid_max || c < valid_min)
+		return PARSE_FAILURE;
+	(void)gp;
+	tryIncToken();
+	std::string tmp ;
+	tmp += c;
+	std::cout<<"CHAR IS :" << tmp << " NEEED "<< valid_min<<":"<< valid_max<<std::endl;
+	addToCurrentBuffer(tmp);
+	return PARSE_SUCCESS;
+}
+
+e_parsing_states GrammarParser::consume_MULTIVALUES(std::string token,	GrammarParserBuilderMarker *gp)
+{
+	tryIncToken();
 	(void)token;
 	(void)gp;
-	return 0;
+	return PARSE_SUCCESS;
 }
 
-int GrammarParser::consume_INTERVAL(std::string token,	GrammarParserBuilderMarker *gp)
+e_parsing_states GrammarParser::consume_BLOCK(std::string token,	GrammarParserBuilderMarker *gp)
 {
+	tryIncToken();
 	(void)token;
 	(void)gp;
-	return 0;
+	return PARSE_SUCCESS;
 }
 
-int GrammarParser::consume_MULTIVALUES(std::string token,	GrammarParserBuilderMarker *gp)
+e_parsing_states GrammarParser::consume_STRING(std::string token,	GrammarParserBuilderMarker *gp)
 {
-	(void)token;
 	(void)gp;
-	return 0;
+	std::string substring;
+	std::string subToken = token.substr(1, token.size() - 1);
+	if (this->_request.size() - this->_requestIndex < subToken.size())
+		return PARSE_NOT_ENOUGH_DATAS;
+	substring = this->_request.substr(this->_requestIndex, this->_requestIndex + subToken.size());
+	tryIncToken();
+	if (substring!= subToken)
+		return PARSE_FAILURE;
+	addToCurrentBuffer(substring);
+	return PARSE_SUCCESS;
 }
 
-int GrammarParser::consume_BLOCK(std::string token,	GrammarParserBuilderMarker *gp)
-{
-	(void)token;
-	(void)gp;
-	return 0;
-}
-
-int GrammarParser::consume_STRING(std::string token,	GrammarParserBuilderMarker *gp)
-{
-	(void)token;
-	(void)gp;
-	return 0;
-}
-
-int GrammarParser::consume_OPTIONAL(std::string token,	GrammarParserBuilderMarker *gp)
+e_parsing_states GrammarParser::consume_OPTIONAL(std::string token,	GrammarParserBuilderMarker *gp)
 {
 	if (token == "[")
 	{
 		this->_statementsOpened.push_back(new Statements(gp->getDeepness(), "[", gp->getVar()));
- 		tryIncToken(gp);
+ 		tryIncToken();
 		
 	}
 	else
 	{
 		if(this->_statementsOpened.size() == 0 || !this->_statementsOpened.back()->isTheRightClosingStatement("]", gp->getVar()))
 			throw new IllegalParsingState();
-		tryIncToken(gp);
+		tryIncToken();
 	}
 	(void)token;
 	(void)gp;
-	return 0;
+	return PARSE_SUCCESS;
 }
 
 
-int GrammarParser::consume_VAR(std::string token,	GrammarParserBuilderMarker *gp)
+e_parsing_states GrammarParser::consume_VAR(std::string token,	GrammarParserBuilderMarker *gp)
 {
- 	tryIncToken(gp);
-	_priority_states.push_front(new GrammarParserBuilderMarker(gp->getDeepness() + 1, this->_vars[token], 0));
-	return 0;
+	int tmp_deepness = gp->getDeepness();
+ 	tryIncToken();
+	GrammarVariables *gv =  this->_vars[token];
+	if (gv->getType() == ONLY_VALUE)
+	{
+		this->_key_buffer = "#" + gv->getName();
+		this->_current_buffer = &this->_value_buffer;
+	}
+	else if (gv->getType() == KEY)
+		this->_current_buffer = &this->_key_buffer;
+	else if (gv->getType() == VALUE)
+		this->_current_buffer = &this->_value_buffer;
+	_priority_states.push_front(new GrammarParserBuilderMarker(tmp_deepness + 1, gv, 0));
+	return PARSE_SUCCESS;
 }
 
 /*

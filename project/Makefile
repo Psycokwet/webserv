@@ -6,7 +6,7 @@
 #    By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#              #
-#    Updated: 2022/05/02 17:48:22 by scarboni         ###   ########.fr        #
+#    Updated: 2022/05/03 18:45:33 by scarboni         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -34,6 +34,9 @@ SRCS = 	main.cpp
 ifeq ($(TESTS), $(TESTPARSERRULE))
 	SRCS = mainParserTest.cpp
 	NAME = $(TESTPARSER)
+	CPPFLAGS += -DDEBUG=true
+else
+	CPPFLAGS += -DDEBUG=false
 endif
 
 ifndef TESTS
@@ -51,11 +54,7 @@ REQUESTS_FILES = 	GrammarParser.cpp \
 					GrammarVariables.cpp \
 					GrammarParserBuilderMarker.cpp \
 					Statements.cpp
-# AGrammar.cpp \
-				ALeaf.cpp \
-				OneString.cpp \
-				OneValue.cpp \
-				Intervals.cpp
+					
 SRCS += $(addprefix $(REQUEST_PATH), $(REQUESTS_FILES))
 UTIL_FILES = parse.cpp 
 SRCS += $(addprefix $(UTIL_PATH), $(UTIL_FILES))
