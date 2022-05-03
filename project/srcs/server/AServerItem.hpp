@@ -3,6 +3,9 @@
 
 # include <iostream>
 # include <string>
+#include <ctype.h> //isalnum
+#include <cstdlib> //atoi
+#include <climits> // INT_MAX
 # include "../config/Node.hpp"
 
 

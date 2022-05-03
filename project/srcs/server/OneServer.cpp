@@ -71,18 +71,18 @@ std::ostream &			OneServer::print( std::ostream & o) const
 	o << "\tI'm OneServer and I have as _server_name = ";
 	for (unsigned long i = 0; i < _server_name.size(); i++)
 		o << _server_name[i] << " ";
-	o << "\tAnd I have as _index = ";
+	o << "\t_index = ";
 	for (unsigned long i = 0; i < _index.size(); i++)
 		o << _index[i] << " ";
-	o << "\tAnd I have as _root = " << _root;
-	o << "\tAnd I have as _autoindex = " << _autoindex;
-	o << "\tAnd I have as _method = ";
+	o << "\t_root = " << _root;
+	o << "\t_autoindex = " << _autoindex;
+	o << "\t_method = ";
 	for (std::set<std::string>::const_iterator it = _method.begin(); it != _method.end(); it++)
 		o << *it << " ";
+	o << "\t_client_max_body_size = " << _client_max_body_size;
 	o << std::endl;
 	for (std::map< std::string, OneLocation* >::const_iterator it = this->_location.begin(); it != this->_location.end(); it++)
-		o << "\t\t" << *(it->second) << std::endl;
-	o << "\tAnd I have as _client_max_body_size = " << _client_max_body_size;
+		o << "\t\t" << "_location = "<< it->first << "\t" << *(it->second) << std::endl;
 	
 	return o;
 }
@@ -205,8 +205,15 @@ AServerItem *OneServer::addMaxSize(Node *node)
 		Node::t_inner_args_container values = node->get_inner_args();
 		if (values.size() != 2)
 			throw IncompleteDirective();
-		std::stringstream degree(values[1]);
-		degree >> _client_max_body_size;
+		unsigned int i = 0;
+		while(isdigit(values[1][i])) i++;
+		if (i != strlen(values[1].c_str()))
+			throw InvalidValueError();
+		long int size = atol(values[1].c_str());
+		if (size > INT_MAX)
+			throw InvalidValueError();
+		else 
+			_client_max_body_size = size;
 	}
 	else
 		throw MultipleDeclareError();

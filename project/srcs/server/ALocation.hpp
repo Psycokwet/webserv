@@ -5,13 +5,11 @@
 #include <vector>
 #include <map>
 #include <set>
-# include <typeinfo> //typeid
 #include "../config/Node.hpp"
+
 // #include "ErrorPage.hpp"
 // #include "Listen.hpp"
 #include "AServerItem.hpp"
-#include <sstream> //
-
 class ALocation :public AServerItem
 {
 	#define DIRECTIVES_TYPE AServerItem *(ALocation::*)(Node*)
