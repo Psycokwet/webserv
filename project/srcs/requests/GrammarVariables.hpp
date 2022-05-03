@@ -19,6 +19,7 @@ class GrammarVariables
 		std::string				getName() const;
 		std::vector<std::string> &getTokens();
 
+
 	private:
 		std::string _name;
 		std::vector<std::string> _tokens;

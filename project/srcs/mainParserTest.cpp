@@ -6,7 +6,7 @@
 /*   By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#             */
-/*   Updated: 2022/04/28 18:54:14 by scarboni         ###   ########.fr       */
+/*   Updated: 2022/05/01 10:02:13 by scarboni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ int		main(int ac, char **av)
 	if(!gp)
 		return 0;
 	std::cout << *gp << std::endl;
+	std::cout << "Grammar parser is valid" << std::endl;
 	delete gp;
 	// std::ifstream	ifs(av[1]);
 	// std::string		tmp_line = "";

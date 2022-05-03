@@ -6,7 +6,7 @@
 #    By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#              #
-#    Updated: 2022/05/01 08:24:40 by scarboni         ###   ########.fr        #
+#    Updated: 2022/05/02 17:48:22 by scarboni         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -49,7 +49,8 @@ OBJ_PATHS			+= $(OBJ_PATH) $(addprefix $(OBJ_PATH), $(CONFIG_PATH) $(SERVER_PATH
 
 REQUESTS_FILES = 	GrammarParser.cpp \
 					GrammarVariables.cpp \
-					GrammarParserBuilderMarker.cpp
+					GrammarParserBuilderMarker.cpp \
+					Statements.cpp
 # AGrammar.cpp \
 				ALeaf.cpp \
 				OneString.cpp \
