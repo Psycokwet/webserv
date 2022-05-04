@@ -25,11 +25,11 @@ class OneServer :public ALocation
     private:
       virtual AServerItem * addServerName(Node *node);
       virtual AServerItem * addLocation(Node *node);
-      // virtual AServerItem * addListen(Node *node);
+      virtual AServerItem * addListen(Node *node);
 
       std::map< std::string, OneLocation* >   _location;
       std::vector< std::string >              _server_name;
-      // t_listen                                _listen;
+      t_listen                                _listen;
 
     protected:
       virtual AServerItem * addIndex(Node *node);

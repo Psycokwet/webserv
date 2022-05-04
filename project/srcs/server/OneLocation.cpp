@@ -20,6 +20,19 @@ DIRECTIVES_MAP OneLocation::initializeDirectivesMap()
 
 DIRECTIVES_MAP OneLocation::_directives_to_setter = OneLocation::initializeDirectivesMap();
 
+static int getNumber(std::string value)
+{
+	unsigned int i = 0;
+	while(isdigit(value[i])) i++;
+	if (i != strlen(value.c_str()))
+		throw ALocation::InvalidValueError();
+	long int size = atol(value.c_str());
+	if (size > INT_MAX)
+		throw ALocation::InvalidValueError();
+	else
+		return size;
+}
+
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
@@ -141,19 +154,6 @@ AServerItem *OneLocation::addMethod(Node *node)
 	else
 		throw MultipleDeclareError();
 	return this;
-}
-
-static int getNumber(std::string value)
-{
-	unsigned int i = 0;
-	while(isdigit(value[i])) i++;
-	if (i != strlen(value.c_str()))
-		throw ALocation::InvalidValueError();
-	long int size = atol(value.c_str());
-	if (size > INT_MAX)
-		throw ALocation::InvalidValueError();
-	else
-		return size;
 }
 
 AServerItem *OneLocation::addMaxSize(Node *node)

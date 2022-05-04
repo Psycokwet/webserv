@@ -9,7 +9,7 @@ DIRECTIVES_MAP OneServer::initializeDirectivesMap()
 	DIRECTIVES_MAP map;
 	map["location"] = &ALocation::addLocation;
 	map["server_name"] = &ALocation::addServerName;
-	// map["listen"] = &ALocation::addListen;
+	map["listen"] = &ALocation::addListen;
 
 	map["index"] = &ALocation::addIndex;
 	map["root"] = &ALocation::addRoot;
@@ -43,14 +43,56 @@ AServerItem *OneServer::consume(Node *node)
 	return (this->*directiveConsumer)(node); 
 }
 
+static bool isNumber(std::string value)
+{
+	unsigned int i = 0;
+	while(isdigit(value[i])) i++;
+	if (i != strlen(value.c_str()))
+		return false;
+	return true;
+}
+
+static int getNumber(std::string value)
+{
+	if (isNumber(value) == false)
+		throw ALocation::InvalidValueError();
+	long int size = atol(value.c_str());
+	if (size > INT_MAX)
+		throw ALocation::InvalidValueError();
+	else
+		return size;
+}
+
+
+static std::vector<std::string> split(const std::string& s, char seperator)
+{
+   std::vector<std::string> output;
+
+    std::string::size_type prev_pos = 0, pos = 0;
+
+    while((pos = s.find(seperator, pos)) != std::string::npos)
+    {
+        std::string substring( s.substr(prev_pos, pos-prev_pos) );
+
+        output.push_back(substring);
+
+        prev_pos = ++pos;
+    }
+
+    output.push_back(s.substr(prev_pos, pos-prev_pos)); // Last word
+
+    return output;
+}
+
+
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
 OneServer::OneServer() //Todo: put default value to each directive
 {
-    _server_name.push_back("");
-	// Todo: Add default value for Listen and Location
+	_server_name.push_back("");
+	_listen = t_listen();
 }
 
 /*
@@ -73,6 +115,11 @@ std::ostream &			OneServer::print( std::ostream & o) const
 	o << "\tI'm OneServer and I have as _server_name = ";
 	for (unsigned long i = 0; i < _server_name.size(); i++)
 		o << _server_name[i] << " ";
+
+	o << "\t_listen: with address = " << _listen._address;
+	o << ", port = " << _listen._port;
+	o << ", default_server = " << _listen._default_server;
+	
 	o << "\t_index = ";
 	for (unsigned long i = 0; i < _index.size(); i++)
 		o << _index[i] << " ";
@@ -87,8 +134,9 @@ std::ostream &			OneServer::print( std::ostream & o) const
 	for (unsigned long i = 0; i < _error_page.errorCodes.size(); i++)
 		o << _error_page.errorCodes[i] << " ";
 	o << ", and uri = " << _error_page.uri;
-	
+
 	o << "\t_cgi = " << _cgi;
+
 	
 	o << std::endl;
 	for (std::map< std::string, OneLocation* >::const_iterator it = this->_location.begin(); it != this->_location.end(); it++)
@@ -129,6 +177,39 @@ AServerItem *OneServer::addLocation(Node *node)
 		throw DuplicateUriError();
 	_location[values[1]] =  location_value;
 	return location_value;
+}
+
+
+AServerItem *OneServer::addListen(Node *node)
+{
+	std::cout << "OneServer I'm trying to add a listen directive from " << *node;
+	
+	if (_listen._port == 80 && _listen._address.compare("") == 0 && _listen._default_server.compare("") == 0) 
+	{
+		Node::t_inner_args_container values = node->get_inner_args();
+		if (values.size() < 2 || values.size() > 3)
+			throw InvalidValueError();
+		if (values.size() == 3)
+	{
+			_listen._default_server.assign(values[2]);
+			std::vector<std::string> output = split(values[1], ':');
+			if (output.size() == 2)
+			{
+				_listen._address = output[0];
+				_listen._port = getNumber(output[1]);
+			}
+			else if(output.size() == 1)
+			{
+				if(isNumber(output[0]))
+					_listen._port = getNumber(output[0]);
+				else
+					_listen._address = output[0];
+			}
+		}
+	}
+	else
+		throw MultipleDeclareError();
+	return this;
 }
 
 
@@ -207,18 +288,6 @@ AServerItem *OneServer::addMethod(Node *node)
 	return this;
 }
 
-static int getNumber(std::string value)
-{
-	unsigned int i = 0;
-	while(isdigit(value[i])) i++;
-	if (i != strlen(value.c_str()))
-		throw ALocation::InvalidValueError();
-	long int size = atol(value.c_str());
-	if (size > INT_MAX)
-		throw ALocation::InvalidValueError();
-	else
-		return size;
-}
 
 AServerItem *OneServer::addMaxSize(Node *node)
 {

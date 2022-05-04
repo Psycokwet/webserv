@@ -26,7 +26,7 @@ class ALocation :public AServerItem
 
       virtual AServerItem * addServerName(Node *node);
       virtual AServerItem * addLocation(Node *node);
-      // virtual AServerItem * addListen(Node *node);
+      virtual AServerItem * addListen(Node *node);
 
       virtual AServerItem * addIndex(Node *node);
       virtual AServerItem * addRoot(Node *node);

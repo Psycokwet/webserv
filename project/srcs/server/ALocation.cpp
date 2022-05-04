@@ -78,6 +78,12 @@ AServerItem *ALocation::addLocation(Node *node)
 	throw new IncompleteTypeError();
 }
 
+AServerItem *ALocation::addListen(Node *node)
+{
+	(void)node;
+	throw new IncompleteTypeError();
+}
+
 AServerItem *ALocation::addIndex(Node *node)
 {
 	(void)node;
