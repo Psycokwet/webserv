@@ -7,6 +7,7 @@
 #include <cstdlib> //atoi
 #include <climits> // INT_MAX
 # include "../config/Node.hpp"
+#include "../../includes/ConfigDataStructures.hpp"
 
 
 class AServerItem

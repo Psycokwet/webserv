@@ -36,6 +36,7 @@ ALocation::ALocation() //Todo: put default value to each directive
 	_autoindex = false;
 	_method.insert("GET");
 	_client_max_body_size = 1; // Unit is Mb
+	_error_page = t_error_page();
 
 }
 
@@ -101,6 +102,12 @@ AServerItem *ALocation::addMethod(Node *node)
 }
 
 AServerItem *ALocation::addMaxSize(Node *node)
+{
+	(void)node;
+	throw new IncompleteTypeError();
+}
+
+AServerItem *ALocation::addErrorPage(Node *node)
 {
 	(void)node;
 	throw new IncompleteTypeError();

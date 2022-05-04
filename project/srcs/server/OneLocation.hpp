@@ -23,6 +23,7 @@ class OneLocation :public ALocation
 		virtual AServerItem *addAutoIndex(Node *node);
 		virtual AServerItem *addMethod(Node *node);
 		virtual AServerItem *addMaxSize(Node *node);
+		virtual AServerItem *addErrorPage(Node *node);
 
 	protected:
      	static DIRECTIVES_MAP _directives_to_setter;

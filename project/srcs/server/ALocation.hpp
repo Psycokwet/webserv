@@ -33,6 +33,7 @@ class ALocation :public AServerItem
       virtual AServerItem * addAutoIndex(Node *node);
       virtual AServerItem * addMethod(Node *node);
       virtual AServerItem * addMaxSize(Node *node);
+      virtual AServerItem * addErrorPage(Node *node);
 
     protected:
       virtual DIRECTIVES_MAP & getDirectiveMap();
@@ -41,7 +42,7 @@ class ALocation :public AServerItem
       bool                        _autoindex;
       std::set< std::string>      _method;
       int                         _client_max_body_size;
-      // ErrorPage             _error_page;
+      t_error_page                _error_page;
       // cgi
 };
 

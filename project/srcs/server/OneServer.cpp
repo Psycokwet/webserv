@@ -16,6 +16,7 @@ DIRECTIVES_MAP OneServer::initializeDirectivesMap()
 	map["autoindex"] = &ALocation::addAutoIndex;
 	map["method"] = &ALocation::addMethod;
 	map["client_max_body_size"] = &ALocation::addMaxSize;
+	map["error_page"] = &ALocation::addErrorPage;
     return map;
 }
 
@@ -80,6 +81,13 @@ std::ostream &			OneServer::print( std::ostream & o) const
 	for (std::set<std::string>::const_iterator it = _method.begin(); it != _method.end(); it++)
 		o << *it << " ";
 	o << "\t_client_max_body_size = " << _client_max_body_size;
+
+	o << "\t_error_page: with codes = ";
+	for (unsigned long i = 0; i < _error_page.errorCodes.size(); i++)
+		o << _error_page.errorCodes[i] << " ";
+	o << ", and uri = " << _error_page.uri;
+	
+	
 	o << std::endl;
 	for (std::map< std::string, OneLocation* >::const_iterator it = this->_location.begin(); it != this->_location.end(); it++)
 		o << "\t\t" << "_location = "<< it->first << "\t" << *(it->second) << std::endl;
@@ -197,6 +205,19 @@ AServerItem *OneServer::addMethod(Node *node)
 	return this;
 }
 
+static int getNumber(std::string value)
+{
+	unsigned int i = 0;
+	while(isdigit(value[i])) i++;
+	if (i != strlen(value.c_str()))
+		throw ALocation::InvalidValueError();
+	long int size = atol(value.c_str());
+	if (size > INT_MAX)
+		throw ALocation::InvalidValueError();
+	else
+		return size;
+}
+
 AServerItem *OneServer::addMaxSize(Node *node)
 {
 	std::cout << "OneServer I'm trying to add a client_max_body_size directive from " << *node;
@@ -205,15 +226,28 @@ AServerItem *OneServer::addMaxSize(Node *node)
 		Node::t_inner_args_container values = node->get_inner_args();
 		if (values.size() != 2)
 			throw IncompleteDirective();
-		unsigned int i = 0;
-		while(isdigit(values[1][i])) i++;
-		if (i != strlen(values[1].c_str()))
-			throw InvalidValueError();
-		long int size = atol(values[1].c_str());
-		if (size > INT_MAX)
-			throw InvalidValueError();
-		else 
-			_client_max_body_size = size;
+		_client_max_body_size = getNumber(values[1]);
+	}
+	else
+		throw MultipleDeclareError();
+	return this;
+}
+
+
+AServerItem *OneServer::addErrorPage(Node *node)
+{
+	std::cout << "OneServer I'm trying to add a error_page directive from " << *node;
+	if (1) // ! Todo: add condition for _error_code is added for the first time
+	{
+		Node::t_inner_args_container values = node->get_inner_args();
+		if (values.size() < 3)
+			throw IncompleteDirective();
+		for (unsigned int i = 1; i < values.size() - 1; i++)
+		{
+			int code = getNumber(values[i]);
+			this->_error_page.errorCodes.push_back(code);
+		}
+		this->_error_page.uri = values[values.size() - 1];
 	}
 	else
 		throw MultipleDeclareError();

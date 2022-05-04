@@ -29,7 +29,7 @@ class OneServer :public ALocation
 
       std::map< std::string, OneLocation* >   _location;
       std::vector< std::string >              _server_name;
-      // Listen                                  _listen;
+      // t_listen                                _listen;
 
     protected:
       virtual AServerItem * addIndex(Node *node);
@@ -37,6 +37,7 @@ class OneServer :public ALocation
       virtual AServerItem * addAutoIndex(Node *node);
       virtual AServerItem * addMethod(Node *node);
       virtual AServerItem * addMaxSize(Node *node);
+      virtual AServerItem * addErrorPage(Node *node);
 
       static DIRECTIVES_MAP _directives_to_setter;
       virtual DIRECTIVES_MAP & getDirectiveMap();
