@@ -34,6 +34,7 @@ class ALocation :public AServerItem
       virtual AServerItem * addMethod(Node *node);
       virtual AServerItem * addMaxSize(Node *node);
       virtual AServerItem * addErrorPage(Node *node);
+      virtual AServerItem * addCgi(Node *node);
 
     protected:
       virtual DIRECTIVES_MAP & getDirectiveMap();
@@ -43,7 +44,7 @@ class ALocation :public AServerItem
       std::set< std::string>      _method;
       int                         _client_max_body_size;
       t_error_page                _error_page;
-      // cgi
+      std::string                 _cgi;
 };
 
 #endif /*------------------- ALocation --------*/

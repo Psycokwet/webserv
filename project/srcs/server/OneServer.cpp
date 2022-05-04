@@ -17,6 +17,7 @@ DIRECTIVES_MAP OneServer::initializeDirectivesMap()
 	map["method"] = &ALocation::addMethod;
 	map["client_max_body_size"] = &ALocation::addMaxSize;
 	map["error_page"] = &ALocation::addErrorPage;
+	map["cgi"] = &ALocation::addCgi;
     return map;
 }
 
@@ -87,6 +88,7 @@ std::ostream &			OneServer::print( std::ostream & o) const
 		o << _error_page.errorCodes[i] << " ";
 	o << ", and uri = " << _error_page.uri;
 	
+	o << "\t_cgi = " << _cgi;
 	
 	o << std::endl;
 	for (std::map< std::string, OneLocation* >::const_iterator it = this->_location.begin(); it != this->_location.end(); it++)
@@ -253,6 +255,24 @@ AServerItem *OneServer::addErrorPage(Node *node)
 		throw MultipleDeclareError();
 	return this;
 }
+
+AServerItem *OneServer::addCgi(Node *node)
+{
+	std::cout << "OneServer I'm trying to add a cgi directive from " << *node;
+	
+	if (this->_cgi.compare("") == 0)
+	{
+		_cgi.clear();
+		Node::t_inner_args_container values = node->get_inner_args();
+		if (values.size() != 2)
+			throw IncompleteDirective();
+		_cgi.assign(values[1]);
+	}
+	else
+		throw MultipleDeclareError();
+	return this;
+}
+
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

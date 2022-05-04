@@ -38,6 +38,7 @@ class OneServer :public ALocation
       virtual AServerItem * addMethod(Node *node);
       virtual AServerItem * addMaxSize(Node *node);
       virtual AServerItem * addErrorPage(Node *node);
+      virtual AServerItem * addCgi(Node *node);
 
       static DIRECTIVES_MAP _directives_to_setter;
       virtual DIRECTIVES_MAP & getDirectiveMap();
