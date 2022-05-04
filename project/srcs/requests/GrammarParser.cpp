@@ -364,15 +364,12 @@ std::ostream &			operator<<( std::ostream & o, GrammarParser const & i )
 ** --------------------------------- METHODS ----------------------------------
 */
 
-bool GrammarParser::addToCurrentBuffer(std::string add)
+void GrammarParser::addToBuffer(std::string add, GrammarParserBuilderMarker *gp)
 {
 	this->_requestIndex += add.size();
-	if(!this->_current_buffer)
-		return false;
 	if (!DEBUG)
 		std::cout << add;
-	(*this->_current_buffer) += add;
-	return true;
+	gp->addToBuffer(add);
 }
 
 
@@ -381,6 +378,17 @@ bool GrammarParser::tryIncToken()
 	if(!_priority_states.front()->incToken())
 	{
 		std::cout<<"deleting:"<< *_priority_states.front() <<std::endl;
+		GrammarVariables *gv = _priority_states.front()->getVar();
+		if (gv->getType() == ONLY_VALUE || gv->getType() == VALUE)
+		{
+			this->_parsed_datas[this->_key_buffer] = _priority_states.front()->getBuffer();
+			this->_key_buffer = "";
+			this->_current_buffer = NULL;
+		}
+		else if (gv->getType() == KEY)
+			this->_key_buffer = _priority_states.front()->getBuffer();
+		else if(_priority_states.size() > 2)
+			(*(_priority_states.begin()++))->addToBuffer(_priority_states.front()->getBuffer());
 	 	delete _priority_states.front();
 		_priority_states.pop_front();
 		return false;
@@ -413,7 +421,7 @@ void GrammarParser::initParse()
 	this->_key_buffer = "";
 	this->_current_buffer = NULL;
 	this->_requestIndex = 0;
-	_priority_states.push_back(new GrammarParserBuilderMarker(0, this->_vars[ID_BASE_REQUEST], 0));
+	_priority_states.push_back(new GrammarParserBuilderMarker(0, this->_vars[ID_BASE_REQUEST]));
 }
 e_parsing_states GrammarParser::parse()
 {
@@ -474,13 +482,13 @@ e_parsing_states GrammarParser::consume_MULTI(std::string token,	GrammarParserBu
 		return PARSE_FAILURE;
 	if(tmp_block.size() > 0)
 		max = strtol(tmp_block.c_str(), NULL, 10);
-	max -= min;
 	// for (int i = 0; i < min; i++)
 	// {
-	// 	_priority_states.push_front(new GrammarParserBuilderMarker(gp->getVar()->generateSubVar(gp->getTokenIndex())));
+	// 	// _priority_states.push_front(gp->generateDeeperObj());
 	// 	tryIncToken();
 	// 	/* code */
 	// }
+	gp->setRep(min, max);
 	
 	(void)token;
 	(void)gp;
@@ -498,7 +506,7 @@ e_parsing_states GrammarParser::consume_VALUE(std::string token,	GrammarParserBu
 		return PARSE_FAILURE;
 	tryIncToken();
 	std::cout<<"CHAR IS :" << tmp << " NEEED "<< valid_value<<std::endl;
-	addToCurrentBuffer(tmp);
+	addToBuffer(tmp, gp);
 	return PARSE_SUCCESS;
 }
 
@@ -524,7 +532,7 @@ e_parsing_states GrammarParser::consume_INTERVAL(std::string token,	GrammarParse
 	std::string tmp ;
 	tmp += c;
 	std::cout<<"CHAR IS :" << tmp << " NEEED "<< valid_min<<":"<< valid_max<<std::endl;
-	addToCurrentBuffer(tmp);
+	addToBuffer(tmp, gp);
 	return PARSE_SUCCESS;
 }
 
@@ -555,7 +563,7 @@ e_parsing_states GrammarParser::consume_STRING(std::string token,	GrammarParserB
 	tryIncToken();
 	if (substring!= subToken)
 		return PARSE_FAILURE;
-	addToCurrentBuffer(substring);
+	addToBuffer(substring, gp);
 	return PARSE_SUCCESS;
 }
 
@@ -593,7 +601,7 @@ e_parsing_states GrammarParser::consume_VAR(std::string token,	GrammarParserBuil
 		this->_current_buffer = &this->_key_buffer;
 	else if (gv->getType() == VALUE)
 		this->_current_buffer = &this->_value_buffer;
-	_priority_states.push_front(new GrammarParserBuilderMarker(tmp_deepness + 1, gv, 0));
+	_priority_states.push_front(new GrammarParserBuilderMarker(tmp_deepness + 1, gv));
 	return PARSE_SUCCESS;
 }
 

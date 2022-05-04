@@ -21,7 +21,6 @@ class GrammarVariables
 
 		GrammarVariables(std::string name = "", std::vector<std::string> tokens = std::vector<std::string> (), e_var_type type = NO_VAR_TYPE);
 		GrammarVariables(GrammarVariables const & src);
-		GrammarVariables *generateSubVar(std::size_t index_next_token);
 		~GrammarVariables();
 
 		GrammarVariables &		operator=( GrammarVariables const & rhs );

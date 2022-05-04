@@ -18,7 +18,7 @@ class GrammarParserBuilderMarker
 
 	public:
 
-		GrammarParserBuilderMarker(int deepness = -1, GrammarVariables *gv = NULL, int tokenIndex = -1);
+		GrammarParserBuilderMarker(int deepness = -1, GrammarVariables *gv = NULL);
 		GrammarParserBuilderMarker( GrammarParserBuilderMarker const & src );
 		~GrammarParserBuilderMarker();
 
@@ -31,6 +31,9 @@ class GrammarParserBuilderMarker
 		bool incToken();
 		int sizeTokens() const;
 		int getDeepness() const;
+		void setRep(int min, int max);
+
+
 		class TokenOutOfBound : public std::exception
         {
             public:
@@ -39,11 +42,19 @@ class GrammarParserBuilderMarker
 					return "Trying to get an out of bound token";
 				}
         };
+		void addToBuffer(std::string buffer);
+		std::string getBuffer();
 
 	private:
 		int _deepness;
 		GrammarVariables *_gv;
 		int _tokenIndex;
+		int _min;
+		int _max;
+		int _count;
+		int _resetTo;
+		std::string _buffer;
+		
 
 };
 

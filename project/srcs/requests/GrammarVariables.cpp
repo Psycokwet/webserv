@@ -52,15 +52,6 @@ std::ostream &			operator<<( std::ostream & o, GrammarVariables const & i )
 /*
 ** --------------------------------- METHODS ----------------------------------
 */
-GrammarVariables *GrammarVariables::generateSubVar(std::size_t index_next_token)
-{
-	std::vector<std::string> tokens;
-	if(index_next_token >= this->_tokens.size())
-		return NULL;
-	tokens.push_back(this->_tokens[index_next_token]);
-	return new GrammarVariables("#" +this->_name, tokens);
-}
-
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

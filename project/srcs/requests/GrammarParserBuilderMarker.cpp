@@ -5,11 +5,30 @@ DEFINE_ENUM(e_states, E_STATES_ENUM)
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-GrammarParserBuilderMarker::GrammarParserBuilderMarker(int deepness, GrammarVariables *gv, int tokenIndex) :_deepness(deepness), _gv(gv), _tokenIndex(tokenIndex)
+GrammarParserBuilderMarker::GrammarParserBuilderMarker(
+	int deepness,
+	GrammarVariables *gv)	:
+		_deepness(deepness),
+		_gv(gv),
+		_tokenIndex(0),
+		_min(1),
+		_max(1),
+		_count(0),
+		_resetTo(0),
+		_buffer("")
 {
 }
 
-GrammarParserBuilderMarker::GrammarParserBuilderMarker( const GrammarParserBuilderMarker & src ) :_deepness(src._deepness), _gv(src._gv), _tokenIndex(src._tokenIndex)
+GrammarParserBuilderMarker::GrammarParserBuilderMarker(
+	const GrammarParserBuilderMarker & src) :
+		_deepness(src._deepness),
+		_gv(src._gv),
+		_tokenIndex(src._tokenIndex),
+		_min(src._min),
+		_max(src._max),
+		_count(src._count),
+		_resetTo(src._resetTo),
+		_buffer(src._buffer)
 {
 }
 
@@ -58,6 +77,11 @@ std::ostream &			GrammarParserBuilderMarker::print( std::ostream & o) const
 ** --------------------------------- METHODS ----------------------------------
 */
 
+void GrammarParserBuilderMarker::setRep(int min, int max)
+{
+	this->_min = min;
+	this->_max = max;
+}
 
 std::string GrammarParserBuilderMarker::getCurrentToken()
 {
@@ -71,6 +95,12 @@ bool GrammarParserBuilderMarker::incToken()
 	if(sizeTokens() > this->_tokenIndex + 1)
 	{
 		this->_tokenIndex++;
+		return true;
+	}
+	this->_count++;
+	if(this->_count < this->_max)
+	{
+		this->_tokenIndex = this->_resetTo;
 		return true;
 	}
 	return false;
@@ -93,6 +123,16 @@ int GrammarParserBuilderMarker::getTokenIndex() const
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
+
+
+void GrammarParserBuilderMarker::addToBuffer(std::string buffer)
+{
+	this->_buffer += buffer;
+}
+std::string GrammarParserBuilderMarker::getBuffer()
+{
+	return this->_buffer;
+}
 
 GrammarVariables *GrammarParserBuilderMarker::getVar()
 {

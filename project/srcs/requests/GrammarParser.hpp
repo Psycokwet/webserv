@@ -87,7 +87,8 @@ class GrammarParser
 		std::map<std::string, std::string> _parsed_datas;
 		
 		bool tryIncToken();
-		bool addToCurrentBuffer(std::string add);
+		void addToBuffer(std::string add, GrammarParserBuilderMarker *gp);
+		// bool addToCurrentBuffer(std::string add);
 
 		
 
