@@ -18,7 +18,8 @@ class MasterServer :public AServerItem
       	virtual AServerItem *consume(Node *node);
 
 		std::ostream & print( std::ostream & o) const;
-        // int setup();
+        int build();
+        int buildOneServer(OneServer * one_server);
 
     private:
         std::vector< OneServer* >      _configAllServer;
