@@ -15,7 +15,8 @@ GrammarParserBuilderMarker::GrammarParserBuilderMarker(
 		_max(1),
 		_count(0),
 		_resetTo(0),
-		_buffer("")
+		_buffer(""),
+		_maxIndexToken(sizeTokens())
 {
 }
 
@@ -28,7 +29,8 @@ GrammarParserBuilderMarker::GrammarParserBuilderMarker(
 		_max(src._max),
 		_count(src._count),
 		_resetTo(src._resetTo),
-		_buffer(src._buffer)
+		_buffer(src._buffer),
+		_maxIndexToken(src._maxIndexToken)
 {
 }
 
@@ -77,13 +79,43 @@ std::ostream &			GrammarParserBuilderMarker::print( std::ostream & o) const
 ** --------------------------------- METHODS ----------------------------------
 */
 
+#define IS_OPENING_STATEMENT(x) (x == "(" || x == "[")
+#define IS_CLOSING_STATEMENT(x) (x == ")" || x == "]")
+
+int GrammarParserBuilderMarker::findMaxIndex() const
+{
+	if(!IS_OPENING_STATEMENT(this->getCurrentToken()))
+		return this->_tokenIndex;
+	std::list<Statements> stats = std::list<Statements> ();
+	std::vector<std::string> &tokens = this->_gv->getTokens());
+	int i = this->_tokenIndex;
+	while (stats.size() != 0)
+	{
+		i++;
+		if(i >= sizeTokens())
+			return -1;
+
+		if (IS_OPENING_STATEMENT(tokens[i]))
+			stats.push_back(Statements(this->_deepness, tokens[i], this->_gv);
+		else if (IS_CLOSING_STATEMENT(tokens[i]))
+		{
+			if(stats.size() == 0 || !stats.back()->isTheRightClosingStatement(tokens[i], this->_gv)
+				return -1;
+			stats->pop_back();
+		}
+	}	
+	return i;
+}
+
 void GrammarParserBuilderMarker::setRep(int min, int max)
 {
 	this->_min = min;
 	this->_max = max;
+	this->_resetTo = this->_tokenIndex;
+	this->_maxIndexToken = findMaxIndex();
 }
 
-std::string GrammarParserBuilderMarker::getCurrentToken()
+std::string GrammarParserBuilderMarker::getCurrentToken() const
 {
 	if(this->_tokenIndex >= sizeTokens())
 		throw new TokenOutOfBound();
@@ -92,7 +124,7 @@ std::string GrammarParserBuilderMarker::getCurrentToken()
 
 bool GrammarParserBuilderMarker::incToken()
 {
-	if(sizeTokens() > this->_tokenIndex + 1)
+	if(this->_maxIndexToken > this->_tokenIndex + 1)
 	{
 		this->_tokenIndex++;
 		return true;
@@ -105,6 +137,17 @@ bool GrammarParserBuilderMarker::incToken()
 	}
 	return false;
 }
+
+bool incTokenTo(int newIndex)
+{
+	if(this->_maxIndexToken > newIndex)
+	{
+		this->_tokenIndex = newIndex;
+		return true;
+	}
+	return false;
+}
+
 int GrammarParserBuilderMarker::sizeTokens() const
 {
 	return this->_gv->getTokens().size();
@@ -124,6 +167,10 @@ int GrammarParserBuilderMarker::getTokenIndex() const
 ** --------------------------------- ACCESSOR ---------------------------------
 */
 
+int getMaxIndexToken() const
+{
+	return this->_maxIndexToken;
+}
 
 void GrammarParserBuilderMarker::addToBuffer(std::string buffer)
 {

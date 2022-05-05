@@ -482,16 +482,12 @@ e_parsing_states GrammarParser::consume_MULTI(std::string token,	GrammarParserBu
 		return PARSE_FAILURE;
 	if(tmp_block.size() > 0)
 		max = strtol(tmp_block.c_str(), NULL, 10);
-	// for (int i = 0; i < min; i++)
-	// {
-	// 	// _priority_states.push_front(gp->generateDeeperObj());
-	// 	tryIncToken();
-	// 	/* code */
-	// }
-	gp->setRep(min, max);
+	GrammarParserBuilderMarker* loopgp = new GrammarParserBuilderMarker(gp->getDeepness() + 1, gp->getVar());
+	loopgp->setRep(min, max);
+	gp->incTokenTo(_priority_states.front()->getMaxIndexToken());
+	tryIncToken();
 	
-	(void)token;
-	(void)gp;
+	_priority_states.push_front(loopgp);
 	return PARSE_SUCCESS;
 }
 

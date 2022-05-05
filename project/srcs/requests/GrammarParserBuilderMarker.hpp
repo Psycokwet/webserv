@@ -3,7 +3,9 @@
 
 # include <iostream>
 # include <string>
+# include <list>
 # include "GrammarVariables.hpp"
+# include "Statements.hpp"
 # include "../../includes/enumFactory.h"
 
 # define E_STATES_ENUM(XX) \
@@ -26,7 +28,7 @@ class GrammarParserBuilderMarker
 		std::ostream &			print( std::ostream & o) const;
 
 		GrammarVariables *getVar();
-		std::string getCurrentToken();
+		std::string getCurrentToken() const;
 		int getTokenIndex() const;
 		bool incToken();
 		int sizeTokens() const;
@@ -44,8 +46,14 @@ class GrammarParserBuilderMarker
         };
 		void addToBuffer(std::string buffer);
 		std::string getBuffer();
+		bool incTokenTo(int newIndex);
+		int getMaxIndexToken() const;
 
 	private:
+
+
+		int findMaxIndex() const;
+
 		int _deepness;
 		GrammarVariables *_gv;
 		int _tokenIndex;
@@ -54,6 +62,7 @@ class GrammarParserBuilderMarker
 		int _count;
 		int _resetTo;
 		std::string _buffer;
+		int _maxIndexToken;
 		
 
 };
