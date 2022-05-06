@@ -8,6 +8,7 @@
 #include <climits> // INT_MAX
 # include "../config/Node.hpp"
 #include "../../includes/ConfigDataStructures.hpp"
+#include "../../includes/webserv.h"
 
 
 class AServerItem

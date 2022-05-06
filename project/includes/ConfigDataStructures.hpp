@@ -3,13 +3,14 @@
 
 #include <string>
 #include <vector>
+#include "webserv.h"
 
 typedef struct 	s_listen {
-	std::string 		_address;
-	int					_port;
-	std::string 		_default_server;
+	uint32_t 		_address;
+	int				_port;
+	std::string 	_default_server;
 
-	s_listen(std::string address="", int port=80, std::string default_server="")
+	s_listen(uint32_t address = LOCALHOST, int port=80, std::string default_server="")
 	{
 		_address = address;
 		_port = port;

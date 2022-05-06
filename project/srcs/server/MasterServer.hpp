@@ -2,11 +2,10 @@
 #define MASTERSERVER_HPP
 
 #include "../config/Node.hpp"
+#include "../../includes/webserv.h"
 #include "OneServer.hpp"
 #include "AServerItem.hpp"
 #include <sys/select.h> // FD_CLR, FD_ZERO, FD_SET, FD_ISSET macros
-
-#define PORT
 
 class MasterServer :public AServerItem
 {
@@ -19,10 +18,10 @@ class MasterServer :public AServerItem
 
 		std::ostream & print( std::ostream & o) const;
         int build();
-        int buildOneServer(OneServer * one_server);
 
     private:
         std::vector< OneServer* >      _configAllServer;
+        fd_set                         _readfds; 
 		OneServer *createServer();
 
 };

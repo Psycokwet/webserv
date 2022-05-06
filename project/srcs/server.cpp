@@ -86,6 +86,7 @@ int  main(void)
         perror("Fail to listen");
         exit(EXIT_FAILURE);
     }
+    
 
     //accept the incoming connection
     addrlen = sizeof(server_address);

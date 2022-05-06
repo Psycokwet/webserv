@@ -84,6 +84,30 @@ static std::vector<std::string> split(const std::string& s, char seperator)
     return output;
 }
 
+uint32_t getDecimalValueOfIPV4_String(const char* ipAddress)
+{
+    uint8_t ipbytes[4]={};
+    unsigned int i =0;
+    int8_t j=3;
+    while (ipAddress+i && i<strlen(ipAddress))
+    {
+       char digit = ipAddress[i];
+       if (isdigit(digit) == 0 && digit!='.'){
+           return 0;
+       }
+        j=digit=='.'?j-1:j;
+        ipbytes[j]= ipbytes[j]*10 + atoi(&digit);
+
+        i++;
+    }
+
+    uint32_t a = ipbytes[0];
+    uint32_t b =  ( uint32_t)ipbytes[1] << 8;
+    uint32_t c =  ( uint32_t)ipbytes[2] << 16;
+    uint32_t d =  ( uint32_t)ipbytes[3] << 24;
+    return a+b+c+d;
+}
+
 
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
@@ -184,7 +208,7 @@ AServerItem *OneServer::addListen(Node *node)
 {
 	std::cout << "OneServer I'm trying to add a listen directive from " << *node;
 	
-	if (_listen._port == 80 && _listen._address.compare("") == 0 && _listen._default_server.compare("") == 0) 
+	if (_listen._port == 80 && _listen._address == LOCALHOST && _listen._default_server.compare("") == 0) 
 	{
 		Node::t_inner_args_container values = node->get_inner_args();
 		if (values.size() < 2 || values.size() > 3)
@@ -195,7 +219,7 @@ AServerItem *OneServer::addListen(Node *node)
 			std::vector<std::string> output = split(values[1], ':');
 			if (output.size() == 2)
 			{
-				_listen._address = output[0];
+				_listen._address = getDecimalValueOfIPV4_String(output[0].c_str());
 				_listen._port = getNumber(output[1]);
 			}
 			else if(output.size() == 1)
@@ -203,7 +227,7 @@ AServerItem *OneServer::addListen(Node *node)
 				if(isNumber(output[0]))
 					_listen._port = getNumber(output[0]);
 				else
-					_listen._address = output[0];
+					_listen._address = getDecimalValueOfIPV4_String(output[0].c_str());
 			}
 		}
 	}
@@ -340,6 +364,39 @@ AServerItem *OneServer::addCgi(Node *node)
 	else
 		throw MultipleDeclareError();
 	return this;
+}
+
+int OneServer::build()
+{
+    _fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (_fd == 0)
+    {
+        std::cerr << "Fail to set socket" << std::endl;
+        return(-1);
+    }
+	this->setAddress();
+
+	// bind the socket to localhost port 8080
+	if (bind(_fd, (struct sockaddr *)&_address, sizeof(_address)) < 0)
+    {
+        std::cerr << "Fail to bind to port " << _listen._port << std::endl;
+        return(-1);
+    }
+
+	// Try to specify maximun of client pending connection for the master socket (server_fd)
+    if (listen(_fd, MAX_CLIENTS) < 0)
+    {
+        std::cerr << "Fail to listen" << std::endl;
+        return(-1);
+    }
+	return (0);
+}
+
+void OneServer::setAddress()
+{
+	_address.sin_family = AF_INET;
+    _address.sin_addr.s_addr = htonl(_listen._address);
+    _address.sin_port = htons(_listen._port);
 }
 
 

@@ -21,6 +21,8 @@ class OneServer :public ALocation
       AServerItem *consume(Node *node);
       virtual std::ostream & print( std::ostream & o) const;
       static DIRECTIVES_MAP initializeDirectivesMap();
+      int build();
+      void setAddress();
 
     private:
       virtual AServerItem * addServerName(Node *node);
@@ -30,6 +32,9 @@ class OneServer :public ALocation
       std::map< std::string, OneLocation* >   _location;
       std::vector< std::string >              _server_name;
       t_listen                                _listen;
+
+      int                                     _fd;
+      struct sockaddr_in                      _address;
 
     protected:
       virtual AServerItem * addIndex(Node *node);
