@@ -30,8 +30,9 @@ DECLARE_ENUM(e_parsing_states, E_PARSING_STATE_ENUM)
 
 typedef std::map<std::string, GrammarVariables*> t_grammar_map;
 class GrammarParser;
-					//checker	token			//vars					//consume				token			state request parsing
-typedef std::pair<	bool (*)(	std::string, 	 t_grammar_map &gm),	e_parsing_states (GrammarParser::*)(	std::string,	GrammarParserBuilderMarker*)> t_pair_checker_consume;
+class GrammarParserBuilderMarker;
+					//checker	token			//vars					//consume							token		state request parsing		id command
+typedef std::pair<	bool (*)(	std::string, 	 t_grammar_map &gm),	e_parsing_states (GrammarParser::*)(std::string,GrammarParserBuilderMarker*,int)> t_pair_checker_consume;
 typedef std::vector< t_pair_checker_consume > t_builder_dictionary;
 
 #define ID_BASE_REQUEST "HTTP_message"
@@ -49,16 +50,16 @@ class GrammarParser
 		static t_builder_dictionary _builderDictionnary;
 		static t_builder_dictionary initBuilderDictionnary();
 
-		e_parsing_states consume_OR(std::string token,	GrammarParserBuilderMarker *gp);
-		e_parsing_states consume_MULTI(std::string token,	GrammarParserBuilderMarker *gp);
-		e_parsing_states consume_VALUE(std::string token,	GrammarParserBuilderMarker *gp);
-		e_parsing_states consume_QUOTEVALUE(std::string token,	GrammarParserBuilderMarker *gp);
-		e_parsing_states consume_INTERVAL(std::string token,	GrammarParserBuilderMarker *gp);
-		e_parsing_states consume_MULTIVALUES(std::string token,	GrammarParserBuilderMarker *gp);
-		e_parsing_states consume_BLOCK(std::string token,	GrammarParserBuilderMarker *gp);
-		e_parsing_states consume_STRING(std::string token,	GrammarParserBuilderMarker *gp);
-		e_parsing_states consume_OPTIONAL(std::string token,	GrammarParserBuilderMarker *gp);
-		e_parsing_states consume_VAR(std::string token,	GrammarParserBuilderMarker *gp);
+		e_parsing_states consume_OR(std::string token,	GrammarParserBuilderMarker *gp, int id);
+		e_parsing_states consume_MULTI(std::string token,	GrammarParserBuilderMarker *gp, int id);
+		e_parsing_states consume_VALUE(std::string token,	GrammarParserBuilderMarker *gp, int id);
+		e_parsing_states consume_QUOTEVALUE(std::string token,	GrammarParserBuilderMarker *gp, int id);
+		e_parsing_states consume_INTERVAL(std::string token,	GrammarParserBuilderMarker *gp, int id);
+		e_parsing_states consume_MULTIVALUES(std::string token,	GrammarParserBuilderMarker *gp, int id);
+		e_parsing_states consume_BLOCK(std::string token,	GrammarParserBuilderMarker *gp, int id);
+		e_parsing_states consume_STRING(std::string token,	GrammarParserBuilderMarker *gp, int id);
+		e_parsing_states consume_OPTIONAL(std::string token,	GrammarParserBuilderMarker *gp, int id);
+		e_parsing_states consume_VAR(std::string token,	GrammarParserBuilderMarker *gp, int id);
 
 		void feed(std::string buff);
 		void initParse();
@@ -86,6 +87,7 @@ class GrammarParser
 		std::string *_current_buffer;
 		std::map<std::string, std::string> _parsed_datas;
 		
+		void deleteFrontPriority();
 		bool tryIncToken();
 		void addToBuffer(std::string add, GrammarParserBuilderMarker *gp);
 		// bool addToCurrentBuffer(std::string add);

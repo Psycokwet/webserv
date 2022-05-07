@@ -7,6 +7,7 @@
 # include "GrammarVariables.hpp"
 # include "Statements.hpp"
 # include "../../includes/enumFactory.h"
+# include "GrammarParser.hpp"
 
 # define E_STATES_ENUM(XX) \
     XX(NO_TYPE,=0x00000001) \
@@ -20,7 +21,7 @@ class GrammarParserBuilderMarker
 
 	public:
 
-		GrammarParserBuilderMarker(int deepness = -1, GrammarVariables *gv = NULL);
+		GrammarParserBuilderMarker(int deepness = -1, GrammarVariables *gv = NULL, int tokenIndex = 0);
 		GrammarParserBuilderMarker( GrammarParserBuilderMarker const & src );
 		~GrammarParserBuilderMarker();
 
@@ -48,11 +49,16 @@ class GrammarParserBuilderMarker
 		std::string getBuffer();
 		bool incTokenTo(int newIndex);
 		int getMaxIndexToken() const;
+		bool getIsCurrentlyValid() const;
+		void setIsCurrentlyValid(bool valid);
+		int findMaxIndex() const;
+		int getLastId() const;
+		void setLastId(int id);
+		bool hasEnoughRep() const;
+		bool hasFinishedCurrentRep() const;
+		
 
 	private:
-
-
-		int findMaxIndex() const;
 
 		int _deepness;
 		GrammarVariables *_gv;
@@ -63,6 +69,8 @@ class GrammarParserBuilderMarker
 		int _resetTo;
 		std::string _buffer;
 		int _maxIndexToken;
+		int _isCurrentlyValid;
+		int _lastId;
 		
 
 };

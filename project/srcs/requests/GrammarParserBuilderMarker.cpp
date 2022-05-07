@@ -7,16 +7,19 @@ DEFINE_ENUM(e_states, E_STATES_ENUM)
 
 GrammarParserBuilderMarker::GrammarParserBuilderMarker(
 	int deepness,
-	GrammarVariables *gv)	:
+	GrammarVariables *gv,
+	int tokenIndex)	:
 		_deepness(deepness),
 		_gv(gv),
-		_tokenIndex(0),
+		_tokenIndex(tokenIndex),
 		_min(1),
 		_max(1),
 		_count(0),
 		_resetTo(0),
 		_buffer(""),
-		_maxIndexToken(sizeTokens())
+		_maxIndexToken(sizeTokens()),
+		_isCurrentlyValid(true),
+		_lastId(GrammarParser::_builderDictionnary.size() + 1)
 {
 }
 
@@ -30,7 +33,9 @@ GrammarParserBuilderMarker::GrammarParserBuilderMarker(
 		_count(src._count),
 		_resetTo(src._resetTo),
 		_buffer(src._buffer),
-		_maxIndexToken(src._maxIndexToken)
+		_maxIndexToken(src._maxIndexToken),
+		_isCurrentlyValid(src._isCurrentlyValid),
+		_lastId(src._lastId)
 {
 }
 
@@ -68,9 +73,15 @@ std::ostream &			operator<<( std::ostream & o, GrammarParserBuilderMarker const 
 
 std::ostream &			GrammarParserBuilderMarker::print( std::ostream & o) const
 {
+	o << "this->_buffer [" << this->_buffer << "] ; ";
 	o << "this->_deepness " << this->_deepness << " ; ";
 	o << "this->_gv [" << *this->_gv << "] ; ";
 	o << "this->_tokenIndex " << this->_tokenIndex << " ; ";
+	o << "this->_count " << this->_count << " ; ";
+	o << "this->_resetTo " << this->_resetTo << " ; ";
+	o << "this->_maxIndexToken " << this->_maxIndexToken << " ; ";
+	o << "this->_min " << this->_min << " ; ";
+	o << "this->_max " << this->_max << " ; ";
 	return o;
 }
 
@@ -87,21 +98,20 @@ int GrammarParserBuilderMarker::findMaxIndex() const
 	if(!IS_OPENING_STATEMENT(this->getCurrentToken()))
 		return this->_tokenIndex;
 	std::list<Statements> stats = std::list<Statements> ();
-	std::vector<std::string> &tokens = this->_gv->getTokens());
+	std::vector<std::string> &tokens = this->_gv->getTokens();
 	int i = this->_tokenIndex;
 	while (stats.size() != 0)
 	{
 		i++;
 		if(i >= sizeTokens())
 			return -1;
-
 		if (IS_OPENING_STATEMENT(tokens[i]))
-			stats.push_back(Statements(this->_deepness, tokens[i], this->_gv);
+			stats.push_back(Statements(this->_deepness, tokens[i], this->_gv));
 		else if (IS_CLOSING_STATEMENT(tokens[i]))
 		{
-			if(stats.size() == 0 || !stats.back()->isTheRightClosingStatement(tokens[i], this->_gv)
+			if(stats.size() == 0 || !stats.back().isTheRightClosingStatement(tokens[i], this->_gv))
 				return -1;
-			stats->pop_back();
+			stats.pop_back();
 		}
 	}	
 	return i;
@@ -138,7 +148,7 @@ bool GrammarParserBuilderMarker::incToken()
 	return false;
 }
 
-bool incTokenTo(int newIndex)
+bool GrammarParserBuilderMarker::incTokenTo(int newIndex)
 {
 	if(this->_maxIndexToken > newIndex)
 	{
@@ -153,6 +163,24 @@ int GrammarParserBuilderMarker::sizeTokens() const
 	return this->_gv->getTokens().size();
 }
 
+bool GrammarParserBuilderMarker::hasEnoughRep() const
+{
+	if(this->_count >= this->_min)
+		return true;
+	return false;
+}
+bool GrammarParserBuilderMarker::hasFinishedCurrentRep() const
+{
+	if(this->_tokenIndex >= this->_maxIndexToken)
+		return true;
+	return false;
+}
+
+
+/*
+** --------------------------------- ACCESSOR ---------------------------------
+*/
+
 int GrammarParserBuilderMarker::getDeepness() const
 {
 	return this->_deepness;
@@ -163,11 +191,26 @@ int GrammarParserBuilderMarker::getTokenIndex() const
 	return this->_tokenIndex;
 }
 
-/*
-** --------------------------------- ACCESSOR ---------------------------------
-*/
+int GrammarParserBuilderMarker::getLastId() const
+{
+	return this->_lastId;
+}
 
-int getMaxIndexToken() const
+void GrammarParserBuilderMarker::setLastId(int id)
+{
+	this->_lastId = id;
+}
+
+bool GrammarParserBuilderMarker::getIsCurrentlyValid() const
+{
+	return this->_isCurrentlyValid;
+}
+void GrammarParserBuilderMarker::setIsCurrentlyValid(bool valid)
+{
+	this->_isCurrentlyValid = valid;
+}
+
+int GrammarParserBuilderMarker::getMaxIndexToken() const
 {
 	return this->_maxIndexToken;
 }
