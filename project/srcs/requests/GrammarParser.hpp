@@ -91,9 +91,9 @@ class GrammarParser
 		int _indexTokenInitSave;
 		int _isSaveVarClosed;
 		
-		void deleteFrontPriority();
-		bool saveIfNecesary();
-		bool tryIncToken();
+		void deleteFrontPriority(bool willAddNewFrontAfter = false);
+		bool saveIfNecesary(bool willAddNewFrontAfter = false);
+		bool tryIncToken(bool willAddNewFrontAfter = false);
 		void addToBuffer(std::string add, GrammarParserBuilderMarker *gp);
 		// bool addToCurrentBuffer(std::string add);
 

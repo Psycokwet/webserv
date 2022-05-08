@@ -176,7 +176,10 @@ bool GrammarParserBuilderMarker::hasFinishedCurrentRep() const
 	return false;
 }
 
-
+void GrammarParserBuilderMarker::resetBuffer()
+{
+	this->_buffer = "";
+}
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */

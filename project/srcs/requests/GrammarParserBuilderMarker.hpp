@@ -56,6 +56,7 @@ class GrammarParserBuilderMarker
 		void setLastId(int id);
 		bool hasEnoughRep() const;
 		bool hasFinishedCurrentRep() const;
+		void resetBuffer();
 		
 
 	private:
