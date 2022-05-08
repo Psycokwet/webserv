@@ -86,8 +86,13 @@ class GrammarParser
 		std::string _value_buffer;
 		std::string *_current_buffer;
 		std::map<std::string, std::string> _parsed_datas;
+		int _deepnessMinBeforeSave;
+		e_var_type _saveType;
+		int _indexTokenInitSave;
+		int _isSaveVarClosed;
 		
 		void deleteFrontPriority();
+		bool saveIfNecesary();
 		bool tryIncToken();
 		void addToBuffer(std::string add, GrammarParserBuilderMarker *gp);
 		// bool addToCurrentBuffer(std::string add);
