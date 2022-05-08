@@ -6,7 +6,7 @@
 /*   By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#             */
-/*   Updated: 2022/05/03 18:42:09 by scarboni         ###   ########.fr       */
+/*   Updated: 2022/05/08 17:50:12 by scarboni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,8 @@ int		main(int ac, char **av)
 		gp->feed(tmp_line + "\n\r");
 		std::cout << "I've read :" << tmp_line<< std::endl;
 	}
-	std::cout << GetString(gp->parse()) << tmp_line<< std::endl;
+	e_parsing_states result = gp->parse();
+	std::cout << "BILAN " << GetString(result) <<"[" << tmp_line<< "]"<<std::endl;
 	delete gp;
 	return 0;
 }

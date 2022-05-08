@@ -138,7 +138,8 @@ ONLY_VALUE!HTTP_version = HTTP_name "/" DIGIT "." DIGIT
 
 ONLY_VALUE!request_target = origin_form / absolute_form / authority_form / asterisk_form
 
-ONLY_VALUE!method = token
+;ONLY_VALUE!method = token
+ONLY_VALUE!method = "GET" / "POST" / "DELETE"
 
 VALUE!field_value = * ( field_content / obs_fold )
 

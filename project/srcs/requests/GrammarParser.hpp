@@ -61,6 +61,9 @@ class GrammarParser
 		e_parsing_states consume_OPTIONAL(std::string token,	GrammarParserBuilderMarker *gp, int id);
 		e_parsing_states consume_VAR(std::string token,	GrammarParserBuilderMarker *gp, int id);
 
+		e_parsing_states consume_STATEMENTS(std::string token,	GrammarParserBuilderMarker *gp, int id, std::string statement, int min);
+
+
 		void feed(std::string buff);
 		void initParse();
 		e_parsing_states parse();
@@ -89,7 +92,6 @@ class GrammarParser
 		int _deepnessMinBeforeSave;
 		e_var_type _saveType;
 		int _indexTokenInitSave;
-		int _isSaveVarClosed;
 		
 		void deleteFrontPriority(bool willAddNewFrontAfter = false);
 		bool saveIfNecesary(bool willAddNewFrontAfter = false);

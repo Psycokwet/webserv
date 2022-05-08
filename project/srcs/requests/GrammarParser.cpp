@@ -294,7 +294,7 @@ GrammarParser *GrammarParser::build(std::string filename)
 		vars[gv->getName()] = gv;
 	}
 	ifs.close();
-	if(isGrammarMapValid(vars) || vars.find(ID_BASE_REQUEST) != vars.end())
+	if(isGrammarMapValid(vars)&& vars.find(ID_BASE_REQUEST) != vars.end())
 		return new GrammarParser(vars);
 	for(t_grammar_map::const_iterator it = vars.begin(); it != vars.end(); it++)
 		delete it->second;
@@ -315,8 +315,7 @@ GrammarParser::GrammarParser(t_grammar_map vars, std::string request) :
 	_current_buffer(NULL),
 	_deepnessMinBeforeSave(-1),
 	_saveType(NO_VAR_TYPE),
-	_indexTokenInitSave(-1),
-	_isSaveVarClosed(true)
+	_indexTokenInitSave(-1)
 {
 }
 
@@ -330,8 +329,7 @@ GrammarParser::GrammarParser( const GrammarParser & src ) :
 	_current_buffer(src._current_buffer),
 	_deepnessMinBeforeSave(src._deepnessMinBeforeSave),
 	_saveType(src._saveType),
-	_indexTokenInitSave(src._indexTokenInitSave),
-	_isSaveVarClosed(src._isSaveVarClosed)
+	_indexTokenInitSave(src._indexTokenInitSave)
 {
 	(void)src;
 }
@@ -413,7 +411,6 @@ bool GrammarParser::saveIfNecesary(bool willAddNewFrontAfter)
 		_deepnessMinBeforeSave = -1;
 		_saveType = NO_VAR_TYPE;
 		_indexTokenInitSave = -1;
-		_isSaveVarClosed = false;
 		return true;
 	}
 	return false;
@@ -421,7 +418,7 @@ bool GrammarParser::saveIfNecesary(bool willAddNewFrontAfter)
 
 void GrammarParser::deleteFrontPriority(bool willAddNewFrontAfter)
 {
-	std::cout<<"deleting:"<< *_priority_states.front() <<std::endl;
+	std::cout<<"deleting:"<< *_priority_states.front() << "\nRESULT : "<<( _priority_states.front()->hasEnoughRep() == true ? "true": "false" )<< ":::"<< (_priority_states.front()->hasFinishedCurrentRep() == true ? "true": "false" ) <<std::endl;
 	if (_priority_states.front()->getIsCurrentlyValid() || (_priority_states.front()->hasEnoughRep() && _priority_states.front()->hasFinishedCurrentRep()))
 	{
 		if(!saveIfNecesary(willAddNewFrontAfter) && _priority_states.size() > 2 && (_saveType == ONLY_VALUE || _saveType == VALUE || _saveType == KEY))
@@ -434,8 +431,6 @@ void GrammarParser::deleteFrontPriority(bool willAddNewFrontAfter)
 	else if(_priority_states.size() > 2)
 	{
 		// bool toDeleteValidity = _priority_states.front()->getIsCurrentlyValid();
-		if(_priority_states.front()->getVar()->getType() != NO_VAR_TYPE)
-			_isSaveVarClosed = true;
 		delete _priority_states.front();
 		_priority_states.pop_front();
 		saveIfNecesary(willAddNewFrontAfter);
@@ -495,8 +490,14 @@ int i = 0;
 	do {
 		if(this->_requestIndex >= this->_request.size())
 			return PARSE_NOTHING_MORE;
-		if(i++ > 200)
-			return PARSE_QUIT_DEBUG;
+		if(i++ > 400){
+
+	for (std::map<std::string, std::string>::iterator it= this->_parsed_datas.begin(); it !=this->_parsed_datas.end() ; it++)
+	{
+		std::cout << "RESULT PARSING : " << it->first << ":::"<< it->second << std::endl;
+		/* code */
+	}
+			return PARSE_QUIT_DEBUG;}
 		std::string token = _priority_states.front()->getCurrentToken();
 		int id = getBuilderIDForToken(token, this->_vars);
 		if(id == NON_VALID)
@@ -507,6 +508,7 @@ int i = 0;
 		try
 		{
 			current = (this->*GrammarParser::_builderDictionnary[id].second)(token, _priority_states.front(), id);
+		std::cout<< GetString(current)<<std::endl;
 		}
 		catch(const std::exception& e)
 		{
@@ -652,14 +654,21 @@ e_parsing_states GrammarParser::consume_MULTIVALUES(std::string token,	GrammarPa
 	return PARSE_SUCCESS;
 }
 
-e_parsing_states GrammarParser::consume_BLOCK(std::string token,	GrammarParserBuilderMarker *gp, int id)
+
+e_parsing_states GrammarParser::consume_STATEMENTS(std::string token,	GrammarParserBuilderMarker *gp, int id, std::string statement, int min)
 {
-	if (token == "(")
+	if (token == statement)
 	{
 		_priority_states.front()->setLastId(id);
-		GrammarParserBuilderMarker* loopgp = new GrammarParserBuilderMarker(gp->getDeepness() + 1, gp->getVar());
-		loopgp->setRep(1, 1);
-		int check = loopgp->getMaxIndexToken();
+		std::cout <<" TRying to generate a statemen 1::"<< *_priority_states.front()<< ":::" << id <<std::endl;
+		std::cout <<" TRying to generate a statemen 2::"<< gp->getMaxIndexToken() << ":::" << gp->getTokenIndex() + 1<<std::endl;
+		if(gp->getMaxIndexToken() <= gp->getTokenIndex() + 1)
+			return PARSE_FATAL_FAILURE;
+		std::cout <<" TRying to generate a statemen " <<gp->getDeepness() + 1 <<":::"<< gp->getVar()<<":::"<< gp->getTokenIndex() + 1<< std::endl;
+		
+		GrammarParserBuilderMarker* loopgp = new GrammarParserBuilderMarker(gp->getDeepness() + 1, gp->getVar(), gp->getTokenIndex() + 1);
+		loopgp->setRep(min, 1);
+		int check = loopgp->findMaxIndex();
 		if (check == -1)
 			return PARSE_FATAL_FAILURE;
 		gp->incTokenTo(check);
@@ -671,17 +680,25 @@ e_parsing_states GrammarParser::consume_BLOCK(std::string token,	GrammarParserBu
 	return PARSE_SUCCESS;
 }
 
+e_parsing_states GrammarParser::consume_BLOCK(std::string token,	GrammarParserBuilderMarker *gp, int id)
+{
+	return consume_STATEMENTS(token, gp, id, "(", 1);
+}
+
 e_parsing_states GrammarParser::consume_STRING(std::string token,	GrammarParserBuilderMarker *gp, int id)
 {
+	std::cout <<"CONSUME STRING "<< gp->getIsCurrentlyValid() <<":::"<<gp->getLastId()<<std::endl;
 	if(! gp->getIsCurrentlyValid() && gp->getLastId() != INDEX_OR)
 		return PARSE_FATAL_FAILURE;
+	std::cout << "IS FATAL "<<std::endl;
 	_priority_states.front()->setLastId(id);
 	std::string substring;
-	std::string subToken = token.substr(1, token.size() - 1);
+	std::string subToken = token.substr(1, token.size() - 2);
 	if (this->_request.size() - this->_requestIndex < subToken.size())
 		return PARSE_NOT_ENOUGH_DATAS;
-	substring = this->_request.substr(this->_requestIndex, this->_requestIndex + subToken.size());
-	if (substring!= subToken)
+	substring = this->_request.substr(this->_requestIndex, subToken.size());
+	std::cout << "comparing : " << substring << ":::" << subToken<<std::endl;
+	if (substring != subToken)
 	{
 		tryIncToken();
 		return PARSE_FAILURE;
@@ -694,21 +711,7 @@ e_parsing_states GrammarParser::consume_STRING(std::string token,	GrammarParserB
 
 e_parsing_states GrammarParser::consume_OPTIONAL(std::string token,	GrammarParserBuilderMarker *gp, int id)
 {
-	if (token == "[")
-	{
-		_priority_states.front()->setLastId(id);
-		GrammarParserBuilderMarker* loopgp = new GrammarParserBuilderMarker(gp->getDeepness() + 1, gp->getVar());
-		loopgp->setRep(0, 1);
-		int check = loopgp->getMaxIndexToken();
-		if (check == -1)
-			return PARSE_FATAL_FAILURE;
-		gp->incTokenTo(check);
-		tryIncToken(true);
-		_priority_states.push_front(loopgp);
-	}
-	else
- 		tryIncToken();
-	return PARSE_SUCCESS;
+	return consume_STATEMENTS(token, gp, id, "[", 0);
 }
 
 
