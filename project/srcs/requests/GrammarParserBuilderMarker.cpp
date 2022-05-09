@@ -8,7 +8,8 @@ DEFINE_ENUM(e_states, E_STATES_ENUM)
 GrammarParserBuilderMarker::GrammarParserBuilderMarker(
 	int deepness,
 	GrammarVariables *gv,
-	int tokenIndex)	:
+	int tokenIndex,
+	int resetLastId )	:
 		_deepness(deepness),
 		_gv(gv),
 		_tokenIndex(tokenIndex),
@@ -19,7 +20,8 @@ GrammarParserBuilderMarker::GrammarParserBuilderMarker(
 		_buffer(""),
 		_maxIndexToken(sizeTokens()),
 		_isCurrentlyValid(true),
-		_lastId(GrammarParser::_builderDictionnary.size() + 1)
+		_lastId(GrammarParser::_builderDictionnary.size() + 1),
+		_resetLastId(resetLastId)
 {
 }
 
@@ -35,7 +37,8 @@ GrammarParserBuilderMarker::GrammarParserBuilderMarker(
 		_buffer(src._buffer),
 		_maxIndexToken(src._maxIndexToken),
 		_isCurrentlyValid(src._isCurrentlyValid),
-		_lastId(src._lastId)
+		_lastId(src._lastId),
+		_resetLastId(src._resetLastId)
 {
 }
 
@@ -95,6 +98,7 @@ std::ostream &			GrammarParserBuilderMarker::print( std::ostream & o) const
 
 int GrammarParserBuilderMarker::findMaxIndex() const
 {
+	std::cout << "STARTING WITH " << *this << ":::"<< this->getCurrentToken()<<std::endl;
 	if(!IS_OPENING_STATEMENT(this->getCurrentToken()))
 		return this->_tokenIndex;
 	std::cout << "STILL ON BABY" <<std::endl;
@@ -152,6 +156,8 @@ bool GrammarParserBuilderMarker::incToken()
 	if(this->_count < this->_max)
 	{
 		this->_tokenIndex = this->_resetTo;
+		this->_lastId = this->_resetLastId;
+		this->_isCurrentlyValid = true;
 		return true;
 	}
 	return false;
@@ -162,8 +168,6 @@ bool GrammarParserBuilderMarker::incTokenTo(int newIndex)
 	if(this->_maxIndexToken > newIndex)
 	{
 		this->_tokenIndex = newIndex;
-		this->_lastId = -1;
-		this->_isCurrentlyValid = true;
 		return true;
 	}
 	return false;

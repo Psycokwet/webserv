@@ -62,7 +62,7 @@ class GrammarParser
 		e_parsing_states consume_VAR(std::string token,	GrammarParserBuilderMarker *gp, int id);
 
 		e_parsing_states consume_STATEMENTS(std::string token,	GrammarParserBuilderMarker *gp, int id, std::string statement, int min);
-
+		e_parsing_states resolveValidityOfOpenedLoops();
 
 		void feed(std::string buff);
 		void initParse();

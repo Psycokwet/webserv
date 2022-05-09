@@ -21,7 +21,7 @@ class GrammarParserBuilderMarker
 
 	public:
 
-		GrammarParserBuilderMarker(int deepness = -1, GrammarVariables *gv = NULL, int tokenIndex = 0);
+		GrammarParserBuilderMarker(int deepness = -1, GrammarVariables *gv = NULL, int tokenIndex = 0, int resetLastId = -1);
 		GrammarParserBuilderMarker( GrammarParserBuilderMarker const & src );
 		~GrammarParserBuilderMarker();
 
@@ -72,6 +72,7 @@ class GrammarParserBuilderMarker
 		int _maxIndexToken;
 		int _isCurrentlyValid;
 		int _lastId;
+		int _resetLastId;
 		
 
 };
