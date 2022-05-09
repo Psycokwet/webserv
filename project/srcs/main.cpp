@@ -32,12 +32,19 @@ int		main(int ac, char *av[])
 
 	MasterServer *ms = ConfigConsumer::validateEntry(config_path);
 	if(!ms)
-		return 0;
+		return 1;
 	std::cout <<"Print result " << *ms << std::endl;
 
-	if (ms->build() != 0)
+	if (ms->build() != 0) // ! Better throw something?
+	{
 		std::cout << "Error: Can not setup MasterServer" << std::endl;
-
+		return 1;
+	}
+	if (ms->run() != 0)
+	{
+		std::cout << "Error: while running the MasterServer" << std::endl;
+	}
+	
 	delete ms;
 	return 0;
 }

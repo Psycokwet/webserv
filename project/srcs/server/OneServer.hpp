@@ -23,6 +23,7 @@ class OneServer :public ALocation
       static DIRECTIVES_MAP initializeDirectivesMap();
       int build();
       void setAddress();
+      int getFD();
 
     private:
       virtual AServerItem * addServerName(Node *node);

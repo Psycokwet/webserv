@@ -99,10 +99,10 @@ int  main(void)
     puts("Waiting for connections...");
 
 
+    // Clear the scoket set
+    FD_ZERO(&readfds);
     while (TRUE)
     {
-        // Clear the scoket set
-        FD_ZERO(&readfds);
 
         // add master socket to set
         FD_SET(server_fd, &readfds);

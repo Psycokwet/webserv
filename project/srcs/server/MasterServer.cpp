@@ -67,29 +67,41 @@ std::ostream &			MasterServer::print( std::ostream & o) const
 int	MasterServer::build()
 {
 	// Clear the scoket set
-    FD_ZERO(&_readfds);
+    FD_ZERO(&_fdSet);
     
-    int max_fd = 0;
+    _max_fd = 0;
     unsigned int ms_size = _configAllServer.size();
 
     for(unsigned int i = 0; i < ms_size; i++)
 	{
+        int fd;
 		if(_configAllServer[i]->build() == 0) // bind fd and address, listen to fd
         {
-            // add master socket to set FD_SET
-            std::cout << "One server is built\n";
-            std::cout << "Waiting for connections...\n";
+            std::cout << "\nWaiting for connections...\n";
+            
+            // add socket to set _fdSet
+            fd = _configAllServer[i]->getFD();
+            FD_SET(fd, &_fdSet);
+            
+            std::cout << "fd is: " << fd << std::endl;
+
+            if (fd > _max_fd)
+                _max_fd = fd;
         }
         else // ! Error while building OneServer
-        {
             return (-1);
-        }
 	}
-    if (max_fd == 0) // ! Error to build MasterServer
+    if (_max_fd == 0) // ! Error to build MasterServer
     {
         return (-1);
     }
-    return (0);
+    return 0;
+}
+
+int MasterServer::run()
+{
+    std::cout << "MasterServer is running!!!" << std::endl;
+    return 0;
 }
 
 

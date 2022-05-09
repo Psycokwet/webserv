@@ -18,10 +18,12 @@ class MasterServer :public AServerItem
 
 		std::ostream & print( std::ostream & o) const;
         int build();
+        int run();
 
     private:
         std::vector< OneServer* >      _configAllServer;
-        fd_set                         _readfds; 
+        fd_set                         _fdSet;
+        int                            _max_fd; 
 		OneServer *createServer();
 
 };

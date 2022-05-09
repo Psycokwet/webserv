@@ -396,6 +396,9 @@ int OneServer::build()
         std::cerr << "Fail to listen" << std::endl;
         return(-1);
     }
+	std::cout << "One server is built on port: "<< _listen._port;
+	std::cout << ", address: " << _listen._address;
+	std::cout << ", default server: " << _listen._default_server;
 	return (0);
 }
 
@@ -416,5 +419,9 @@ DIRECTIVES_MAP & OneServer::getDirectiveMap()
 	return this->_directives_to_setter;
 }
 
+int	OneServer::getFD()
+{
+	return _fd;
+}
 
 /* ************************************************************************** */
