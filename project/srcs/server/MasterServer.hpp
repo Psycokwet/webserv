@@ -23,7 +23,9 @@ class MasterServer :public AServerItem
     private:
         std::vector< OneServer* >      _configAllServer;
         fd_set                         _fdSet;
-        int                            _max_fd; 
+        int                            _max_fd;
+        std::vector < int >            _ready;
+         
 		OneServer *createServer();
 
 };

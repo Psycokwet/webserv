@@ -101,6 +101,78 @@ int	MasterServer::build()
 int MasterServer::run()
 {
     std::cout << "MasterServer is running!!!" << std::endl;
+    while (1)
+    {
+        fd_set  read_fd_set;
+        fd_set  write_fd_set;
+
+        int     activity = 0;
+
+        while (activity == 0)
+        {
+            FD_ZERO(&write_fd_set);
+            for (std::vector<int>::iterator it = _ready.begin() ; it != _ready.end() ; it++)
+				FD_SET(*it, &write_fd_set);
+
+
+            //wait for an activity on one of the sockets, timeout is NULL so wait permernently
+            activity = select(_max_fd + 1, &read_fd_set, &write_fd_set, NULL, NULL);
+            std::cout << "activity = " << activity;
+
+        }
+
+        // Todo here
+
+        // if (activity > 0)
+        // {
+        //     for (std::vector<int>::const_iterator it = _ready.begin(); it != _ready.end(); it++ )
+        //     {
+        //         if (FD_SET(*it, &write_fd_set))
+        //         {
+        //             // ! send stuff
+        //             // int one_act = send(stuff)
+        //             // int one_act = server.send(it)
+        //             if (one_act == 0)
+        //                 _ready.erase(it);
+        //             else if(one_act == -1)
+        //             {
+        //                 FD_CLR(*it, &_fdSet);
+        //                 FD_CLR(*it, &read_fd_set);
+        //                 _ready.erase(it);
+        //             }
+        //             one_act = 0;
+        //             break
+        //         }
+        //     }
+        //     if (one_act)
+        //         std::cout << "...Received a connection ! ..." << std::endl;
+        //     for ()
+                
+        // }
+
+        // if ((activity < 0) && (errno != EINTR))
+        // {
+        //     std::cerr << "Error: Select does not work" << std::endl;
+            
+        //     // Todo: next: close / clear opened socket
+
+        //     FD_ZERO(&_fdSet);
+        // }
+        // else
+        // {
+        //     for (std::vector<int>::const_iterator it = _ready.begin(); it != _ready.end(); it++ )
+        //     {
+        //         if (FD_ISSET(*it, &write_fd_set))
+        //         {
+        //             int ret = 
+        //         }
+        //     }
+
+
+        // }
+
+
+    }
     return 0;
 }
 
