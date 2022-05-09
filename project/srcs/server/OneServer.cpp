@@ -214,7 +214,7 @@ AServerItem *OneServer::addListen(Node *node)
 		if (values.size() < 2 || values.size() > 3)
 			throw InvalidValueError();
 		if (values.size() == 3)
-	{
+		{
 			_listen._default_server.assign(values[2]);
 			std::vector<std::string> output = split(values[1], ':');
 			if (output.size() == 2)
@@ -229,6 +229,13 @@ AServerItem *OneServer::addListen(Node *node)
 				else
 					_listen._address = getDecimalValueOfIPV4_String(output[0].c_str());
 			}
+		}
+		else if (values.size () == 2)
+		{
+			if (isNumber(values[1]))
+				_listen._port = getNumber(values[1]);
+			else
+				_listen._address = getDecimalValueOfIPV4_String(values[1].c_str());
 		}
 	}
 	else
@@ -376,7 +383,7 @@ int OneServer::build()
     }
 	this->setAddress();
 
-	// bind the socket to localhost port 8080
+	// bind the socket to whatever in listen
 	if (bind(_fd, (struct sockaddr *)&_address, sizeof(_address)) < 0)
     {
         std::cerr << "Fail to bind to port " << _listen._port << std::endl;

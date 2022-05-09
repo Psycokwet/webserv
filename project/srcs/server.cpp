@@ -52,6 +52,7 @@ int  main(void)
     // domain: integer, specifies communication domain. We use AF_ LOCAL as defined in the POSIX standard for communication between processes on the same host. For communicating between processes on different hosts connected by IPV4, we use AF_INET and AF_I NET 6 for processes connected by IPV6.
     // type: A SOCK_STREAM: TCP(reliable, connection oriented), type provides sequenced, reliable, two-way connection based byte streams.
     // protocol: Protocol value for Internet Protocol(IP), which is 0. This is the same number which appears on protocol field in the IP header of a packet.(man protocols for more details)
+    // Todo: ok
     server_fd = socket(AF_INET, SOCK_STREAM, 0); // ! use this for the project
     if (server_fd == 0)
     {
@@ -67,12 +68,15 @@ int  main(void)
         perror("Fail to setsockopt");
         exit(EXIT_FAILURE);
     }
+
     // type of socket created:
+    // todo: ok
     server_address.sin_family = AF_INET;
     server_address.sin_addr.s_addr = htonl(INADDR_ANY); // ! need to change this to our server_name
     server_address.sin_port = htons(PORT);
 
     // bind the socket to localhost port 8080
+    // todo: ok
     if (bind(server_fd, (struct sockaddr *)&server_address, sizeof(server_address)) < 0)
     {
         perror("Fail to bind");
@@ -81,6 +85,7 @@ int  main(void)
     printf("Listener on port number %d\n", PORT);
 
     // Try to specify maximun of 3 pending connection for the master socket (server_fd)
+    // todo: ok
     if (listen(server_fd, 3) < 0)
     {
         perror("Fail to listen");
@@ -89,8 +94,10 @@ int  main(void)
     
 
     //accept the incoming connection
+    // todo: ok
     addrlen = sizeof(server_address);
     puts("Waiting for connections...");
+
 
     while (TRUE)
     {

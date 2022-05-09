@@ -1,5 +1,5 @@
 #ifndef CONFIGDATASTRUCTURES_HPP
-# define CONFIGDATASTRUCTURESHPP
+# define CONFIGDATASTRUCTURES_HPP
 
 #include <string>
 #include <vector>
@@ -22,9 +22,9 @@ typedef struct 	s_error_page {
 	std::vector<int>    errorCodes; 
 	std::string         uri;
 
-	s_error_page(std::string uri="")
+	s_error_page(std::string a_uri="")
 	{
-		uri = uri;
+		uri = a_uri;
 	}		
 } 				t_error_page;
 

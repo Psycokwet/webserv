@@ -78,14 +78,11 @@ int	MasterServer::build()
         {
             // add master socket to set FD_SET
             std::cout << "One server is built\n";
-
-
-
+            std::cout << "Waiting for connections...\n";
         }
         else // ! Error while building OneServer
         {
             return (-1);
-
         }
 	}
     if (max_fd == 0) // ! Error to build MasterServer
