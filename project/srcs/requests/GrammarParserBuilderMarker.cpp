@@ -18,6 +18,7 @@ GrammarParserBuilderMarker::GrammarParserBuilderMarker(
 		_count(0),
 		_resetTo(0),
 		_buffer(""),
+		_confirmedBuffer(""),
 		_maxIndexToken(sizeTokens()),
 		_isCurrentlyValid(true),
 		_lastId(GrammarParser::_builderDictionnary.size() + 1),
@@ -35,6 +36,7 @@ GrammarParserBuilderMarker::GrammarParserBuilderMarker(
 		_count(src._count),
 		_resetTo(src._resetTo),
 		_buffer(src._buffer),
+		_confirmedBuffer(src._confirmedBuffer),
 		_maxIndexToken(src._maxIndexToken),
 		_isCurrentlyValid(src._isCurrentlyValid),
 		_lastId(src._lastId),
@@ -76,6 +78,9 @@ std::ostream &			operator<<( std::ostream & o, GrammarParserBuilderMarker const 
 
 std::ostream &			GrammarParserBuilderMarker::print( std::ostream & o) const
 {
+	o << "this->_lastId [" << this->_lastId << "] ; ";
+	o << "this->_resetLastId [" << this->_resetLastId << "] ; ";
+	o << "this->_confirmedBuffer [" << this->_confirmedBuffer << "] ; ";
 	o << "this->_buffer [" << this->_buffer << "] ; ";
 	o << "this->_deepness " << this->_deepness << " ; ";
 	o << "this->_gv [" << *this->_gv << "] ; ";
@@ -85,6 +90,8 @@ std::ostream &			GrammarParserBuilderMarker::print( std::ostream & o) const
 	o << "this->_maxIndexToken " << this->_maxIndexToken << " ; ";
 	o << "this->_min " << this->_min << " ; ";
 	o << "this->_max " << this->_max << " ; ";
+	o << "this->_isCurrentlyValid " << (this->_isCurrentlyValid == true ? "true": "false") << " ; ";
+	o << "this->_gv [" << *this->_gv << "] ; ";
 	return o;
 }
 
@@ -98,10 +105,10 @@ std::ostream &			GrammarParserBuilderMarker::print( std::ostream & o) const
 
 int GrammarParserBuilderMarker::findMaxIndex() const
 {
-	std::cout << "STARTING WITH " << *this << ":::"<< this->getCurrentToken()<<std::endl;
+	// std::cout << "STARTING WITH " << *this << ":::"<< this->getCurrentToken()<<std::endl;
 	if(!IS_OPENING_STATEMENT(this->getCurrentToken()))
 		return this->_tokenIndex;
-	std::cout << "STILL ON BABY" <<std::endl;
+	// std::cout << "STILL ON BABY" <<std::endl;
 	std::list<Statements> stats = std::list<Statements> ();
 	std::vector<std::string> &tokens = this->_gv->getTokens();
 	int i = this->_tokenIndex;
@@ -109,7 +116,7 @@ int GrammarParserBuilderMarker::findMaxIndex() const
 	while (stats.size() != 0)
 	{
 		i++;
-	std::cout << "STILL ON BABY :" <<i<<std::endl;
+	// std::cout << "STILL ON BABY :" <<i<<std::endl;
 		if(i >= sizeTokens())
 			return -1;
 		if (IS_OPENING_STATEMENT(tokens[i]))
@@ -135,7 +142,7 @@ void GrammarParserBuilderMarker::setRep(int min, int max)
 		this->_tokenIndex++;
 		this->_resetTo = this->_tokenIndex;
 	}
-	std::cout << "SET REP FOR " << *this << std::endl;
+	// std::cout << "SET REP FOR " << *this << std::endl;
 }
 
 std::string GrammarParserBuilderMarker::getCurrentToken() const
@@ -153,11 +160,13 @@ bool GrammarParserBuilderMarker::incToken()
 		return true;
 	}
 	this->_count++;
-	if(this->_count < this->_max)
+	if(this->_count < this->_max && _isCurrentlyValid)
 	{
 		this->_tokenIndex = this->_resetTo;
 		this->_lastId = this->_resetLastId;
 		this->_isCurrentlyValid = true;
+		this->_confirmedBuffer += _buffer;
+		this->_buffer = "";
 		return true;
 	}
 	return false;
@@ -186,7 +195,7 @@ bool GrammarParserBuilderMarker::hasEnoughRep() const
 }
 bool GrammarParserBuilderMarker::hasFinishedCurrentRep() const
 {
-	if(this->_tokenIndex >= this->_maxIndexToken)
+	if(this->_tokenIndex >= (this->_maxIndexToken - 1))
 		return true;
 	return false;
 }
@@ -239,7 +248,11 @@ void GrammarParserBuilderMarker::addToBuffer(std::string buffer)
 }
 std::string GrammarParserBuilderMarker::getBuffer()
 {
-	return this->_buffer;
+	if(!_isCurrentlyValid)
+	std::cout <<*this<<  "\n trying to retrieve " << this->_confirmedBuffer <<":::"<< this->_buffer<< " with "<<_isCurrentlyValid <<std::endl;
+	if(_isCurrentlyValid)
+		return this->_confirmedBuffer + this->_buffer;
+	return this->_confirmedBuffer;
 }
 
 GrammarVariables *GrammarParserBuilderMarker::getVar()

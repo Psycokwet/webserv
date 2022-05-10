@@ -69,6 +69,7 @@ class GrammarParserBuilderMarker
 		int _count;
 		int _resetTo;
 		std::string _buffer;
+		std::string _confirmedBuffer;
 		int _maxIndexToken;
 		int _isCurrentlyValid;
 		int _lastId;

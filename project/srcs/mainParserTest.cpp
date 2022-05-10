@@ -6,7 +6,7 @@
 /*   By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#             */
-/*   Updated: 2022/05/08 17:50:12 by scarboni         ###   ########.fr       */
+/*   Updated: 2022/05/09 17:20:34 by scarboni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ int		main(int ac, char **av)
 	std::stringstream ss;
 	while(std::getline(ifs, tmp_line))
 	{
-		gp->feed(tmp_line + "\n\r");
+		gp->feed(tmp_line + "\r\n");
 		std::cout << "I've read :" << tmp_line<< std::endl;
 	}
 	e_parsing_states result = gp->parse();
