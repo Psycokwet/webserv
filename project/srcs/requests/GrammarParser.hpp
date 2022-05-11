@@ -62,7 +62,6 @@ class GrammarParser
 		e_parsing_states consume_VAR(std::string token,	GrammarParserBuilderMarker *gp, int id);
 
 		e_parsing_states consume_STATEMENTS(std::string token,	GrammarParserBuilderMarker *gp, int id, std::string statement, int min);
-		e_parsing_states resolveValidityOfOpenedLoops();
 
 		void feed(std::string buff);
 		void initParse();
@@ -96,6 +95,8 @@ class GrammarParser
 		void deleteFrontPriority(bool willAddNewFrontAfter = false);
 		bool saveIfNecesary(bool willAddNewFrontAfter = false);
 		bool tryIncToken(bool willAddNewFrontAfter = false);
+		e_parsing_states resolveValidityOfOpenedLoops(bool willAddNewFrontAfter = false);
+
 		void addToBuffer(std::string add, GrammarParserBuilderMarker *gp);
 		// bool addToCurrentBuffer(std::string add);
 

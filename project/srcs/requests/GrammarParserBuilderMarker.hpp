@@ -16,12 +16,13 @@
 
 DECLARE_ENUM(e_states, E_STATES_ENUM)
 
+class GrammarParser;
 class GrammarParserBuilderMarker
 {
 
 	public:
 
-		GrammarParserBuilderMarker(int deepness = -1, GrammarVariables *gv = NULL, int tokenIndex = 0, int resetLastId = -1);
+		GrammarParserBuilderMarker(int deepness = -1, GrammarVariables *gv = NULL, int tokenIndex = 0, int resetLastId = 11);
 		GrammarParserBuilderMarker( GrammarParserBuilderMarker const & src );
 		~GrammarParserBuilderMarker();
 
@@ -49,6 +50,7 @@ class GrammarParserBuilderMarker
 		std::string getBuffer();
 		bool incTokenTo(int newIndex);
 		int getMaxIndexToken() const;
+		int getResetTo() const;
 		bool getIsCurrentlyValid() const;
 		void setIsCurrentlyValid(bool valid);
 		int findMaxIndex() const;

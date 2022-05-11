@@ -195,9 +195,9 @@ bool GrammarParserBuilderMarker::hasEnoughRep() const
 }
 bool GrammarParserBuilderMarker::hasFinishedCurrentRep() const
 {
-	if(this->_tokenIndex >= (this->_maxIndexToken - 1))
-		return true;
-	return false;
+	if(this->_tokenIndex < (this->_maxIndexToken -1))
+		return false;
+	return true;
 }
 
 void GrammarParserBuilderMarker::resetBuffer()
@@ -207,6 +207,11 @@ void GrammarParserBuilderMarker::resetBuffer()
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
+int GrammarParserBuilderMarker::getResetTo() const
+{
+	return _resetTo;
+}
+
 
 int GrammarParserBuilderMarker::getDeepness() const
 {
