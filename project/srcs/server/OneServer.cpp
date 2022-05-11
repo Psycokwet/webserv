@@ -375,35 +375,63 @@ AServerItem *OneServer::addCgi(Node *node)
 
 int OneServer::build()
 {
+   int rc, on = 1;
+   /*************************************************************/
+   /* Create an AF_INET stream socket to receive incoming       */
+   /* connections on                                            */
+   /*************************************************************/
     _fd = socket(AF_INET, SOCK_STREAM, 0);
     if (_fd == 0)
     {
         std::cerr << "Fail to set socket" << std::endl;
         return(-1);
     }
+
+   /*************************************************************/
+   /* Allow socket descriptor to be reuseable                   */
+   /*************************************************************/
+	rc = setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, (char *)&on, sizeof(on));
+	if (rc < 0)
+	{
+		std::cerr << "setsockopt() failed" << std::endl;
+		return (-1);
+	}
+
+	/*************************************************************/
+	/* Set address (host) and port                               */
+	/*************************************************************/
 	this->setAddress();
 
-	// bind the socket to whatever in listen
-	if (bind(_fd, (struct sockaddr *)&_address, sizeof(_address)) < 0)
+   /*************************************************************/
+   /* Bind the socket                                           */
+   /*************************************************************/
+	rc = bind(_fd, (struct sockaddr *)&_address, sizeof(_address)) < 0;
+	if (rc < 0)
     {
         std::cerr << "Fail to bind to port " << _listen._port << std::endl;
         return(-1);
     }
 
-	// Try to specify maximun of client pending connection for the master socket (server_fd)
-    if (listen(_fd, MAX_CLIENTS) < 0)
+	/*************************************************************/
+	/* Try to specify maximun of client pending connection for   */
+	/*   the master socket (server_fd)                           */
+	/*************************************************************/
+    rc = listen(_fd, MAX_CLIENTS);
+	if (rc < 0)
     {
         std::cerr << "Fail to listen" << std::endl;
         return(-1);
     }
-	std::cout << "One server is built on port: "<< _listen._port;
-	std::cout << ", address: " << _listen._address;
-	std::cout << ", default server: " << _listen._default_server;
+	// std::cout << "One server is built on port: "<< _listen._port;
+	// std::cout << ", address: " << _listen._address;
+	// std::cout << ", default server: " << _listen._default_server;
 	return (0);
 }
 
+
 void OneServer::setAddress()
 {
+	memset((char *)&_address, 0, sizeof(_address));
 	_address.sin_family = AF_INET;
     _address.sin_addr.s_addr = htonl(_listen._address);
     _address.sin_port = htons(_listen._port);

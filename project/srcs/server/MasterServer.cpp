@@ -66,11 +66,13 @@ std::ostream &			MasterServer::print( std::ostream & o) const
 
 int	MasterServer::build()
 {
-	// Clear the scoket set
-    FD_ZERO(&_fdSet);
-    
     _max_fd = 0;
     unsigned int ms_size = _configAllServer.size();
+
+    /*************************************************************/
+    /* Initialize the master fd_set                              */
+    /*************************************************************/
+    FD_ZERO(&_fdSet);
 
     for(unsigned int i = 0; i < ms_size; i++)
 	{
@@ -83,8 +85,6 @@ int	MasterServer::build()
             fd = _configAllServer[i]->getFD();
             FD_SET(fd, &_fdSet);
             
-            std::cout << "fd is: " << fd << std::endl;
-
             if (fd > _max_fd)
                 _max_fd = fd;
         }
@@ -100,27 +100,59 @@ int	MasterServer::build()
 
 int MasterServer::run()
 {
-    std::cout << "MasterServer is running!!!" << std::endl;
+    /*************************************************************/
+    /* Loop waiting for incoming connects or for incoming data   */
+    /* on any of the connected sockets.                          */
+    /*************************************************************/
     while (1)
     {
-        fd_set  read_fd_set;
-        fd_set  write_fd_set;
+        fd_set          read_fd_set;
+        fd_set          write_fd_set;
+        struct timeval  timeout;
 
-        int     activity = 0;
-
+        int activity = 0;
         while (activity == 0)
         {
+            /*************************************************************/
+            /* Initialize the timeval struct to 3 minutes.  If no        */
+            /* activity after 3 minutes this program will end.           */
+            /*************************************************************/
+            timeout.tv_sec  = 3 * 60;
+            timeout.tv_usec = 0;
+            
+            
             FD_ZERO(&write_fd_set);
             for (std::vector<int>::iterator it = _ready.begin() ; it != _ready.end() ; it++)
 				FD_SET(*it, &write_fd_set);
 
+            /*************************************************************/
+            /* Call select() and wait 3 minutes for it to complete.      */
+            /* Wait for one or more fd become "ready" to read and write  */
+            /*************************************************************/
+            activity = select(_max_fd + 1, &read_fd_set, &write_fd_set, NULL, &timeout);
 
-            //wait for an activity on one of the sockets, timeout is NULL so wait permernently
-            activity = select(_max_fd + 1, &read_fd_set, &write_fd_set, NULL, NULL);
-            std::cout << "activity = " << activity;
+            /**********************************************************/
+            /* Check to see if the select call failed.                */
+            /**********************************************************/
+            if (activity < 0)
+            {
+                std::cout << "select() failed" << std::endl;
+                break;
+            }
+        }
+        /**********************************************************/
+        /* Check to see if the 3 minute time out expired.         */
+        /**********************************************************/
+        if (activity == 0)
+        {
+            std::cerr << "select() time out. End program." << std::endl;
+            break ;
+            // Todo: next: close / clear opened socket
 
+            FD_ZERO(&_fdSet);
         }
 
+        
         // Todo here
 
         // if (activity > 0)
@@ -150,23 +182,6 @@ int MasterServer::run()
                 
         // }
 
-        // if ((activity < 0) && (errno != EINTR))
-        // {
-        //     std::cerr << "Error: Select does not work" << std::endl;
-            
-        //     // Todo: next: close / clear opened socket
-
-        //     FD_ZERO(&_fdSet);
-        // }
-        // else
-        // {
-        //     for (std::vector<int>::const_iterator it = _ready.begin(); it != _ready.end(); it++ )
-        //     {
-        //         if (FD_ISSET(*it, &write_fd_set))
-        //         {
-        //             int ret = 
-        //         }
-        //     }
 
 
         // }
