@@ -78,6 +78,7 @@ std::ostream &			operator<<( std::ostream & o, GrammarParserBuilderMarker const 
 
 std::ostream &			GrammarParserBuilderMarker::print( std::ostream & o) const
 {
+	o << "WHOAMI [" << this << "] ; ";
 	o << "this->_lastId [" << this->_lastId << "] ; ";
 	o << "this->_resetLastId [" << this->_resetLastId << "] ; ";
 	o << "this->_confirmedBuffer [" << this->_confirmedBuffer << "] ; ";
@@ -107,7 +108,7 @@ int GrammarParserBuilderMarker::findMaxIndex() const
 {
 	// std::cout << "STARTING WITH " << *this << ":::"<< this->getCurrentToken()<<std::endl;
 	if(!IS_OPENING_STATEMENT(this->getCurrentToken()))
-		return this->_tokenIndex;
+		return this->_tokenIndex + 1;
 	// std::cout << "STILL ON BABY" <<std::endl;
 	std::list<Statements> stats = std::list<Statements> ();
 	std::vector<std::string> &tokens = this->_gv->getTokens();
@@ -137,36 +138,61 @@ void GrammarParserBuilderMarker::setRep(int min, int max)
 	this->_max = max;
 	this->_resetTo = this->_tokenIndex;
 	this->_maxIndexToken = findMaxIndex();
-	if(_maxIndexToken > _tokenIndex)
+	if(_maxIndexToken > (_tokenIndex + 1))
 	{
 		this->_tokenIndex++;
 		this->_resetTo = this->_tokenIndex;
 	}
-	// std::cout << "SET REP FOR " << *this << std::endl;
 }
 
 std::string GrammarParserBuilderMarker::getCurrentToken() const
 {
-	if(this->_tokenIndex >= sizeTokens())
+	std::cout<< *this<<std::endl;
+	if(this->_tokenIndex >= _maxIndexToken)
 		throw new TokenOutOfBound();
 	return this->_gv->getTokens()[this->_tokenIndex];
 }
 
+
+void GrammarParserBuilderMarker::reset()
+{
+	this->_tokenIndex = this->_resetTo;
+	this->_lastId = this->_resetLastId;
+	this->_isCurrentlyValid = true;
+	this->_confirmedBuffer += _buffer;
+	this->_buffer = "";
+
+	this->_count++;
+}
+
+bool GrammarParserBuilderMarker::canBeParsed()
+{
+	std::cout <<!_isCurrentlyValid <<":::"<< this->_maxIndexToken <<":::"<< this->_tokenIndex  <<":::"<<":::"<< "/"<<":::"<<this->_lastId <<":::"<<INDEX_OR << "  \n";
+
+	std::cout<<"canBeParsed"<<std::endl;
+	if(this->_maxIndexToken != this->_tokenIndex &&!_isCurrentlyValid && this->getCurrentToken() != "/" && this->_lastId != INDEX_OR){
+		std::cout <<!_isCurrentlyValid <<":::"<< this->_maxIndexToken <<":::"<< this->_tokenIndex  <<":::"<<this->getCurrentToken() <<":::"<< "/"<<":::"<<this->_lastId <<":::"<<INDEX_OR << " 173 \n";
+		return false;}
+	if(this->_maxIndexToken == this->_tokenIndex &&
+		(this->_max <= (this->_count + 1)
+		|| !_isCurrentlyValid 
+		|| (this->_lastId == INDEX_OR && _isCurrentlyValid))){
+		std::cout << " 176 \n";
+		return false;}
+	return true;
+}
+
+void GrammarParserBuilderMarker::prepareNextParsing()
+{
+	if(this->_maxIndexToken == this->_tokenIndex && this->_max > this->_count)
+		reset();
+}
+
 bool GrammarParserBuilderMarker::incToken()
 {
-	if(this->_maxIndexToken > this->_tokenIndex + 1)
+	if(this->_maxIndexToken > this->_tokenIndex)
 	{
 		this->_tokenIndex++;
-		return true;
-	}
-	this->_count++;
-	if(this->_count < this->_max && _isCurrentlyValid)
-	{
-		this->_tokenIndex = this->_resetTo;
-		this->_lastId = this->_resetLastId;
-		this->_isCurrentlyValid = true;
-		this->_confirmedBuffer += _buffer;
-		this->_buffer = "";
 		return true;
 	}
 	return false;
@@ -189,20 +215,29 @@ int GrammarParserBuilderMarker::sizeTokens() const
 
 bool GrammarParserBuilderMarker::hasEnoughRep() const
 {
-	if(this->_count >= this->_min)
+	if(this->_count >= this->_min || (this->_count + 1 >= this->_min && this->_tokenIndex == this->_maxIndexToken && _isCurrentlyValid))
 		return true;
 	return false;
 }
 bool GrammarParserBuilderMarker::hasFinishedCurrentRep() const
 {
-	if(this->_tokenIndex < (this->_maxIndexToken -1))
-		return false;
-	return true;
+	if(this->_tokenIndex >= this->_maxIndexToken)
+		return true;
+	return false;
 }
 
 void GrammarParserBuilderMarker::resetBuffer()
 {
 	this->_buffer = "";
+}
+
+
+bool GrammarParserBuilderMarker::isValidInTheEnd() const
+{
+	if ((this->getIsCurrentlyValid() && this->hasEnoughRep() && this->hasFinishedCurrentRep())
+		|| this->hasEnoughRep())
+		return true;
+	return false;
 }
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

@@ -124,17 +124,6 @@ bool check_VAR (std::string token, t_grammar_map &gm)
 ** ---------------------------------- STATIC ----------------------------------
 */
 
-#define INDEX_OR 0
-#define INDEX_MULTI 1
-#define INDEX_VALUE 2
-#define INDEX_QUOTEVALUE 3
-#define INDEX_INTERVAL 4
-#define INDEX_MULTIVALUES 5
-#define INDEX_BLOCK 6
-#define INDEX_STRING 7
-#define INDEX_OPTIONAL 8
-#define INDEX_VAR 9
-
 t_builder_dictionary GrammarParser::initBuilderDictionnary()
 {
     t_builder_dictionary vector;
@@ -394,11 +383,11 @@ void GrammarParser::addToBuffer(std::string add, GrammarParserBuilderMarker *gp)
 }
 
 
-bool GrammarParser::saveIfNecesary(bool willAddNewFrontAfter)
+bool GrammarParser::saveIfNecesary()
 {
-	std::cout << "saveIfNecesary "<< GetString(_saveType) << ":::"<<willAddNewFrontAfter<<":::"<<_indexTokenInitSave << std::endl;
+	std::cout << "saveIfNecesary "<< GetString(_saveType) <<":::"<<_indexTokenInitSave << std::endl;
 	if(_priority_states.front()->getDeepness() < _deepnessMinBeforeSave ||
-		( _priority_states.front()->getDeepness() == _deepnessMinBeforeSave && !willAddNewFrontAfter && _priority_states.front()->getTokenIndex() >= _indexTokenInitSave ))
+		( _priority_states.front()->getDeepness() == _deepnessMinBeforeSave && _priority_states.front()->getTokenIndex() >= _indexTokenInitSave ))
 	{
 		if (_saveType == ONLY_VALUE || _saveType == VALUE)
 		{
@@ -426,7 +415,7 @@ bool GrammarParser::saveIfNecesary(bool willAddNewFrontAfter)
 	return false;
 }
 
-void GrammarParser::deleteFrontPriority(bool willAddNewFrontAfter)
+void GrammarParser::deleteFrontPriority()
 {	
 	// std::cout<<"*SHOIUDL deleting:"<< (!_priority_states.front()->getIsCurrentlyValid()== true ? "true": "false" ) << ":::"<< (!_priority_states.front()->hasFinishedCurrentRep()== true ? "true": "false" )<< ":::"<<(willAddNewFrontAfter== true ? "true": "false" )<<std::endl;
 	// if(_priority_states.front()->getIsCurrentlyValid() && !_priority_states.front()->hasFinishedCurrentRep())
@@ -437,13 +426,15 @@ void GrammarParser::deleteFrontPriority(bool willAddNewFrontAfter)
 		_priority_states.front()->setIsCurrentlyValid(true);
 
 	std::cout<<"deleting:"<< *_priority_states.front() << "\nRESULT : "<<( _priority_states.front()->hasEnoughRep() == true ? "true": "false" )<< ":::"<< (_priority_states.front()->hasFinishedCurrentRep() == true ? "true": "false" ) <<std::endl;
-	if ((_priority_states.front()->getIsCurrentlyValid() && _priority_states.front()->hasEnoughRep() && _priority_states.front()->hasFinishedCurrentRep()) || _priority_states.front()->hasEnoughRep())
+	if (_priority_states.front()->isValidInTheEnd())
 	{
-		if(!saveIfNecesary(willAddNewFrontAfter) && _priority_states.size() > 2 && (_saveType == ONLY_VALUE || _saveType == VALUE || _saveType == KEY))
+		if(_priority_states.size() > 2)
 		{
 			std::list<GrammarParserBuilderMarker *>::iterator it = _priority_states.begin();
 			it++;
-			(*it)->addToBuffer(_priority_states.front()->getBuffer());
+			(*it)->setIsCurrentlyValid(true);
+			if(!saveIfNecesary() && _saveType != NO_VAR_TYPE)
+				(*it)->addToBuffer(_priority_states.front()->getBuffer());
 		}
 	}
 	else if(_priority_states.size() > 2)
@@ -451,20 +442,21 @@ void GrammarParser::deleteFrontPriority(bool willAddNewFrontAfter)
 		// bool toDeleteValidity = _priority_states.front()->getIsCurrentlyValid();
 		delete _priority_states.front();
 		_priority_states.pop_front();
-		saveIfNecesary(willAddNewFrontAfter);
+		saveIfNecesary();
 		if(!_priority_states.front()->getIsCurrentlyValid() && _priority_states.front()->hasEnoughRep() && _priority_states.front()->hasFinishedCurrentRep())
-			return deleteFrontPriority(willAddNewFrontAfter);
+			return deleteFrontPriority();
 		return;
 	}
 	delete _priority_states.front();
 	_priority_states.pop_front();
-	saveIfNecesary(willAddNewFrontAfter);
+	saveIfNecesary();
 }
 
-bool GrammarParser::tryIncToken(bool willAddNewFrontAfter)
+bool GrammarParser::tryIncToken()
 {
+	std::cout<<"try inc \n";
 	// 	return;
-	if(!_priority_states.front()->incToken()
+	if(!_priority_states.front()->incToken() && !_priority_states.front()->canBeParsed()
 		// && !(
 		// 	!_priority_states.front()->getIsCurrentlyValid()
 		// 	&& (
@@ -482,7 +474,7 @@ bool GrammarParser::tryIncToken(bool willAddNewFrontAfter)
 	)
 
 	{
-		deleteFrontPriority(willAddNewFrontAfter);
+		deleteFrontPriority();
 		return false;
 	}
 	return true;
@@ -525,7 +517,7 @@ int i = 0;
 	do {
 		if(this->_requestIndex >= this->_request.size())
 			return PARSE_NOTHING_MORE;
-		if(i++ > 300){
+		if(i++ > 50){
 
 	for (std::map<std::string, std::string>::iterator it= this->_parsed_datas.begin(); it !=this->_parsed_datas.end() ; it++)
 	{
@@ -533,6 +525,15 @@ int i = 0;
 		/* code */
 	}
 			return PARSE_QUIT_DEBUG;}
+		while(_priority_states.size() > 1 &&!_priority_states.front()->canBeParsed())
+		{
+			std::cout<< "CANT BE PA4RSED " <<*_priority_states.front() <<std::endl;
+
+			resolveValidityOfOpenedLoops();
+		}
+		if(_priority_states.size() == 0)
+			return PARSE_UNEXPECTED_END_PATTERN;
+		_priority_states.front()->prepareNextParsing();
 		std::string token = _priority_states.front()->getCurrentToken();
 		int id = getBuilderIDForToken(token, this->_vars);
 		if(id == NON_VALID)
@@ -540,10 +541,11 @@ int i = 0;
 		if (!DEBUG)
 			std::cout << COLORS[id];
 		std::cout<< *_priority_states.front() <<"::"<< id <<"::"<< this->_requestIndex << "::"<<std::endl;
+		GrammarParserBuilderMarker *gp = _priority_states.front();
 		try
 		{
 			std::cout << token <<" for ["<< this->_request.substr(this->_requestIndex, 3)<<"]"<< std::endl;
-			current = (this->*GrammarParser::_builderDictionnary[id].second)(token, _priority_states.front(), id);
+			current = (this->*GrammarParser::_builderDictionnary[id].second)(token, gp, id);
 			std::cout << GetString(current) << std::endl;
 		}
 		catch(const std::exception& e)
@@ -557,10 +559,13 @@ int i = 0;
 		if (!DEBUG)
 			std::cout << RESET;
 		if (current == PARSE_FAILURE)
-		{
-			_priority_states.front()->setIsCurrentlyValid(false);
-			if( _priority_states.front()->hasFinishedCurrentRep())
-				deleteFrontPriority();
+		{		
+
+			std::cout<< "PARSE FAILURE !!!"<<std::endl;
+			gp->setIsCurrentlyValid(false);
+			std::cout<< *_priority_states.front()<<std::endl;
+			// if( _priority_states.front()->hasFinishedCurrentRep())
+			// 	deleteFrontPriority();
 		}
 	}
 	while(current != PARSE_NOT_ENOUGH_DATAS && current != PARSE_FATAL_FAILURE);
@@ -596,27 +601,29 @@ e_parsing_states GrammarParser::consume_OR(std::string token,	GrammarParserBuild
 			return PARSE_FATAL_FAILURE;
 		gp->incTokenTo(i);
 		tryIncToken();
+		std::cout << "SHOULD HAVE PASSED NEXT PATTERN " << *gp<<std::endl;
 		return PARSE_SUCCESS;
 	}
-	tryIncToken();
+	if(!tryIncToken())
+		return PARSE_FATAL_FAILURE;
 	(void)token;
 	return PARSE_SUCCESS;
 }
 
 e_parsing_states GrammarParser::consume_MULTI(std::string token,	GrammarParserBuilderMarker *gp, int id)
 {
-	if(! gp->getIsCurrentlyValid() && gp->getLastId() != INDEX_OR)
-		return resolveValidityOfOpenedLoops(true);
+	// if(! gp->getIsCurrentlyValid() && gp->getLastId() != INDEX_OR)
+	// 	return resolveValidityOfOpenedLoops(true);
 	// if(!gp->getIsCurrentlyValid())
 	// 	return PARSE_FATAL_FAILURE;
-	if(!tryIncToken(true))
+	if(!tryIncToken())
 		return PARSE_FATAL_FAILURE;
 	std::string tmp_block;
 	int min = 0;
 	int max = INT_MAX;
 	std::stringstream ss(token);
 	if(!std::getline(ss, tmp_block, '*'))
-		return PARSE_FAILURE;
+		return PARSE_FATAL_FAILURE;
 	if(tmp_block.size() > 0)
 		min = strtol(tmp_block.c_str(), NULL, 10);
 
@@ -628,7 +635,7 @@ e_parsing_states GrammarParser::consume_MULTI(std::string token,	GrammarParserBu
 	if (check == -1)
 		return PARSE_FATAL_FAILURE;
 	gp->incTokenTo(check);
-	tryIncToken(true);
+	tryIncToken();
 	if(gp == _priority_states.front())
 		_priority_states.front()->setLastId(id);
 	_priority_states.push_front(loopgp);
@@ -637,8 +644,8 @@ e_parsing_states GrammarParser::consume_MULTI(std::string token,	GrammarParserBu
 
 e_parsing_states GrammarParser::consume_VALUE(std::string token,	GrammarParserBuilderMarker *gp, int id)
 {
-	if(! gp->getIsCurrentlyValid() && gp->getLastId() != INDEX_OR)
-		return resolveValidityOfOpenedLoops();
+	// if(! gp->getIsCurrentlyValid() && gp->getLastId() != INDEX_OR)
+	// 	return resolveValidityOfOpenedLoops();
 	// if(! gp->getIsCurrentlyValid() && gp->getLastId() != INDEX_OR)
 	// 	return PARSE_FATAL_FAILURE;
 	long valid_value = strtol(token.substr(2).c_str(), NULL, 16);
@@ -648,6 +655,8 @@ e_parsing_states GrammarParser::consume_VALUE(std::string token,	GrammarParserBu
 	if(c != valid_value)
 	{
 		tryIncToken();
+		if(gp == _priority_states.front())
+			_priority_states.front()->setLastId(id);
 		return PARSE_FAILURE;
 	}
 	// std::cout<<"CHAR IS :" << tmp << " NEEED "<< valid_value<<std::endl;
@@ -666,8 +675,8 @@ e_parsing_states GrammarParser::consume_QUOTEVALUE(std::string token,	GrammarPar
 
 e_parsing_states GrammarParser::consume_INTERVAL(std::string token,	GrammarParserBuilderMarker *gp, int id)
 {
-	if(! gp->getIsCurrentlyValid() && gp->getLastId() != INDEX_OR)
-		return resolveValidityOfOpenedLoops();
+	// if(! gp->getIsCurrentlyValid() && gp->getLastId() != INDEX_OR)
+	// 	return resolveValidityOfOpenedLoops();
 	// if(! gp->getIsCurrentlyValid() && gp->getLastId() != INDEX_OR)
 	// 	return PARSE_FATAL_FAILURE;
 	long valid_min = strtol(token.substr(2, 4).c_str(), NULL, 16);
@@ -676,6 +685,8 @@ e_parsing_states GrammarParser::consume_INTERVAL(std::string token,	GrammarParse
 	if(c > valid_max || c < valid_min)
 	{
 		tryIncToken();
+		if(gp == _priority_states.front())
+			_priority_states.front()->setLastId(id);
 		return PARSE_FAILURE;
 	}
 	std::string tmp ;
@@ -692,8 +703,8 @@ e_parsing_states GrammarParser::consume_INTERVAL(std::string token,	GrammarParse
 e_parsing_states GrammarParser::consume_MULTIVALUES(std::string token,	GrammarParserBuilderMarker *gp, int id)
 {
 	throw IllegalParsingState();
-	if(! gp->getIsCurrentlyValid() && gp->getLastId() != INDEX_OR)
-		return resolveValidityOfOpenedLoops();
+	// if(! gp->getIsCurrentlyValid() && gp->getLastId() != INDEX_OR)
+	// 	return resolveValidityOfOpenedLoops();
 	_priority_states.front()->setLastId(id);
 	tryIncToken();
 	if(gp == _priority_states.front())
@@ -706,8 +717,8 @@ e_parsing_states GrammarParser::consume_MULTIVALUES(std::string token,	GrammarPa
 
 e_parsing_states GrammarParser::consume_STATEMENTS(std::string token,	GrammarParserBuilderMarker *gp, int id, std::string statement, int min)
 {
-	if(! gp->getIsCurrentlyValid() && gp->getLastId() != INDEX_OR)
-		return resolveValidityOfOpenedLoops(true);
+	// if(! gp->getIsCurrentlyValid() && gp->getLastId() != INDEX_OR)
+	// 	return resolveValidityOfOpenedLoops(true);
 	if (token == statement)
 	{
 		// std::cout <<" TRying to generate a statemen 1::"<< *_priority_states.front()<< ":::" << id <<std::endl;
@@ -722,7 +733,7 @@ e_parsing_states GrammarParser::consume_STATEMENTS(std::string token,	GrammarPar
 		if (check == -1)
 			return PARSE_FATAL_FAILURE;
 		gp->incTokenTo(check);
-		tryIncToken(true);
+		tryIncToken();
 		if(gp == _priority_states.front())
 			_priority_states.front()->setLastId(id);
 		_priority_states.push_front(loopgp);
@@ -741,15 +752,16 @@ e_parsing_states GrammarParser::consume_BLOCK(std::string token,	GrammarParserBu
 	return consume_STATEMENTS(token, gp, id, "(", 1);
 }
 
-e_parsing_states GrammarParser::resolveValidityOfOpenedLoops(bool willAddNewFrontAfter)
+e_parsing_states GrammarParser::resolveValidityOfOpenedLoops()
 {
 	std::cout << " RESOLVE LOOPS" << _priority_states.front()->getIsCurrentlyValid() <<":::"<< _priority_states.front()->getLastId() <<":::"<<  INDEX_OR<<":::"<<_priority_states.front()->hasEnoughRep()<<":::"<< std::endl;
-	deleteFrontPriority(willAddNewFrontAfter);
-	if(( !_priority_states.front()->getIsCurrentlyValid() && _priority_states.front()->getLastId() != INDEX_OR) &&
+	deleteFrontPriority();
+	if(
+		//( !_priority_states.front()->getIsCurrentlyValid() && _priority_states.front()->getLastId() != INDEX_OR) &&
 		( !_priority_states.front()->getIsCurrentlyValid() && _priority_states.front()->hasEnoughRep()))
 	{
 		_priority_states.front()->setIsCurrentlyValid(true);
-		return resolveValidityOfOpenedLoops(willAddNewFrontAfter);
+		return resolveValidityOfOpenedLoops();
 	}
 	if(_priority_states.front()->getIsCurrentlyValid())
 		return PARSE_SUCCESS;
@@ -767,8 +779,8 @@ e_parsing_states GrammarParser::resolveValidityOfOpenedLoops(bool willAddNewFron
 e_parsing_states GrammarParser::consume_STRING(std::string token,	GrammarParserBuilderMarker *gp, int id)
 {
 	// std::cout <<"CONSUME STRING "<< (gp->getIsCurrentlyValid() == true ? "true": "false")<<":::"<<gp->getLastId()<<":::"<<INDEX_OR<<std::endl;
-	if(! gp->getIsCurrentlyValid() && gp->getLastId() != INDEX_OR)
-		return resolveValidityOfOpenedLoops();
+	// if(! gp->getIsCurrentlyValid() && gp->getLastId() != INDEX_OR)
+	// 	return resolveValidityOfOpenedLoops();
 	std::string substring;
 	std::string subToken = token.substr(1, token.size() - 2);
 	if (this->_request.size() - this->_requestIndex < subToken.size())
@@ -778,6 +790,8 @@ e_parsing_states GrammarParser::consume_STRING(std::string token,	GrammarParserB
 	if (substring != subToken)
 	{
 		tryIncToken();
+		if(gp == _priority_states.front())
+			_priority_states.front()->setLastId(id);
 		return PARSE_FAILURE;
 	}
 	addToBuffer(substring, gp);
@@ -797,8 +811,8 @@ e_parsing_states GrammarParser::consume_OPTIONAL(std::string token,	GrammarParse
 e_parsing_states GrammarParser::consume_VAR(std::string token,	GrammarParserBuilderMarker *gp, int id)
 {
 	// std::cout << " should ? LOOPS valid:" <<( _priority_states.front()->getIsCurrentlyValid() == true ? "true":"false" )<<"::id:"<< _priority_states.front()->getLastId() <<"::id_or:"<<  INDEX_OR<<"::has enough:"<<(_priority_states.front()->hasEnoughRep()== true ? "true":"false")<<":::"<< std::endl;
-	if(! gp->getIsCurrentlyValid() && gp->getLastId() != INDEX_OR)
-		return resolveValidityOfOpenedLoops(true);
+	// if(! gp->getIsCurrentlyValid() && gp->getLastId() != INDEX_OR)
+	// 	return resolveValidityOfOpenedLoops(true);
 	// if(! gp->getIsCurrentlyValid() && gp->getLastId() != INDEX_OR)
 	// {
 	// 	gp->incTokenTo(gp->getMaxIndexToken());
@@ -830,7 +844,7 @@ e_parsing_states GrammarParser::consume_VAR(std::string token,	GrammarParserBuil
 		_indexTokenInitSave = gp->getTokenIndex() + 1;
 		this->_current_buffer = &this->_value_buffer;
 	}
- 	tryIncToken(true);
+ 	tryIncToken();
 	if(gp == _priority_states.front())
 		_priority_states.front()->setLastId(id);
 	_priority_states.push_front(new GrammarParserBuilderMarker(tmp_deepness + 1, gv));

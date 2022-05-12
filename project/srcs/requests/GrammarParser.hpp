@@ -1,6 +1,17 @@
 #ifndef GRAMMARPARSER_HPP
 # define GRAMMARPARSER_HPP
 
+#define INDEX_OR 0
+#define INDEX_MULTI 1
+#define INDEX_VALUE 2
+#define INDEX_QUOTEVALUE 3
+#define INDEX_INTERVAL 4
+#define INDEX_MULTIVALUES 5
+#define INDEX_BLOCK 6
+#define INDEX_STRING 7
+#define INDEX_OPTIONAL 8
+#define INDEX_VAR 9
+
 # include "../util/parse.hpp"
 # include <ctype.h>
 # include <iostream>
@@ -25,6 +36,7 @@
     XX(PARSE_NOT_ENOUGH_DATAS,=0x00001000) \
     XX(PARSE_NOTHING_MORE,=0x00010000) \
     XX(PARSE_QUIT_DEBUG,=0x00100000) \
+    XX(PARSE_UNEXPECTED_END_PATTERN,=0x01000000) \
 
 DECLARE_ENUM(e_parsing_states, E_PARSING_STATE_ENUM)
 
@@ -92,10 +104,10 @@ class GrammarParser
 		e_var_type _saveType;
 		int _indexTokenInitSave;
 		
-		void deleteFrontPriority(bool willAddNewFrontAfter = false);
-		bool saveIfNecesary(bool willAddNewFrontAfter = false);
-		bool tryIncToken(bool willAddNewFrontAfter = false);
-		e_parsing_states resolveValidityOfOpenedLoops(bool willAddNewFrontAfter = false);
+		void deleteFrontPriority();
+		bool saveIfNecesary();
+		bool tryIncToken();
+		e_parsing_states resolveValidityOfOpenedLoops();
 
 		void addToBuffer(std::string add, GrammarParserBuilderMarker *gp);
 		// bool addToCurrentBuffer(std::string add);

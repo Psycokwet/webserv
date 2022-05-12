@@ -59,7 +59,10 @@ class GrammarParserBuilderMarker
 		bool hasEnoughRep() const;
 		bool hasFinishedCurrentRep() const;
 		void resetBuffer();
-		
+		bool canBeParsed();
+		void prepareNextParsing();
+		void reset();
+		bool isValidInTheEnd() const;
 
 	private:
 
