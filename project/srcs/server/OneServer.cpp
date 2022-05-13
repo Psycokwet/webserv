@@ -91,16 +91,13 @@ uint32_t getDecimalValueOfIPV4_String(const char* ipAddress)
     int8_t j=3;
     while (ipAddress+i && i<strlen(ipAddress))
     {
-       char digit = ipAddress[i];
-       if (isdigit(digit) == 0 && digit!='.'){
-           return 0;
-       }
-        j=digit=='.'?j-1:j;
-        ipbytes[j]= ipbytes[j]*10 + atoi(&digit);
-
-        i++;
+		char digit = ipAddress[i];
+		if (isdigit(digit) == 0 && digit!='.')
+			return 0;
+		j = digit == '.' ? j-1 : j;
+		ipbytes[j]= ipbytes[j] * 10 + atoi(&digit);
+		i++;
     }
-
     uint32_t a = ipbytes[0];
     uint32_t b =  ( uint32_t)ipbytes[1] << 8;
     uint32_t c =  ( uint32_t)ipbytes[2] << 16;

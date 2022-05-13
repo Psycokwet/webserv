@@ -164,12 +164,12 @@ int  main(void)
             }
 
             // Print all opened socket:
-            printf("List of opened socket:\n");
-            for (i = 0; i < max_clients; i++)
-            {
-                printf("%d ", client_socket[i]);
-            }
-            printf("\n");
+            // printf("List of opened socket:\n");
+            // for (i = 0; i < max_clients; i++)
+            // {
+            //     printf("%d ", client_socket[i]);
+            // }
+            // printf("\n");
 
             const uint EASILY_ENOUGH = 100000;
             char* buffer_recv = new char[EASILY_ENOUGH + 1];
