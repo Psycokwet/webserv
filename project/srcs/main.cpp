@@ -40,11 +40,7 @@ int		main(int ac, char *av[])
 		std::cout << "Error: Can not setup MasterServer" << std::endl;
 		return 1;
 	}
-	if (ms->run() != 0)
-	{
-		std::cout << "Error: while running the MasterServer" << std::endl;
-	}
-	
+	ms->run();
 	delete ms;
 	return 0;
 }

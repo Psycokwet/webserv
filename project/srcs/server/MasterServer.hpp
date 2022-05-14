@@ -18,7 +18,7 @@ class MasterServer :public AServerItem
 
 		std::ostream & print( std::ostream & o) const;
         int build();
-        int run();
+        void run();
 
     private:
         std::vector< OneServer* >      _configAllServer;
