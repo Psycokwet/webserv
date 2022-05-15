@@ -4,6 +4,14 @@
 ** ---------------------------------- STATIC ----------------------------------
 */
 
+static void clean_fd(t_fd *fd)
+{
+    fd->type = FD_FREE;
+    fd->host = NO_HOST;
+    fd->fct_read = NULL;
+    fd->fct_write = NULL;
+}
+
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
@@ -45,7 +53,7 @@ AServerItem *MasterServer::consume(Node *node)
 }
 
 /*
-** --------------------------------- METHODS ----------------------------------
+** --------------------------------- PUBLIC METHODS ----------------------------------
 */
 
 OneServer *MasterServer::createServer()
@@ -66,41 +74,17 @@ std::ostream &			MasterServer::print( std::ostream & o) const
 
 int	MasterServer::build()
 {
-    _max_fd = 0;
-    unsigned int ms_size = _configAllServer.size();
-
     /*************************************************************/
     /* Initialize the master fd_set                              */
     /*************************************************************/
-    FD_ZERO(&_fdSet);
+    init_env();
+    // server_create();
 
-    for(unsigned int i = 0; i < ms_size; i++)
-	{
-        int fd;
-		if(_configAllServer[i]->build() == 0) // bind fd and address, listen to fd
-        {
-            std::cout << "\nWaiting for connections...\n";
-            
-            // add socket to set _fdSet
-            fd = _configAllServer[i]->getFD();
-            FD_SET(fd, &_fdSet);
-            
-            if (fd > _max_fd)
-                _max_fd = fd;
-        }
-        else // ! Error while building OneServer
-            return (-1);
-	}
-    if (_max_fd == 0) // ! Error to build MasterServer
-    {
-        return (-1);
-    }
-    return 0;
 }
 
 
 
-void MasterServer::run()
+void MasterServer::run() // ! do like main_loops
 {
     /*************************************************************/
     /* Loop waiting for incoming connects or for incoming data   */
@@ -114,7 +98,26 @@ void MasterServer::run()
     }
 }
 
+/*
+** --------------------------------- PRIVATE METHODS ----------------------------------
+*/
 
+void MasterServer::init_env()
+{
+    int     i;
+    struct rlimit rlp;
+
+    //RLIMIT_NOFILE - The maximum number of file descriptors that the process may have open at one time.
+    if (getrlimit(RLIMIT_NOFILE, &rlp) == -1)
+        return ; // or throw something
+    this->_maxFd = rlp.rlim_cur;
+    i = 0;
+    while (i < this->_maxFd)
+    {
+        clean_fd(this->_fdSet[i]); // ! test here
+        i++;
+    }
+}
 
 
 /*

@@ -22,12 +22,15 @@ class MasterServer :public AServerItem
 
     private:
         std::vector< OneServer* >      _configAllServer;
-        fd_set                         _fdSet;
-        int                            _max_fd;
-        std::vector < int >            _ready;
+        std::vector< t_fd >            _fdSet;
+        int                            _max;
+        int                            _r;
+        int                            _maxFd;
+        fd_set                         _fdRead;
+        fd_set                         _fdWrite;
          
 		OneServer *createServer();
-
+        void init_env();
 };
 
 

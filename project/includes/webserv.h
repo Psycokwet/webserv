@@ -41,6 +41,24 @@
 
 #define MAX_CLIENTS 1000
 #define LOCALHOST  2130706433
+#define BUF_SIZE 100000
+
+#define FD_FREE 0
+#define FD_READ 1
+#define FD_WRITE 2
+
+#define NO_HOST 0
+
+
+
+typedef struct 	s_fd {
+    int     type;
+    int     host;
+    void(*fct_read) ();
+    void(*fct_write) ();
+    char    buf_read[BUF_SIZE + 1];
+    char    buf_write[BUF_SIZE + 1];
+} 	t_fd;
 
 
 #endif
