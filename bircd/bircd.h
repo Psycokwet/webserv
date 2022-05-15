@@ -7,6 +7,9 @@
 # define FD_SERV	1
 # define FD_CLIENT	2
 
+#define ROOM_A 1
+#define ROOM_B 2
+
 # define BUF_SIZE	4096
 
 # define Xv(err,res,str)	(x_void(err,res,str,__FILE__,__LINE__))
@@ -18,6 +21,7 @@
 typedef struct	s_fd
 {
   int	type;
+  int chatroom;
   void	(*fct_read)();
   void	(*fct_write)();
   char	buf_read[BUF_SIZE + 1];
@@ -27,7 +31,7 @@ typedef struct	s_fd
 typedef struct	s_env
 {
   t_fd		*fds;
-  int		port;
+  int		port[2];
   int		maxfd;
   int		max;
   int		r;
@@ -38,7 +42,7 @@ typedef struct	s_env
 void	init_env(t_env *e);
 void	get_opt(t_env *e, int ac, char **av);
 void	main_loop(t_env *e);
-void	srv_create(t_env *e, int port);
+void	srv_create(t_env *e, int port[]);
 void	srv_accept(t_env *e, int s);
 void	client_read(t_env *e, int cs);
 void	client_write(t_env *e, int cs);

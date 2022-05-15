@@ -373,10 +373,12 @@ AServerItem *OneServer::addCgi(Node *node)
 int OneServer::build()
 {
    int rc, on = 1;
-   /*************************************************************/
-   /* Create an AF_INET stream socket to receive incoming       */
-   /* connections on                                            */
-   /*************************************************************/
+   /************************************************************
+	* Create an AF_INET stream socket to receive incoming       
+	* connections on
+	* If PROTOCOL is zero, one is chosen automatically.
+	* Returns a file descriptor for the new socket, or -1 for errors.                                            
+   *************************************************************/
     _fd = socket(AF_INET, SOCK_STREAM, 0);
     if (_fd == 0)
     {
