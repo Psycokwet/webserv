@@ -6,7 +6,7 @@
 /*   By: thi-nguy <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#             */
-/*   Updated: 2022/05/06 17:35:22 by thi-nguy         ###   ########.fr       */
+/*   Updated: 2022/05/16 12:07:00 by thi-nguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,8 @@
 #include <fcntl.h>
 //fcntl
 
+#include <sys/resource.h> // struct rlimit, getrlimit
+
 # include <iostream>
 
 #define MAX_CLIENTS 1000
@@ -44,8 +46,8 @@
 #define BUF_SIZE 100000
 
 #define FD_FREE 0
-#define FD_READ 1
-#define FD_WRITE 2
+#define FD_SERV 1
+#define FD_CLIENT 2
 
 #define NO_HOST 0
 

@@ -78,8 +78,8 @@ int	MasterServer::build()
     /* Initialize the master fd_set                              */
     /*************************************************************/
     init_env();
-    // server_create();
-
+    get_server_ready();
+    return 0;
 }
 
 
@@ -114,8 +114,81 @@ void MasterServer::init_env()
     i = 0;
     while (i < this->_maxFd)
     {
-        clean_fd(this->_fdSet[i]); // ! test here
+        t_fd    new_fd;
+
+        clean_fd(&new_fd);
+        this->_fdSet.push_back(new_fd);
         i++;
+    }
+
+    std::cout << "\n_maxFD: " << _maxFd;
+    std::cout << "\nSize of fdSet: " << _fdSet.size() << std::endl;
+}
+
+void MasterServer::get_server_ready()
+{
+
+    for (unsigned long i = 0; i < _configAllServer.size(); i++)
+    {
+        int                 s;
+        struct sockaddr_in  sin;
+        t_listen config_listen = _configAllServer[i]->getListen();
+        int rc, on = 1;
+
+         /************************************************************
+        * Create an AF_INET stream socket to receive incoming       
+        * connections on
+        * If PROTOCOL is zero, one is chosen automatically.
+        * Returns a file descriptor for the new socket, or -1 for errors.                                            
+        *************************************************************/
+        s = socket(AF_INET, SOCK_STREAM, 0);
+        if (s == 0)
+        {
+            std::cerr << "Fail to set socket" << std::endl;
+            return ;
+        }
+
+        /*************************************************************/
+        /* Allow socket descriptor to be reuseable                   */
+        /*************************************************************/
+        rc = setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char *)&on, sizeof(on));
+        if (rc < 0)
+        {
+            std::cerr << "setsockopt() failed" << std::endl;
+            return ;
+        }
+
+        /*************************************************************/
+        /* Set address (host) and port                               */
+        /*************************************************************/
+        sin.sin_family = AF_INET;
+        sin.sin_addr.s_addr = htonl(config_listen._address);
+        sin.sin_port = htons(config_listen._port);
+
+        /*************************************************************/
+        /* Bind the socket                                           */
+        /*************************************************************/
+        rc = bind(s, (struct sockaddr *)&sin, sizeof(sin));
+        if (rc < 0)
+        {
+            std::cerr << "Fail to bind to port " << config_listen._port << std::endl;
+            return ;
+        }
+
+        /*************************************************************/
+        /* Try to specify maximun of client pending connection for   */
+        /*   the master socket (server_fd)                           */
+        /*************************************************************/
+        rc = listen(s, MAX_CLIENTS);
+        if (rc < 0)
+        {
+            std::cerr << "Fail to listen" << std::endl;
+            return ;
+        }
+
+        _fdSet[s].type = FD_SERV;
+        _fdSet[s].host = config_listen._port;
+        // _fdSet[s].fct_read = server_accept;
     }
 }
 

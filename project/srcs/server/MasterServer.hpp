@@ -29,8 +29,10 @@ class MasterServer :public AServerItem
         fd_set                         _fdRead;
         fd_set                         _fdWrite;
          
-		OneServer *createServer();
-        void init_env();
+		OneServer   *createServer();
+        void        init_env();
+        void        get_server_ready();
+        void        server_accept(int s);
 };
 
 
