@@ -6,7 +6,7 @@
 /*   By: thi-nguy <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#             */
-/*   Updated: 2022/05/16 12:07:00 by thi-nguy         ###   ########.fr       */
+/*   Updated: 2022/05/16 20:43:13 by thi-nguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,13 +51,15 @@
 
 #define NO_HOST 0
 
+#define MAX(x, y) ((x > y) ? x : y) 
+
 
 
 typedef struct 	s_fd {
     int     type;
     int     host;
-    void(*fct_read) ();
-    void(*fct_write) ();
+    void(MasterServer::*fct_read) (int);
+    void(MasterServer::*fct_write) (int);
     char    buf_read[BUF_SIZE + 1];
     char    buf_write[BUF_SIZE + 1];
 } 	t_fd;

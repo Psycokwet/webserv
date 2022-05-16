@@ -32,7 +32,14 @@ class MasterServer :public AServerItem
 		OneServer   *createServer();
         void        init_env();
         void        get_server_ready();
+        void        init_fd();
+        void        do_select();
+        void        check_fd();
+        
         void        server_accept(int s);
+        void        client_read(int fd);
+        void        client_write(int fd);
+
 };
 
 

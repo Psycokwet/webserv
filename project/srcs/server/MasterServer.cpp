@@ -92,9 +92,9 @@ void MasterServer::run() // ! do like main_loops
     /*************************************************************/
     while (1)
     {
-        // init_fd();
-        // do_select();
-        // check_fd();
+        init_fd();
+        do_select();
+        check_fd();
     }
 }
 
@@ -188,10 +188,128 @@ void MasterServer::get_server_ready()
 
         _fdSet[s].type = FD_SERV;
         _fdSet[s].host = config_listen._port;
-        // _fdSet[s].fct_read = server_accept;
+        _fdSet[s].fct_read = MasterServer::server_accept;
     }
 }
 
+void MasterServer::server_accept(int s)
+{
+    int cs;
+    struct sockaddr_in csin;
+    socklen_t csin_len;
+
+    csin_len = sizeof(csin);
+    cs = accept(s, (struct sockaddr*)&csin, &csin_len);
+    printf("New client #%d from %s:%d\n", cs, inet_ntoa(csin.sin_addr), ntohs(csin.sin_port));
+    clean_fd(&_fdSet[cs]);
+    _fdSet[cs].type = FD_CLIENT;
+    _fdSet[cs].host = _fdSet[cs].host;
+    _fdSet[cs].fct_read = MasterServer::client_read;
+    _fdSet[cs].fct_write = MasterServer::client_write;
+}
+
+void MasterServer::init_fd()
+{
+    int i;
+
+    i = 0;
+    this->_max = 0;
+    FD_ZERO(&this->_fdRead);
+    FD_ZERO(&this->_fdWrite);
+    while (i < this->_maxFd)
+    {
+        if (this->_fdSet[i].type != FD_FREE)
+        {
+            FD_SET(i, &this->_fdRead);
+            if (strlen(this->_fdSet[i].buf_write) > 0)
+                FD_SET(i, &this->_fdWrite);
+            this->_max = MAX(_max, i);
+        }
+        i++;
+    }
+}
+
+void MasterServer::do_select()
+{
+    struct timeval      timeout;
+
+    /*************************************************************/
+    /* Initialize the timeval struct to 3 minutes.               */
+    /*************************************************************/
+    timeout.tv_sec = 3 * 60;
+    timeout.tv_usec = 0;
+
+    /*************************************************************/
+    /* Call select() and wait 3 minutes for it to complete.      */
+    /* Wait for one or more fd become "ready" to read and write  */
+    /*************************************************************/
+    this->_r = select(this->_max + 1, &this->_fdRead, &this->_fdWrite, NULL, &timeout);
+
+    /**********************************************************/
+    /* Check to see if the select call failed.                */
+    /**********************************************************/
+    if (this->_r < 0)
+    {
+        std::cout << "select() failed" << std::endl;
+        return ; // ! throw something
+    }
+
+    /**********************************************************/
+    /* Check to see if the 3 minute time out expired.         */
+    /**********************************************************/
+    if (this->_r == 0)
+    {
+        std::cerr << "select() time out. End program." << std::endl;
+        // ! close / clear opened socket
+    }
+}
+
+
+void MasterServer::client_read(int fd)
+{
+    int r;
+    int i;
+
+    r = recv(fd, _fdSet[fd].buf_read, BUF_SIZE, 0);
+    if (r <= 0)
+    {
+        close(fd);
+        clean_fd(&_fdSet[fd]);
+        printf("Client #%d gone away\n", fd);
+        
+    }
+    else
+    {
+        i = 0;
+        while (i < _maxFd)
+        {
+            if((_fdSet[i].type == FD_CLIENT) && (i != fd) && (_fdSet[i].host == _fdSet[fd].host))
+                send(i, _fdSet[fd].buf_read, r, 0);
+        }
+    }
+}
+
+void MasterServer::client_write(int fd)
+{
+
+}
+
+void MasterServer::check_fd()
+{
+    int i;
+
+    i = 0;
+    while ((i < _maxFd) && (_r > 0))
+    {
+        if (FD_ISSET(i, &_fdRead))
+            _fdSet[i].fct_read(i);
+        if (FD_ISSET(i, &_fdWrite))
+            _fdSet[i].fct_write(i);
+        if (FD_ISSET(i, &_fdRead) || FD_ISSET(i, &_fdWrite))
+            _r--;
+        i++;
+    }
+}
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
@@ -199,135 +317,4 @@ void MasterServer::get_server_ready()
 
 
 /* ************************************************************************** */ 
-// OLD VERSION
-// void MasterServer::run() 
-// {
-//     /*************************************************************/
-//     /* Loop waiting for incoming connects or for incoming data   */
-//     /* on any of the connected sockets.                          */
-//     /*************************************************************/
-//     while (1)
-//     {
-//         // init_fd();
-//         // do_select();
-//         // check_fd();
-//         fd_set          readfds;
-//         fd_set          writefds;
-//         struct timeval  timeout;
-//         int activity = 0;
-
-//         while (activity == 0)
-//         {
-//             /*************************************************************/
-//             /* Initialize the timeval struct to 3 minutes.  If no        */
-//             /* activity after 3 minutes this program will end.           */
-//             /*************************************************************/
-//             timeout.tv_sec  = 3 * 60;
-//             timeout.tv_usec = 0;
-            
-//             /**********************************************************/
-//             /* Copy the _fdSet (got from binding part above) over to  */
-//             /* the readfds.                                           */
-//             /* Copy the _ready (if it exists) over to the writefds.   */
-//             /**********************************************************/
-//             memcpy(&readfds, &_fdSet, sizeof(_fdSet));
-            
-//             FD_ZERO(&writefds);
-//             for (std::vector<int>::iterator it = _ready.begin() ; it != _ready.end() ; it++)
-// 				FD_SET(*it, &writefds);
-
-//             /*************************************************************/
-//             /* Call select() and wait 3 minutes for it to complete.      */
-//             /* Wait for one or more fd become "ready" to read and write  */
-//             /*************************************************************/
-//             activity = select(_max_fd + 1, &readfds, &writefds, NULL, &timeout);
-
-//             /**********************************************************/
-//             /* Check to see if the select call failed.                */
-//             /**********************************************************/
-//             if (activity < 0)
-//             {
-//                 std::cout << "select() failed" << std::endl;
-//                 break;
-//             }
-//         }
-//         /**********************************************************/
-//         /* Check to see if the 3 minute time out expired.         */
-//         /**********************************************************/
-//         if (activity == 0)
-//         {
-//             std::cerr << "select() time out. End program." << std::endl;
-//             break ;
-
-//             // Todo: next: close / clear opened socket
-//             FD_ZERO(&_fdSet);
-//         }
-//         /**********************************************************/
-//         /* If the program continues until this point, it means    */
-//         /* that one or more descriptors are readable. Need to     */
-//         /* determine which ones they are                          */
-//         /**********************************************************/
-//         for (std::vector< OneServer *>::iterator it = _configAllServer.begin(); activity && it != _configAllServer.end(); it++)
-//         {
-//             /*******************************************************/
-//             /* Check to see if this descriptor is ready            */
-//             /*******************************************************/
-//             if (FD_ISSET((*it)->getFD(), &writefds))
-//             {
-//                 // todo: send
-//                 int ret;
-//                 std::string buffer_response = "";
-//                 ret = send((*it)->getFD(), buffer_response.c_str(), buffer_response.size(), 0);
-//                 if (ret < 0)
-//                 {
-//                     perror("  send() failed");
-//                     close ((*it)->getFD());
-//                     continue ;
-//                 }
-//                 break;
-//             }
-//             else if (FD_ISSET((*it)->getFD(), &readfds))
-//             {
-//                 // todo: receive
-//                 /**********************************************/
-//                 /* Accept each incoming connection.  If       */
-//                 /* accept fails with EWOULDBLOCK, then we     */
-//                 /* have accepted all of them.  Any other      */
-//                 /* failure on accept will cause us to end the */
-//                 /* server.                                    */
-//                 /**********************************************/
-//                 int new_fd = accept((*it)->getFD(), NULL, NULL);
-//                 if (new_fd < 0)
-//                 {
-//                     perror("    accept() fails");
-//                     close ((*it)->getFD());
-//                     break ;
-//                 }
-
-//                 /**********************************************/
-//                 /* Receive request sent from browser.         */
-//                 /**********************************************/
-//                 const uint EASILY_ENOUGH = 100000;
-//                 char* buffer_recv = new char[EASILY_ENOUGH + 1];
-//                 int bytesRead = recv((*it)->getFD(), buffer_recv, EASILY_ENOUGH, MSG_WAITALL); // FREEZES UNTIL I KILL THE CLIENT
-//                 if (bytesRead == -1) {
-//                     perror("recv");
-//                     close((*it)->getFD());
-//                     continue ;
-//                 }
-//                 buffer_recv[bytesRead] = 0;
-//                 _ready.push_back((*it)->getFD());
-
-
-//                 /**********************************************/
-//                 /* Print the received request                 */
-//                 /**********************************************/
-//                 printf("bytes read: %d\n", bytesRead);
-//                 printf("Request from Browser:\n%s", buffer_recv);
-//                 delete[] buffer_recv;
-//                 break ;
-//             }
-//         }
-//     }
-// }
 
