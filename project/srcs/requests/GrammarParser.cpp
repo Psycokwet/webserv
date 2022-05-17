@@ -419,10 +419,18 @@ void GrammarParser::deleteFrontPriority()
 	// 	return;
 	// if(!_priority_states.front()->getIsCurrentlyValid() && ( !_priority_states.front()->hasFinishedCurrentRep() || willAddNewFrontAfter) && _priority_states.front()->getLastId() == INDEX_OR)
 	// 	return;
-	if (!_priority_states.front()->getIsCurrentlyValid() && _priority_states.front()->hasEnoughRep())
-		_priority_states.front()->setIsCurrentlyValid(true);
-
+	// if (!_priority_states.front()->getIsCurrentlyValid() && _priority_states.front()->hasEnoughRep())
+	// 	_priority_states.front()->setIsCurrentlyValid(true);
+	
 	std::cout<<"deleting:"<< *_priority_states.front() << "\nRESULT : "<<( _priority_states.front()->isValidInTheEnd() == true ? "true": "false" ) <<std::endl;
+
+	if (!_priority_states.front()->isValidInTheEnd() && _priority_states.size() >= 2)
+	{
+		std::list<GrammarParserBuilderMarker *>::iterator it = _priority_states.begin();
+		it++;
+		(*it)->setIsCurrentlyValid(false);
+	} else if (!_priority_states.front()->isValidInTheEnd() && _priority_states.size() == 1)
+		throw new IllegalParsingState();
 	if (_priority_states.front()->isValidInTheEnd())
 	{
 		std::cout <<"SAVE BUFFER ??? " << GetString(_saveType) <<":::"<<_priority_states.size()<< std::endl;
@@ -440,10 +448,9 @@ void GrammarParser::deleteFrontPriority()
 	}
 	else if(_priority_states.size() > 2)
 	{
-		// bool toDeleteValidity = _priority_states.front()->getIsCurrentlyValid();
 		delete _priority_states.front();
 		_priority_states.pop_front();
-		if(!_priority_states.front()->getIsCurrentlyValid() && _priority_states.front()->hasEnoughRep() && _priority_states.front()->hasFinishedCurrentRep())
+		if(!_priority_states.front()->isValidInTheEnd())
 			return deleteFrontPriority();
 		return;
 	}
@@ -516,7 +523,7 @@ int i = 0;
 	do {
 		if(this->_requestIndex >= this->_request.size())
 			return PARSE_NOTHING_MORE;
-		if(i++ > 15){
+		if(i++ > 250){
 
 	for (std::map<std::string, std::string>::iterator it= this->_parsed_datas.begin(); it !=this->_parsed_datas.end() ; it++)
 	{
@@ -702,7 +709,7 @@ e_parsing_states GrammarParser::consume_INTERVAL(std::string token,	GrammarParse
 
 e_parsing_states GrammarParser::consume_MULTIVALUES(std::string token,	GrammarParserBuilderMarker *gp, int id)
 {
-	throw IllegalParsingState();
+	throw new IllegalParsingState();
 	// if(! gp->getIsCurrentlyValid() && gp->getLastId() != INDEX_OR)
 	// 	return resolveValidityOfOpenedLoops();
 	_priority_states.front()->setLastId(id);
