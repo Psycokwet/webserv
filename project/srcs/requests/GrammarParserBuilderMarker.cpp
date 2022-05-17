@@ -147,7 +147,7 @@ void GrammarParserBuilderMarker::setRep(int min, int max)
 
 std::string GrammarParserBuilderMarker::getCurrentToken() const
 {
-	std::cout<< *this<<std::endl;
+	// std::cout<< *this<<std::endl;
 	if(this->_tokenIndex >= _maxIndexToken)
 		throw new TokenOutOfBound();
 	return this->_gv->getTokens()[this->_tokenIndex];
@@ -167,17 +167,17 @@ void GrammarParserBuilderMarker::reset()
 
 bool GrammarParserBuilderMarker::canBeParsed()
 {
-	std::cout <<!_isCurrentlyValid <<":::"<< this->_maxIndexToken <<":::"<< this->_tokenIndex  <<":::"<<":::"<< "/"<<":::"<<this->_lastId <<":::"<<INDEX_OR << "  \n";
+	// std::cout <<!_isCurrentlyValid <<":::"<< this->_maxIndexToken <<":::"<< this->_tokenIndex  <<":::"<<":::"<< "/"<<":::"<<this->_lastId <<":::"<<INDEX_OR << "  \n";
 
-	std::cout<<"canBeParsed"<<std::endl;
+	// std::cout<<"canBeParsed"<<std::endl;
 	if(this->_maxIndexToken != this->_tokenIndex &&!_isCurrentlyValid && this->getCurrentToken() != "/" && this->_lastId != INDEX_OR){
-		std::cout <<!_isCurrentlyValid <<":::"<< this->_maxIndexToken <<":::"<< this->_tokenIndex  <<":::"<<this->getCurrentToken() <<":::"<< "/"<<":::"<<this->_lastId <<":::"<<INDEX_OR << " 173 \n";
+		// std::cout <<!_isCurrentlyValid <<":::"<< this->_maxIndexToken <<":::"<< this->_tokenIndex  <<":::"<<this->getCurrentToken() <<":::"<< "/"<<":::"<<this->_lastId <<":::"<<INDEX_OR << " 173 \n";
 		return false;}
 	if(this->_maxIndexToken == this->_tokenIndex &&
 		(this->_max <= (this->_count + 1)
 		|| !_isCurrentlyValid 
 		|| (this->_lastId == INDEX_OR && _isCurrentlyValid))){
-		std::cout << " 176 \n";
+		// std::cout << " 176 \n";
 		return false;}
 	return true;
 }
@@ -200,7 +200,7 @@ bool GrammarParserBuilderMarker::incToken()
 
 bool GrammarParserBuilderMarker::incTokenTo(int newIndex)
 {
-	if(this->_maxIndexToken > newIndex)
+	if(this->_maxIndexToken >= newIndex)
 	{
 		this->_tokenIndex = newIndex;
 		return true;
@@ -288,8 +288,6 @@ void GrammarParserBuilderMarker::addToBuffer(std::string buffer)
 }
 std::string GrammarParserBuilderMarker::getBuffer()
 {
-	if(!_isCurrentlyValid)
-	std::cout <<*this<<  "\n trying to retrieve " << this->_confirmedBuffer <<":::"<< this->_buffer<< " with "<<_isCurrentlyValid <<std::endl;
 	if(_isCurrentlyValid)
 		return this->_confirmedBuffer + this->_buffer;
 	return this->_confirmedBuffer;

@@ -385,31 +385,28 @@ void GrammarParser::addToBuffer(std::string add, GrammarParserBuilderMarker *gp)
 
 bool GrammarParser::saveIfNecesary()
 {
-	std::cout << "saveIfNecesary "<< GetString(_saveType) <<":::"<<_indexTokenInitSave << std::endl;
-	if(_priority_states.front()->getDeepness() < _deepnessMinBeforeSave ||
-		( _priority_states.front()->getDeepness() == _deepnessMinBeforeSave && _priority_states.front()->getTokenIndex() >= _indexTokenInitSave ))
+	e_var_type frontType = _priority_states.front()->getVar()->getType();
+	std::cout << "saveIfNecesary "<< *_priority_states.front() << ":::"<<GetString(_saveType) <<":::"<<_indexTokenInitSave <<":::"<<_deepnessMinBeforeSave<<":::"<< _priority_states.front()->getDeepness() << std::endl;
+	if (frontType == ONLY_VALUE || frontType == VALUE)
 	{
-		if (_saveType == ONLY_VALUE || _saveType == VALUE)
-		{
-			std::cout<<"VALIDATE CONTENT BUFFER :"<<this->_key_buffer<<":::"<< _priority_states.front()->getBuffer()<<std::endl;
-			if(this->_parsed_datas.find(this->_key_buffer) != this->_parsed_datas.end())
-			{		
-				std::cout<<RESET <<"THROW CONTENT BUFFER :"<<this->_key_buffer<<":::"<< this->_parsed_datas[this->_key_buffer] <<"::" << _priority_states.front()->getBuffer()<<std::endl;
-				throw new IllegalParsingState();
-			}
-			this->_parsed_datas[this->_key_buffer] = _priority_states.front()->getBuffer();
-			this->_key_buffer = "";
-			this->_current_buffer = NULL;
-			_priority_states.front()->resetBuffer();
+		std::cout<<"VALIDATE CONTENT BUFFER :"<<this->_key_buffer<<":::"<< _priority_states.front()->getBuffer()<<std::endl;
+		if(this->_parsed_datas.find(this->_key_buffer) != this->_parsed_datas.end())
+		{		
+			std::cout<< RESET <<"THROW CONTENT BUFFER :"<<this->_key_buffer<<":::"<< this->_parsed_datas[this->_key_buffer] <<"::" << _priority_states.front()->getBuffer()<<std::endl;
+			throw new IllegalParsingState();
 		}
-		else if (_saveType == KEY)
-		{
-			this->_key_buffer = _priority_states.front()->getBuffer();
-			_priority_states.front()->resetBuffer();
-		}
-		_deepnessMinBeforeSave = -1;
+		this->_parsed_datas[this->_key_buffer] = _priority_states.front()->getBuffer();
+		this->_key_buffer = "";
+		this->_current_buffer = NULL;
+		_priority_states.front()->resetBuffer();
 		_saveType = NO_VAR_TYPE;
-		_indexTokenInitSave = -1;
+		return true;
+	}
+	else if (frontType == KEY)
+	{
+		this->_key_buffer = _priority_states.front()->getBuffer();
+		_priority_states.front()->resetBuffer();
+		_saveType = NO_VAR_TYPE;
 		return true;
 	}
 	return false;
@@ -425,36 +422,38 @@ void GrammarParser::deleteFrontPriority()
 	if (!_priority_states.front()->getIsCurrentlyValid() && _priority_states.front()->hasEnoughRep())
 		_priority_states.front()->setIsCurrentlyValid(true);
 
-	std::cout<<"deleting:"<< *_priority_states.front() << "\nRESULT : "<<( _priority_states.front()->hasEnoughRep() == true ? "true": "false" )<< ":::"<< (_priority_states.front()->hasFinishedCurrentRep() == true ? "true": "false" ) <<std::endl;
+	std::cout<<"deleting:"<< *_priority_states.front() << "\nRESULT : "<<( _priority_states.front()->isValidInTheEnd() == true ? "true": "false" ) <<std::endl;
 	if (_priority_states.front()->isValidInTheEnd())
 	{
-		if(_priority_states.size() > 2)
+		std::cout <<"SAVE BUFFER ??? " << GetString(_saveType) <<":::"<<_priority_states.size()<< std::endl;
+		if(_priority_states.size() >= 2)
 		{
 			std::list<GrammarParserBuilderMarker *>::iterator it = _priority_states.begin();
 			it++;
 			(*it)->setIsCurrentlyValid(true);
-			if(!saveIfNecesary() && _saveType != NO_VAR_TYPE)
-				(*it)->addToBuffer(_priority_states.front()->getBuffer());
-		}
+			if(!saveIfNecesary() && _saveType != NO_VAR_TYPE){
+				std::cout << "FRONT IS : " << *_priority_states.front() <<std::endl;
+				std::cout << "SECOND IS : " << (**it) <<std::endl;
+				(*it)->addToBuffer(_priority_states.front()->getBuffer());}
+		}else 
+			saveIfNecesary();
 	}
 	else if(_priority_states.size() > 2)
 	{
 		// bool toDeleteValidity = _priority_states.front()->getIsCurrentlyValid();
 		delete _priority_states.front();
 		_priority_states.pop_front();
-		saveIfNecesary();
 		if(!_priority_states.front()->getIsCurrentlyValid() && _priority_states.front()->hasEnoughRep() && _priority_states.front()->hasFinishedCurrentRep())
 			return deleteFrontPriority();
 		return;
 	}
 	delete _priority_states.front();
 	_priority_states.pop_front();
-	saveIfNecesary();
 }
 
 bool GrammarParser::tryIncToken()
 {
-	std::cout<<"try inc \n";
+	// std::cout<<"try inc \n";
 	// 	return;
 	if(!_priority_states.front()->incToken() && !_priority_states.front()->canBeParsed()
 		// && !(
@@ -517,7 +516,7 @@ int i = 0;
 	do {
 		if(this->_requestIndex >= this->_request.size())
 			return PARSE_NOTHING_MORE;
-		if(i++ > 50){
+		if(i++ > 15){
 
 	for (std::map<std::string, std::string>::iterator it= this->_parsed_datas.begin(); it !=this->_parsed_datas.end() ; it++)
 	{
@@ -527,7 +526,7 @@ int i = 0;
 			return PARSE_QUIT_DEBUG;}
 		while(_priority_states.size() > 1 &&!_priority_states.front()->canBeParsed())
 		{
-			std::cout<< "CANT BE PA4RSED " <<*_priority_states.front() <<std::endl;
+			// std::cout<< "CANT BE PA4RSED " <<*_priority_states.front() <<std::endl;
 
 			resolveValidityOfOpenedLoops();
 		}
@@ -544,9 +543,9 @@ int i = 0;
 		GrammarParserBuilderMarker *gp = _priority_states.front();
 		try
 		{
-			std::cout << token <<" for ["<< this->_request.substr(this->_requestIndex, 3)<<"]"<< std::endl;
+			// std::cout << token <<" for ["<< this->_request.substr(this->_requestIndex, 3)<<"]"<< std::endl;
 			current = (this->*GrammarParser::_builderDictionnary[id].second)(token, gp, id);
-			std::cout << GetString(current) << std::endl;
+			// std::cout << GetString(current) << std::endl;
 		}
 		catch(const std::exception& e)
 		{
@@ -561,9 +560,9 @@ int i = 0;
 		if (current == PARSE_FAILURE)
 		{		
 
-			std::cout<< "PARSE FAILURE !!!"<<std::endl;
+			// std::cout<< "PARSE FAILURE !!!"<<std::endl;
 			gp->setIsCurrentlyValid(false);
-			std::cout<< *_priority_states.front()<<std::endl;
+			// std::cout<< *_priority_states.front()<<std::endl;
 			// if( _priority_states.front()->hasFinishedCurrentRep())
 			// 	deleteFrontPriority();
 		}
@@ -599,9 +598,10 @@ e_parsing_states GrammarParser::consume_OR(std::string token,	GrammarParserBuild
 		int i = gp->findMaxIndex();
 		if(i == -1)
 			return PARSE_FATAL_FAILURE;
+		std::cout << i << " is what we have here\n";
 		gp->incTokenTo(i);
-		tryIncToken();
-		std::cout << "SHOULD HAVE PASSED NEXT PATTERN " << *gp<<std::endl;
+		// tryIncToken();
+		// std::cout << "SHOULD HAVE PASSED NEXT PATTERN " << *gp<<std::endl;
 		return PARSE_SUCCESS;
 	}
 	if(!tryIncToken())
@@ -754,7 +754,7 @@ e_parsing_states GrammarParser::consume_BLOCK(std::string token,	GrammarParserBu
 
 e_parsing_states GrammarParser::resolveValidityOfOpenedLoops()
 {
-	std::cout << " RESOLVE LOOPS" << _priority_states.front()->getIsCurrentlyValid() <<":::"<< _priority_states.front()->getLastId() <<":::"<<  INDEX_OR<<":::"<<_priority_states.front()->hasEnoughRep()<<":::"<< std::endl;
+	// std::cout << " RESOLVE LOOPS" << _priority_states.front()->getIsCurrentlyValid() <<":::"<< _priority_states.front()->getLastId() <<":::"<<  INDEX_OR<<":::"<<_priority_states.front()->hasEnoughRep()<<":::"<< std::endl;
 	deleteFrontPriority();
 	if(
 		//( !_priority_states.front()->getIsCurrentlyValid() && _priority_states.front()->getLastId() != INDEX_OR) &&
@@ -824,24 +824,24 @@ e_parsing_states GrammarParser::consume_VAR(std::string token,	GrammarParserBuil
 	GrammarVariables *gv =  this->_vars[token];
 	if (gv->getType() == ONLY_VALUE)
 	{
-		_deepnessMinBeforeSave = tmp_deepness;
+		// _deepnessMinBeforeSave = tmp_deepness;
 		_saveType = gv->getType();
-		_indexTokenInitSave = gp->getTokenIndex() + 1;
+		// _indexTokenInitSave = gp->getTokenIndex() + 1;
 		this->_key_buffer = "#" + gv->getName();
 		this->_current_buffer = &this->_value_buffer;
 	}
 	else if (gv->getType() == KEY)
 	{
-		_deepnessMinBeforeSave = tmp_deepness;
+		// _deepnessMinBeforeSave = tmp_deepness;
 		_saveType = gv->getType();
-		_indexTokenInitSave = gp->getTokenIndex() + 1;
+		// _indexTokenInitSave = gp->getTokenIndex() + 1;
 		this->_current_buffer = &this->_key_buffer;
 	}
 	else if (gv->getType() == VALUE)
 	{
-		_deepnessMinBeforeSave = tmp_deepness;
+		// _deepnessMinBeforeSave = tmp_deepness;
 		_saveType = gv->getType();
-		_indexTokenInitSave = gp->getTokenIndex() + 1;
+		// _indexTokenInitSave = gp->getTokenIndex() + 1;
 		this->_current_buffer = &this->_value_buffer;
 	}
  	tryIncToken();

@@ -111,7 +111,7 @@ query = * ( pchar / "/" / "?" )
 
 absolute_path = 1* ( "/" segment )
 
-tchar = "!" / "#" / "$" / "%" / "&" / "\'" / "*" / "+" / "-" / "." / "^" / "_" / "\`" / "|" / "~" / DIGIT / ALPHA
+tchar = DIGIT / ALPHA / "!" / "#" / "$" / "%" / "&" / "\'" / "*" / "+" / "-" / "." / "^" / "_" / "\`" / "|" / "~" 
 
 HTTP_name = "HTTP"
 ;HTTP_name = 0x48.54.54.50 ; HTTP
