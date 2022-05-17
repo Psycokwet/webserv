@@ -188,7 +188,7 @@ void MasterServer::get_server_ready()
 
         _fdSet[s].type = FD_SERV;
         _fdSet[s].host = config_listen._port;
-        _fdSet[s].fct_read = MasterServer::server_accept;
+        _fdSet[s].fct_read = &MasterServer::server_accept;
     }
 }
 
@@ -204,8 +204,8 @@ void MasterServer::server_accept(int s)
     clean_fd(&_fdSet[cs]);
     _fdSet[cs].type = FD_CLIENT;
     _fdSet[cs].host = _fdSet[cs].host;
-    _fdSet[cs].fct_read = MasterServer::client_read;
-    _fdSet[cs].fct_write = MasterServer::client_write;
+    _fdSet[cs].fct_read = &MasterServer::client_read;
+    _fdSet[cs].fct_write = &MasterServer::client_write;
 }
 
 void MasterServer::init_fd()
@@ -271,6 +271,7 @@ void MasterServer::client_read(int fd)
     int i;
 
     r = recv(fd, _fdSet[fd].buf_read, BUF_SIZE, 0);
+    printf("buf_read = %s\n", _fdSet[fd].buf_read);
     if (r <= 0)
     {
         close(fd);
@@ -291,6 +292,7 @@ void MasterServer::client_read(int fd)
 
 void MasterServer::client_write(int fd)
 {
+    std::cout << "My fd is: " << fd << std::endl;
 
 }
 
@@ -302,9 +304,9 @@ void MasterServer::check_fd()
     while ((i < _maxFd) && (_r > 0))
     {
         if (FD_ISSET(i, &_fdRead))
-            _fdSet[i].fct_read(i);
+            (this->*_fdSet[i].fct_read)(i);
         if (FD_ISSET(i, &_fdWrite))
-            _fdSet[i].fct_write(i);
+            (this->*_fdSet[i].fct_write)(i);
         if (FD_ISSET(i, &_fdRead) || FD_ISSET(i, &_fdWrite))
             _r--;
         i++;
