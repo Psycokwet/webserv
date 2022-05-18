@@ -4,47 +4,47 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <utility> // std::pair, std::make_pair
 #include "../config/Node.hpp"
-#include "ErrorPage.hpp"
-#include "Listen.hpp"
 #include "AServerItem.hpp"
+#include "ALocation.hpp"
+#include "OneLocation.hpp"
 
-// # define NAME(x) _##x;
-class OneServer :public AServerItem
+class OneLocation ;
+class OneServer :public ALocation
 {
-
-	#define DIRECTIVES_MAP std::map<std::string, AServerItem *(OneServer::*)(Node*)>
     public:
-        OneServer();
-        // OneServer(const OneServer & src);
-        // OneServer & operator=(const OneServer & rhs);
-        ~OneServer();
-		
-		AServerItem *consume(Node *node);
-		virtual std::ostream & print( std::ostream & o) const;
+      OneServer();
+      // OneServer(const OneServer & src);
+      // OneServer & operator=(const OneServer & rhs);
+      ~OneServer();
+
+      AServerItem *consume(Node *node);
+      virtual std::ostream & print( std::ostream & o) const;
+      static DIRECTIVES_MAP initializeDirectivesMap();
+      
+      t_listen  getListen();
 
     private:
-		static DIRECTIVES_MAP _directives_to_setter;
-		static DIRECTIVES_MAP initializeDirectivesMap();
+      virtual AServerItem * addServerName(Node *node);
+      virtual AServerItem * addLocation(Node *node);
+      virtual AServerItem * addListen(Node *node);
 
-		AServerItem * addListen(Node *node);
-
-        // Listen                                          _listen; // !
-        std::vector< std::string >                      _server_name;
-        // std::map< std::string, OneServer >        _location; // !
-        // std::string                                     _root;
-        // bool                                            _autoindex;
-        // std::vector< std::string>                       _index;
-        // ErrorPage                                       _error_page;
-        // std::vector< std::string>                       _method;
-        // int                                             _client_max_body_size;
+      std::map< std::string, OneLocation* >   _location;
+      std::vector< std::string >              _server_name;
+      t_listen                                _listen;
 
 
-        // Todo: add more directives related to the project: error_page, cgi, cig_pass, methods, client_max_body_size (what else?)
-        // ! Some directives are not in the list of NGINX because we need to follow the project!
+    protected:
+      virtual AServerItem * addIndex(Node *node);
+      virtual AServerItem * addRoot(Node *node);
+      virtual AServerItem * addAutoIndex(Node *node);
+      virtual AServerItem * addMethod(Node *node);
+      virtual AServerItem * addMaxSize(Node *node);
+      virtual AServerItem * addErrorPage(Node *node);
+      virtual AServerItem * addCgi(Node *node);
 
-
+      static DIRECTIVES_MAP _directives_to_setter;
+      virtual DIRECTIVES_MAP & getDirectiveMap();
 };
 
 #endif /*------------------- OneServer --------*/

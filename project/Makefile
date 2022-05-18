@@ -6,7 +6,7 @@
 #    By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#              #
-#    Updated: 2022/04/19 13:12:38 by scarboni         ###   ########.fr        #
+#    Updated: 2022/04/26 20:35:19 by scarboni         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -47,7 +47,9 @@ OBJ_PATHS			+= $(OBJ_PATH) $(addprefix $(OBJ_PATH), $(CONFIG_PATH) $(SERVER_PATH
 
 SERVER_FILES =  MasterServer.cpp \
 				OneServer.cpp \
-				AServerItem.cpp
+				AServerItem.cpp \
+				OneLocation.cpp \
+				ALocation.cpp
 SRCS += $(addprefix $(SERVER_PATH), $(SERVER_FILES))
 
 CONFIG_FILES =  Node.cpp \
