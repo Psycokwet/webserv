@@ -105,12 +105,26 @@ void MasterServer::run() // ! do like main_loops
 void MasterServer::init_env()
 {
     int     i;
-    struct rlimit rlp;
 
-    //RLIMIT_NOFILE - The maximum number of file descriptors that the process may have open at one time.
-    if (getrlimit(RLIMIT_NOFILE, &rlp) == -1)
-        return ; // or throw something
-    this->_maxFd = rlp.rlim_cur;
+    /************************************************************
+     * Get maximum number of fd that computer can handle at one time
+    LIMIT_NOFILE - The maximum number of file descriptors that the process may have open at one time.
+    ************************************************************/
+    // struct rlimit rlp;
+    // if (getrlimit(RLIMIT_NOFILE, &rlp) == -1)
+    //     return ; // or throw something
+    // this->_maxFd = rlp.rlim_cur;
+
+    /************************************************************
+     * Get maximum number of fd that computer can handle at one time
+    (to do at school)
+    I do this because at school the system call getrlimit freezes the computer.
+    Otherwise we should do as above.
+    ************************************************************/
+    // ! can handle 50 fds at the same time. 
+    _maxFd = 50;
+
+    /************************************************************/
     i = 0;
     while (i < this->_maxFd)
     {
@@ -135,7 +149,7 @@ void MasterServer::get_server_ready()
         t_listen config_listen = _configAllServer[i]->getListen();
         int rc, on = 1;
 
-         /************************************************************
+        /************************************************************
         * Create an AF_INET stream socket to receive incoming       
         * connections on
         * If PROTOCOL is zero, one is chosen automatically.
@@ -271,7 +285,7 @@ void MasterServer::client_read(int fd)
     int i;
 
     r = recv(fd, _fdSet[fd].buf_read, BUF_SIZE, 0);
-    printf("buf_read = %s\n", _fdSet[fd].buf_read);
+    printf("buf_read =\n%s\n", _fdSet[fd].buf_read);
     if (r <= 0)
     {
         close(fd);
