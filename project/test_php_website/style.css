@@ -1,6 +1,6 @@
 body {
     background-size: 300% 300%;
-    background-image: linear-gradient(to left, #073b53, rgb(18, 70, 100), rgb(19, 62, 78), rgb(7, 72, 97));
+    background-image: linear-gradient(to left, #135d80, rgb(45, 109, 146), rgba(19, 62, 78, 0.712), rgb(7, 72, 97));
   }
 
 .full-screen {

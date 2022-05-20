@@ -3,20 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <title>Post a form</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
     <div class="full-screen">
-        Welcome
+    <h2>   
+        Hello 
         <?php 
-            echo "Hello";
             echo $_POST["firstname"] . " " . $_POST["lastname"];            
         ?>
         You want to tell us: 
         <?php
             echo $_POST["subject"];
         ?> 
+    </h2>
     </div>
 
 </body>
