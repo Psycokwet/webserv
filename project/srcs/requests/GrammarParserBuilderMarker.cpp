@@ -171,13 +171,14 @@ bool GrammarParserBuilderMarker::canBeParsed()
 
 	// std::cout<<"canBeParsed"<<std::endl;
 	if(this->_maxIndexToken != this->_tokenIndex &&!_isCurrentlyValid && this->getCurrentToken() != "/" && this->_lastId != INDEX_OR){
-		// std::cout <<!_isCurrentlyValid <<":::"<< this->_maxIndexToken <<":::"<< this->_tokenIndex  <<":::"<<this->getCurrentToken() <<":::"<< "/"<<":::"<<this->_lastId <<":::"<<INDEX_OR << " 173 \n";
+		std::cout <<!_isCurrentlyValid <<":::"<< this->_maxIndexToken <<":::"<< this->_tokenIndex  <<":::"<<this->getCurrentToken() <<":::"<< "/"<<":::"<<this->_lastId <<":::"<<INDEX_OR << " 173 \n";
 		return false;}
 	if(this->_maxIndexToken == this->_tokenIndex &&
 		(this->_max <= (this->_count + 1)
 		|| !_isCurrentlyValid 
-		|| (this->_lastId == INDEX_OR && _isCurrentlyValid))){
-		// std::cout << " 176 \n";
+		// || (this->_lastId == INDEX_OR && _isCurrentlyValid)
+		)){
+		std::cout << " 176 \n";
 		return false;}
 	return true;
 }

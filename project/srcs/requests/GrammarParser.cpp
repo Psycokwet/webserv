@@ -396,6 +396,9 @@ bool GrammarParser::saveIfNecesary()
 			throw new IllegalParsingState();
 		}
 		this->_parsed_datas[this->_key_buffer] = _priority_states.front()->getBuffer();
+		if (this->_parsed_datas[this->_key_buffer] == "HTTP/1.1")
+			std::cout<<"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nVALIDATE HTTP BUFFER :"<<this->_key_buffer<<std::endl;
+		
 		this->_key_buffer = "";
 		this->_current_buffer = NULL;
 		_priority_states.front()->resetBuffer();
@@ -404,9 +407,11 @@ bool GrammarParser::saveIfNecesary()
 	}
 	else if (frontType == KEY)
 	{
+
 		this->_key_buffer = _priority_states.front()->getBuffer();
 		_priority_states.front()->resetBuffer();
 		_saveType = NO_VAR_TYPE;
+		std::cout<<"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nVALIDATE KEY BUFFER :"<<this->_key_buffer<<std::endl;
 		return true;
 	}
 	return false;
@@ -450,7 +455,7 @@ void GrammarParser::deleteFrontPriority()
 	{
 		delete _priority_states.front();
 		_priority_states.pop_front();
-		if(!_priority_states.front()->isValidInTheEnd())
+		if(!_priority_states.front()->canBeParsed())
 			return deleteFrontPriority();
 		return;
 	}
@@ -523,7 +528,7 @@ int i = 0;
 	do {
 		if(this->_requestIndex >= this->_request.size())
 			return PARSE_NOTHING_MORE;
-		if(i++ > 250){
+		if(i++ > 700){
 
 	for (std::map<std::string, std::string>::iterator it= this->_parsed_datas.begin(); it !=this->_parsed_datas.end() ; it++)
 	{
@@ -533,7 +538,7 @@ int i = 0;
 			return PARSE_QUIT_DEBUG;}
 		while(_priority_states.size() > 1 &&!_priority_states.front()->canBeParsed())
 		{
-			// std::cout<< "CANT BE PA4RSED " <<*_priority_states.front() <<std::endl;
+			std::cout<< "CANT BE PA4RSED " <<*_priority_states.front() <<std::endl;
 
 			resolveValidityOfOpenedLoops();
 		}
@@ -765,12 +770,12 @@ e_parsing_states GrammarParser::resolveValidityOfOpenedLoops()
 	deleteFrontPriority();
 	if(
 		//( !_priority_states.front()->getIsCurrentlyValid() && _priority_states.front()->getLastId() != INDEX_OR) &&
-		( !_priority_states.front()->getIsCurrentlyValid() && _priority_states.front()->hasEnoughRep()))
+		 !_priority_states.front()->canBeParsed())
 	{
 		_priority_states.front()->setIsCurrentlyValid(true);
 		return resolveValidityOfOpenedLoops();
 	}
-	if(_priority_states.front()->getIsCurrentlyValid())
+	else
 		return PARSE_SUCCESS;
 	return PARSE_FAILURE;
 	// } else if (_priority_states.front()->getIsCurrentlyValid()
