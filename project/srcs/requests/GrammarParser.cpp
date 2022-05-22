@@ -372,14 +372,16 @@ std::ostream &			operator<<( std::ostream & o, GrammarParser const & i )
 
 void GrammarParser::addToBuffer(std::string add, GrammarParserBuilderMarker *gp)
 {
-	this->_requestIndex += add.size();
+	(void)add;
+	(void)gp;
+	// this->_requestIndex += add.size();
 	
-	if (_saveType != NO_VAR_TYPE)
-	{
-		gp->addToBuffer(add);
-		if (!DEBUG)
-			std::cout << add << " [" << this->_request.substr(this->_requestIndex, 10).at(0) << ":" << this->_request.substr(this->_requestIndex, 10).at(1) << "]\n";
-	}
+	// if (_saveType != NO_VAR_TYPE)
+	// {
+		// gp->addToBuffer(add);
+		// if (!DEBUG)
+		// 	std::cout << add << " [" << this->_request.substr(this->_requestIndex, 10).at(0) << ":" << this->_request.substr(this->_requestIndex, 10).at(1) << "]\n";
+	// }
 }
 
 
@@ -396,12 +398,12 @@ bool GrammarParser::saveIfNecesary()
 			throw new IllegalParsingState();
 		}
 		this->_parsed_datas[this->_key_buffer] = _priority_states.front()->getBuffer();
-		if (this->_parsed_datas[this->_key_buffer] == "HTTP/1.1")
-			std::cout<<"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nVALIDATE HTTP BUFFER :"<<this->_key_buffer<<std::endl;
+		// if (this->_parsed_datas[this->_key_buffer] == "HTTP/1.1")
+		// 	std::cout<<"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nVALIDATE HTTP BUFFER :"<<this->_key_buffer<<std::endl;
 		
 		this->_key_buffer = "";
 		this->_current_buffer = NULL;
-		_priority_states.front()->resetBuffer();
+		// _priority_states.front()->resetBuffer();
 		_saveType = NO_VAR_TYPE;
 		return true;
 	}
@@ -409,7 +411,7 @@ bool GrammarParser::saveIfNecesary()
 	{
 
 		this->_key_buffer = _priority_states.front()->getBuffer();
-		_priority_states.front()->resetBuffer();
+		// _priority_states.front()->resetBuffer();
 		_saveType = NO_VAR_TYPE;
 		std::cout<<"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nVALIDATE KEY BUFFER :"<<this->_key_buffer<<std::endl;
 		return true;
@@ -444,10 +446,11 @@ void GrammarParser::deleteFrontPriority()
 			std::list<GrammarParserBuilderMarker *>::iterator it = _priority_states.begin();
 			it++;
 			(*it)->setIsCurrentlyValid(true);
-			if(!saveIfNecesary() && _saveType != NO_VAR_TYPE){
-				std::cout << "FRONT IS : " << *_priority_states.front() <<std::endl;
-				std::cout << "SECOND IS : " << (**it) <<std::endl;
-				(*it)->addToBuffer(_priority_states.front()->getBuffer());}
+			saveIfNecesary();
+			// if(!saveIfNecesary() && _saveType != NO_VAR_TYPE){
+			// 	std::cout << "FRONT IS : " << *_priority_states.front() <<std::endl;
+			// 	std::cout << "SECOND IS : " << (**it) <<std::endl;
+				(*it)->addToBuffer(_priority_states.front()->getBuffer());//}
 		}else 
 			saveIfNecesary();
 	}
@@ -501,7 +504,7 @@ void GrammarParser::clear()
 {
 	this->_parsed_datas.clear();
 	this->_request = "";
-	this->_requestIndex = 0;
+	// this->_requestIndex = 0;
 	this->_value_buffer = "";
 	this->_key_buffer = "";
 	this->_current_buffer = NULL;
@@ -515,8 +518,8 @@ void GrammarParser::initParse()
 	this->_value_buffer = "";
 	this->_key_buffer = "";
 	this->_current_buffer = NULL;
-	this->_requestIndex = 0;
-	_priority_states.push_back(new GrammarParserBuilderMarker(0, this->_vars[ID_BASE_REQUEST]));
+	// this->_requestIndex = 0;
+	_priority_states.push_back(new GrammarParserBuilderMarker(0, 0, this->_vars[ID_BASE_REQUEST]));
 }
 
 e_parsing_states GrammarParser::parse()
@@ -526,9 +529,9 @@ e_parsing_states GrammarParser::parse()
 int i = 0;
 	e_parsing_states current;
 	do {
-		if(this->_requestIndex >= this->_request.size())
-			return PARSE_NOTHING_MORE;
-		if(i++ > 700){
+		// if(this->_requestIndex >= this->_request.size())
+		// 	return PARSE_NOTHING_MORE;
+		if(i++ > 900){
 
 	for (std::map<std::string, std::string>::iterator it= this->_parsed_datas.begin(); it !=this->_parsed_datas.end() ; it++)
 	{
@@ -544,6 +547,8 @@ int i = 0;
 		}
 		if(_priority_states.size() == 0)
 			return PARSE_UNEXPECTED_END_PATTERN;
+		if(((unsigned int)this->_priority_states.front()->getResetRequestIndex()) >= this->_request.size())
+			return PARSE_NOTHING_MORE;//should save last entry then?
 		_priority_states.front()->prepareNextParsing();
 		std::string token = _priority_states.front()->getCurrentToken();
 		int id = getBuilderIDForToken(token, this->_vars);
@@ -551,7 +556,9 @@ int i = 0;
 			return PARSE_FATAL_FAILURE;
 		if (!DEBUG)
 			std::cout << COLORS[id];
-		std::cout<< *_priority_states.front() <<"::"<< id <<"::"<< this->_requestIndex << "::"<<std::endl;
+
+		// std::cout<< *_priority_states.front() <<"::"<< id <<"::"<< this->_requestIndex << "::"<<std::endl;
+		std::cout<< *_priority_states.front() <<"::"<< id <<std::endl;
 		GrammarParserBuilderMarker *gp = _priority_states.front();
 		try
 		{
@@ -641,7 +648,7 @@ e_parsing_states GrammarParser::consume_MULTI(std::string token,	GrammarParserBu
 
 	if(std::getline(ss, tmp_block, '*') && tmp_block.size() > 0)
 		max = strtol(tmp_block.c_str(), NULL, 10);
-	GrammarParserBuilderMarker* loopgp = new GrammarParserBuilderMarker(gp->getDeepness() + 1, gp->getVar(), gp->getTokenIndex(), id);
+	GrammarParserBuilderMarker* loopgp = new GrammarParserBuilderMarker(gp->getResetRequestIndex(), gp->getDeepness() + 1, gp->getVar(), gp->getTokenIndex(), id);
 	loopgp->setRep(min, max);
 	int check = loopgp->getMaxIndexToken();
 	if (check == -1)
@@ -661,7 +668,7 @@ e_parsing_states GrammarParser::consume_VALUE(std::string token,	GrammarParserBu
 	// if(! gp->getIsCurrentlyValid() && gp->getLastId() != INDEX_OR)
 	// 	return PARSE_FATAL_FAILURE;
 	long valid_value = strtol(token.substr(2).c_str(), NULL, 16);
-	char c = this->_request.at(this->_requestIndex);
+	char c = this->_request.at(gp->getResetRequestIndex());
 	std::string tmp ;
 	tmp += c;
 	if(c != valid_value)
@@ -672,7 +679,9 @@ e_parsing_states GrammarParser::consume_VALUE(std::string token,	GrammarParserBu
 		return PARSE_FAILURE;
 	}
 	// std::cout<<"CHAR IS :" << tmp << " NEEED "<< valid_value<<std::endl;
-	addToBuffer(tmp, gp);
+
+	gp->addToBuffer(tmp);
+	// addToBuffer(tmp, gp);
 	gp->setIsCurrentlyValid(true);
 	tryIncToken();
 	if(gp == _priority_states.front())
@@ -693,7 +702,7 @@ e_parsing_states GrammarParser::consume_INTERVAL(std::string token,	GrammarParse
 	// 	return PARSE_FATAL_FAILURE;
 	long valid_min = strtol(token.substr(2, 4).c_str(), NULL, 16);
 	long valid_max = strtol(token.substr(5, 7).c_str(), NULL, 16);
-	char c = this->_request.at(this->_requestIndex);
+	char c = this->_request.at(gp->getResetRequestIndex());
 	if(c > valid_max || c < valid_min)
 	{
 		tryIncToken();
@@ -704,7 +713,9 @@ e_parsing_states GrammarParser::consume_INTERVAL(std::string token,	GrammarParse
 	std::string tmp ;
 	tmp += c;
 	// std::cout<< "CHAR IS :" << tmp << " NEEED "<< valid_min<<":"<< valid_max<<std::endl;
-	addToBuffer(tmp, gp);
+
+	gp->addToBuffer(tmp);
+	// addToBuffer(tmp, gp);
 	gp->setIsCurrentlyValid(true);
 	tryIncToken();
 	if(gp == _priority_states.front())
@@ -739,7 +750,7 @@ e_parsing_states GrammarParser::consume_STATEMENTS(std::string token,	GrammarPar
 			return PARSE_FATAL_FAILURE;
 		// std::cout <<" TRying to generate a statemen " <<gp->getDeepness() + 1 <<":::"<< *gp->getVar()<<":::"<< gp->getTokenIndex() + 1<< std::endl;
 
-		GrammarParserBuilderMarker* loopgp = new GrammarParserBuilderMarker(gp->getDeepness() + 1, gp->getVar(), gp->getTokenIndex(), id);
+		GrammarParserBuilderMarker* loopgp = new GrammarParserBuilderMarker(gp->getResetRequestIndex(), gp->getDeepness() + 1, gp->getVar(), gp->getTokenIndex(), id);
 		loopgp->setRep(min, 1);
 		int check = loopgp->getMaxIndexToken();
 		if (check == -1)
@@ -795,9 +806,9 @@ e_parsing_states GrammarParser::consume_STRING(std::string token,	GrammarParserB
 	// 	return resolveValidityOfOpenedLoops();
 	std::string substring;
 	std::string subToken = token.substr(1, token.size() - 2);
-	if (this->_request.size() - this->_requestIndex < subToken.size())
+	if (this->_request.size() - gp->getResetRequestIndex() < subToken.size())
 		return PARSE_NOT_ENOUGH_DATAS;
-	substring = this->_request.substr(this->_requestIndex, subToken.size());
+	substring = this->_request.substr(gp->getResetRequestIndex(), subToken.size());
 	// std::cout << "comparing : " << substring << ":::" << subToken<<std::endl;
 	if (substring != subToken)
 	{
@@ -806,7 +817,9 @@ e_parsing_states GrammarParser::consume_STRING(std::string token,	GrammarParserB
 			_priority_states.front()->setLastId(id);
 		return PARSE_FAILURE;
 	}
-	addToBuffer(substring, gp);
+	// addToBuffer(substring, gp);
+	gp->addToBuffer(substring);
+
 	gp->setIsCurrentlyValid(true);
 	tryIncToken();
 	if(gp == _priority_states.front())
@@ -859,7 +872,7 @@ e_parsing_states GrammarParser::consume_VAR(std::string token,	GrammarParserBuil
  	tryIncToken();
 	if(gp == _priority_states.front())
 		_priority_states.front()->setLastId(id);
-	_priority_states.push_front(new GrammarParserBuilderMarker(tmp_deepness + 1, gv));
+	_priority_states.push_front(new GrammarParserBuilderMarker(gp->getResetRequestIndex(), tmp_deepness + 1, gv));
 	return PARSE_SUCCESS;
 }
 

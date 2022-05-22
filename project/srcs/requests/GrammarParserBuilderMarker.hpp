@@ -22,7 +22,7 @@ class GrammarParserBuilderMarker
 
 	public:
 
-		GrammarParserBuilderMarker(int deepness = -1, GrammarVariables *gv = NULL, int tokenIndex = 0, int resetLastId = 11);
+		GrammarParserBuilderMarker(int resetRequestIndex = -1, int deepness = -1, GrammarVariables *gv = NULL, int tokenIndex = 0, int resetLastId = 11);
 		GrammarParserBuilderMarker( GrammarParserBuilderMarker const & src );
 		~GrammarParserBuilderMarker();
 
@@ -46,6 +46,15 @@ class GrammarParserBuilderMarker
 					return "Trying to get an out of bound token";
 				}
         };
+		class BuildError : public std::exception
+        {
+            public:
+                virtual const char *what() const throw()
+				{
+					return "Trying to set invalid values at build time";
+				}
+        };
+
 		void addToBuffer(std::string buffer);
 		std::string getBuffer();
 		bool incTokenTo(int newIndex);
@@ -63,6 +72,8 @@ class GrammarParserBuilderMarker
 		void prepareNextParsing();
 		void reset();
 		bool isValidInTheEnd() const;
+		int getResetRequestIndex() const;
+		void setResetRequestIndex(int resetRequestIndex);
 
 	private:
 
@@ -79,6 +90,8 @@ class GrammarParserBuilderMarker
 		int _isCurrentlyValid;
 		int _lastId;
 		int _resetLastId;
+		int _resetRequestIndex;
+		// int _countCharRead;
 		
 
 };

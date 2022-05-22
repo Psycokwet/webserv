@@ -6,6 +6,7 @@ DEFINE_ENUM(e_states, E_STATES_ENUM)
 */
 
 GrammarParserBuilderMarker::GrammarParserBuilderMarker(
+	int resetRequestIndex,
 	int deepness,
 	GrammarVariables *gv,
 	int tokenIndex,
@@ -22,8 +23,12 @@ GrammarParserBuilderMarker::GrammarParserBuilderMarker(
 		_maxIndexToken(sizeTokens()),
 		_isCurrentlyValid(true),
 		_lastId(GrammarParser::_builderDictionnary.size() + 1),
-		_resetLastId(resetLastId)
+		_resetLastId(resetLastId),
+		_resetRequestIndex(resetRequestIndex)//,
+		// _countCharRead(0)
 {
+	if(resetRequestIndex < 0)
+		throw new BuildError();
 }
 
 GrammarParserBuilderMarker::GrammarParserBuilderMarker(
@@ -40,7 +45,9 @@ GrammarParserBuilderMarker::GrammarParserBuilderMarker(
 		_maxIndexToken(src._maxIndexToken),
 		_isCurrentlyValid(src._isCurrentlyValid),
 		_lastId(src._lastId),
-		_resetLastId(src._resetLastId)
+		_resetLastId(src._resetLastId),
+		_resetRequestIndex(src._resetRequestIndex)//,
+		// _countCharRead(src._countCharRead)
 {
 }
 
@@ -79,6 +86,8 @@ std::ostream &			operator<<( std::ostream & o, GrammarParserBuilderMarker const 
 std::ostream &			GrammarParserBuilderMarker::print( std::ostream & o) const
 {
 	o << "WHOAMI [" << this << "] ; ";
+	o << "this->requestIndex [" << this->getResetRequestIndex() << "] ; ";
+	o << "this->_resetRequestIndex [" << this->_resetRequestIndex << "] ; ";
 	o << "this->_lastId [" << this->_lastId << "] ; ";
 	o << "this->_resetLastId [" << this->_resetLastId << "] ; ";
 	o << "this->_confirmedBuffer [" << this->_confirmedBuffer << "] ; ";
@@ -161,6 +170,7 @@ void GrammarParserBuilderMarker::reset()
 	this->_isCurrentlyValid = true;
 	this->_confirmedBuffer += _buffer;
 	this->_buffer = "";
+	// this->_countCharRead = 0;
 
 	this->_count++;
 }
@@ -240,9 +250,22 @@ bool GrammarParserBuilderMarker::isValidInTheEnd() const
 		return true;
 	return false;
 }
+
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
+void GrammarParserBuilderMarker::setResetRequestIndex(int resetRequestIndex)
+{
+	this->_resetRequestIndex = resetRequestIndex;
+}
+
+int GrammarParserBuilderMarker::getResetRequestIndex() const 
+{
+	if(_isCurrentlyValid)
+		return _resetRequestIndex + this->_buffer.length() + this->_confirmedBuffer.length() ;
+	return _resetRequestIndex + this->_confirmedBuffer.length();
+}
+
 int GrammarParserBuilderMarker::getResetTo() const
 {
 	return _resetTo;
@@ -287,6 +310,7 @@ void GrammarParserBuilderMarker::addToBuffer(std::string buffer)
 {
 	this->_buffer += buffer;
 }
+
 std::string GrammarParserBuilderMarker::getBuffer()
 {
 	if(_isCurrentlyValid)
