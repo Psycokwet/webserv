@@ -92,7 +92,6 @@ class GrammarParser
 	private:
 		GrammarParser(t_grammar_map vars = t_grammar_map(), std::string request = "");
 		t_grammar_map _vars;
-		std::size_t _requestIndex;
 		std::string _request;
 		std::list<GrammarParserBuilderMarker*> _priority_states;
 		
