@@ -23,7 +23,7 @@
 # include <vector>
 # include "GrammarVariables.hpp"
 # include "GrammarParserBuilderMarker.hpp"
-# include "Statements.hpp"
+# include "ResponseBuilder.hpp"
 # include <climits>
 
 
@@ -78,6 +78,7 @@ class GrammarParser
 		void feed(std::string buff);
 		void initParse();
 		e_parsing_states parse();
+		ResponseBuilder *finishParse();
 		void clear();
 		class IllegalParsingState : public std::exception
         {
@@ -94,7 +95,6 @@ class GrammarParser
 		std::size_t _requestIndex;
 		std::string _request;
 		std::list<GrammarParserBuilderMarker*> _priority_states;
-		std::list<Statements*> _statementsOpened;
 		
 		std::string _key_buffer;
 		std::string _value_buffer;
@@ -108,12 +108,6 @@ class GrammarParser
 		bool saveIfNecesary();
 		bool tryIncToken();
 		e_parsing_states resolveValidityOfOpenedLoops();
-
-		void addToBuffer(std::string add, GrammarParserBuilderMarker *gp);
-		// bool addToCurrentBuffer(std::string add);
-
-		
-
 };
 
 std::ostream &			operator<<( std::ostream & o, GrammarParser const & i );

@@ -111,7 +111,7 @@ query = * ( pchar / "/" / "?" )
 
 absolute_path = 1* ( "/" segment )
 
-tchar = DIGIT / ALPHA / "!" / "#" / "$" / "%" / "&" / "\'" / "*" / "+" / "-" / "." / "^" / "_" / "\`" / "|" / "~" 
+tchar = ALPHA / DIGIT / "!" / "#" / "$" / "%" / "&" / "\'" / "*" / "+" / "-" / "." / "^" / "_" / "\`" / "|" / "~" 
 
 HTTP_name = "HTTP"
 ;HTTP_name = 0x48.54.54.50 ; HTTP
@@ -139,15 +139,19 @@ ONLY_VALUE!HTTP_version = HTTP_name "/" DIGIT "." DIGIT
 ONLY_VALUE!request_target = origin_form / absolute_form / authority_form / asterisk_form
 
 ;ONLY_VALUE!method = token
-ONLY_VALUE!method = "GET" / "POST" / "DELETE"
+;ONLY_VALUE!method = "GET" / "POST" / "DELETE"
+method_int = "GET" / "POST" / "DELETE"
+ONLY_VALUE!method = method_int
 
-VALUE!field_value = * ( field_content / obs_fold )
+field_value_int = * ( field_content / obs_fold )
+VALUE!field_value = field_value_int
 
 KEY!field_name = token
 
 request_line = method SP request_target SP HTTP_version CRLF
 
-ONLY_VALUE!message_body = * OCTET
+message_body_int = * OCTET
+ONLY_VALUE!message_body = message_body_int
 
 header_field = field_name ":" OWS field_value OWS
 

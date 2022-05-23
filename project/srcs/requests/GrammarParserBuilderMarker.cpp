@@ -115,10 +115,8 @@ std::ostream &			GrammarParserBuilderMarker::print( std::ostream & o) const
 
 int GrammarParserBuilderMarker::findMaxIndex() const
 {
-	// std::cout << "STARTING WITH " << *this << ":::"<< this->getCurrentToken()<<std::endl;
 	if(!IS_OPENING_STATEMENT(this->getCurrentToken()))
 		return this->_tokenIndex + 1;
-	// std::cout << "STILL ON BABY" <<std::endl;
 	std::list<Statements> stats = std::list<Statements> ();
 	std::vector<std::string> &tokens = this->_gv->getTokens();
 	int i = this->_tokenIndex;
@@ -126,7 +124,6 @@ int GrammarParserBuilderMarker::findMaxIndex() const
 	while (stats.size() != 0)
 	{
 		i++;
-	// std::cout << "STILL ON BABY :" <<i<<std::endl;
 		if(i >= sizeTokens())
 			return -1;
 		if (IS_OPENING_STATEMENT(tokens[i]))
@@ -156,7 +153,6 @@ void GrammarParserBuilderMarker::setRep(int min, int max)
 
 std::string GrammarParserBuilderMarker::getCurrentToken() const
 {
-	// std::cout<< *this<<std::endl;
 	if(this->_tokenIndex >= _maxIndexToken)
 		throw new TokenOutOfBound();
 	return this->_gv->getTokens()[this->_tokenIndex];
@@ -170,26 +166,19 @@ void GrammarParserBuilderMarker::reset()
 	this->_isCurrentlyValid = true;
 	this->_confirmedBuffer += _buffer;
 	this->_buffer = "";
-	// this->_countCharRead = 0;
 
 	this->_count++;
 }
 
 bool GrammarParserBuilderMarker::canBeParsed()
 {
-	// std::cout <<!_isCurrentlyValid <<":::"<< this->_maxIndexToken <<":::"<< this->_tokenIndex  <<":::"<<":::"<< "/"<<":::"<<this->_lastId <<":::"<<INDEX_OR << "  \n";
-
-	// std::cout<<"canBeParsed"<<std::endl;
-	if(this->_maxIndexToken != this->_tokenIndex &&!_isCurrentlyValid && this->getCurrentToken() != "/" && this->_lastId != INDEX_OR){
-		std::cout <<!_isCurrentlyValid <<":::"<< this->_maxIndexToken <<":::"<< this->_tokenIndex  <<":::"<<this->getCurrentToken() <<":::"<< "/"<<":::"<<this->_lastId <<":::"<<INDEX_OR << " 173 \n";
-		return false;}
+	if(this->_maxIndexToken != this->_tokenIndex &&!_isCurrentlyValid && this->getCurrentToken() != "/" && this->_lastId != INDEX_OR)
+		return false;
 	if(this->_maxIndexToken == this->_tokenIndex &&
 		(this->_max <= (this->_count + 1)
 		|| !_isCurrentlyValid 
-		// || (this->_lastId == INDEX_OR && _isCurrentlyValid)
-		)){
-		std::cout << " 176 \n";
-		return false;}
+		))
+		return false;
 	return true;
 }
 

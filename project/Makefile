@@ -6,7 +6,7 @@
 #    By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#              #
-#    Updated: 2022/05/09 20:17:36 by scarboni         ###   ########.fr        #
+#    Updated: 2022/05/23 09:50:26 by scarboni         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -53,7 +53,8 @@ OBJ_PATHS			+= $(OBJ_PATH) $(addprefix $(OBJ_PATH), $(CONFIG_PATH) $(SERVER_PATH
 REQUESTS_FILES = 	GrammarParser.cpp \
 					GrammarVariables.cpp \
 					GrammarParserBuilderMarker.cpp \
-					Statements.cpp
+					Statements.cpp \
+					ResponseBuilder.cpp
 					
 SRCS += $(addprefix $(REQUEST_PATH), $(REQUESTS_FILES))
 UTIL_FILES = parse.cpp 

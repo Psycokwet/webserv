@@ -91,9 +91,6 @@ class GrammarParserBuilderMarker
 		int _lastId;
 		int _resetLastId;
 		int _resetRequestIndex;
-		// int _countCharRead;
-		
-
 };
 
 std::ostream &			operator<<( std::ostream & o, GrammarParserBuilderMarker const & i );
