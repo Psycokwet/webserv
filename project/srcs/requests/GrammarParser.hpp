@@ -12,6 +12,18 @@
 #define INDEX_OPTIONAL 8
 #define INDEX_VAR 9
 
+#include "../../includes/enumFactory.h"
+#define E_PARSING_STATE_ENUM(XX)          \
+	XX(PARSE_SUCCESS, = 1)                \
+	XX(PARSE_NOT_ENOUGH_DATAS, = 2)       \
+	XX(PARSE_NOTHING_MORE, = 3)           \
+	XX(PARSE_FAILURE, = 4)                \
+	XX(PARSE_FATAL_FAILURE, = 5)          \
+	XX(PARSE_UNEXPECTED_END_PATTERN, = 6) \
+	XX(PARSE_QUIT_DEBUG, = 7)
+
+DECLARE_ENUM(e_parsing_states, E_PARSING_STATE_ENUM)
+
 #include "../util/parse.hpp"
 #include <ctype.h>
 #include <iostream>
@@ -26,20 +38,9 @@
 #include "ResponseBuilder.hpp"
 #include <climits>
 
-#include "../../includes/enumFactory.h"
-#define E_PARSING_STATE_ENUM(XX)             \
-	XX(PARSE_SUCCESS, = 0x00000001)          \
-	XX(PARSE_FAILURE, = 0x00000010)          \
-	XX(PARSE_FATAL_FAILURE, = 0x00000100)    \
-	XX(PARSE_NOT_ENOUGH_DATAS, = 0x00001000) \
-	XX(PARSE_NOTHING_MORE, = 0x00010000)     \
-	XX(PARSE_QUIT_DEBUG, = 0x00100000)       \
-	XX(PARSE_UNEXPECTED_END_PATTERN, = 0x01000000)
-
-DECLARE_ENUM(e_parsing_states, E_PARSING_STATE_ENUM)
-
 typedef std::map<std::string, GrammarVariables *> t_grammar_map;
 class GrammarParser;
+class ResponseBuilder;
 class GrammarParserBuilderMarker;
 // checker	token			//vars					//consume							token		state request parsing		id command
 typedef std::pair<bool (*)(std::string, t_grammar_map &gm), e_parsing_states (GrammarParser::*)(std::string, GrammarParserBuilderMarker *, int)> t_pair_checker_consume;

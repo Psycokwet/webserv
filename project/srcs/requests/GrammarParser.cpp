@@ -286,7 +286,6 @@ GrammarParser *GrammarParser::build(std::string filename)
 				delete it->second;
 			return NULL;
 		}
-		std::cout << *gv << std::endl;
 		vars[gv->getName()] = gv;
 	}
 	ifs.close();
@@ -472,35 +471,32 @@ e_parsing_states GrammarParser::parse()
 {
 	initParse();
 
-	int i = 0;
+	// int i = 0;
 	e_parsing_states current;
 	do
 	{
-		if (i++ > 10000)
-		{
-			for (std::map<std::string, std::string>::iterator it = this->_parsed_datas.begin(); it != this->_parsed_datas.end(); it++)
-			{
-				std::cout << "RESULT PARSING : [" << it->first << ":::" << it->second << "]" << std::endl;
-				/* code */
-			}
-			return PARSE_QUIT_DEBUG;
-		}
+		// if (i++ > 10000)
+		// {
+		// 	return PARSE_QUIT_DEBUG;
+		// }
 
 		while (_priority_states.size() > 1 && !_priority_states.front()->canBeParsed())
 		{
-			resolveValidityOfOpenedLoops();
+			try
+			{
+				resolveValidityOfOpenedLoops();
+			}
+			catch (const std::exception &e)
+			{
+				std::cerr << e.what() << " from parse \n";
+				return PARSE_FATAL_FAILURE;
+			}
 		}
 
 		if (_priority_states.size() == 0)
 			return PARSE_UNEXPECTED_END_PATTERN;
 		if (((unsigned int)this->_priority_states.front()->getResetRequestIndex()) >= this->_request.size())
 		{
-
-			for (std::map<std::string, std::string>::iterator it = this->_parsed_datas.begin(); it != this->_parsed_datas.end(); it++)
-			{
-				std::cout << "RESULT PARSING : [" << it->first << ":::" << it->second << "]" << std::endl;
-				/* code */
-			}
 			return PARSE_NOTHING_MORE;
 		}
 		_priority_states.front()->prepareNextParsing();
@@ -520,7 +516,7 @@ e_parsing_states GrammarParser::parse()
 			if (!DEBUG)
 				std::cout << RESET;
 			std::cerr << e.what() << " from " << id << '\n';
-			return current;
+			return PARSE_FATAL_FAILURE;
 		}
 
 		if (!DEBUG)
@@ -528,21 +524,34 @@ e_parsing_states GrammarParser::parse()
 		if (current == PARSE_FAILURE)
 			gp->setIsCurrentlyValid(false);
 	} while (current != PARSE_NOT_ENOUGH_DATAS && current != PARSE_FATAL_FAILURE);
-
-	// for (std::map<std::string, std::string>::iterator it= this->_parsed_datas.begin(); it !=this->_parsed_datas.end() ; it++)
-	// {
-	// 	std::cout << "RESULT PARSING : " << it->first << ":::"<< it->second << std::endl;
-	// 	/* code */
-	// }
-
 	return current;
 }
 
 ResponseBuilder *GrammarParser::finishParse()
 {
-	if (parse() != PARSE_NOTHING_MORE)
+	e_parsing_states result = parse();
+	if (result != PARSE_NOTHING_MORE)
 		return NULL;
-	return NULL;
+	if (_saveType != NO_VAR_TYPE)
+	{
+		while (_priority_states.front()->getVar()->getType() == NO_VAR_TYPE)
+		{
+			try
+			{
+				deleteFrontPriority();
+			}
+			catch (const std::exception &e)
+			{
+				std::cerr << e.what() << " from finish parsing" << '\n';
+				return NULL;
+			}
+		}
+	}
+	std::cout << "[" << _key_buffer << "]" << std::endl;
+	saveIfNecesary();
+	ResponseBuilder *resp = ResponseBuilder::build(this->_parsed_datas, result);
+	clear();
+	return resp;
 }
 
 e_parsing_states GrammarParser::consume_OR(std::string token, GrammarParserBuilderMarker *gp, int id)
@@ -623,7 +632,7 @@ e_parsing_states GrammarParser::consume_INTERVAL(std::string token, GrammarParse
 {
 	long valid_min = strtol(token.substr(2, 4).c_str(), NULL, 16);
 	long valid_max = strtol(token.substr(5, 7).c_str(), NULL, 16);
-	char c = this->_request.at(gp->getResetRequestIndex());
+	unsigned char c = this->_request.at(gp->getResetRequestIndex());
 	if (c > valid_max || c < valid_min)
 	{
 		tryIncToken();

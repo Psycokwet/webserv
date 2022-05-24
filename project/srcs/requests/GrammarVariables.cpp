@@ -36,6 +36,9 @@ std::ostream &GrammarVariables::print(std::ostream &o) const
 	o << this->_name << " = ";
 	for (std::vector<std::string>::const_iterator it = this->_tokens.begin(); it != this->_tokens.end(); it++)
 		o << *it << " ";
+
+	o << "------_type"
+	  << " = " << GetString(this->_type) << " ";
 	return o;
 }
 

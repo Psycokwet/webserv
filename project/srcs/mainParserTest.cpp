@@ -42,10 +42,25 @@ int main(int ac, char **av)
 	while (std::getline(ifs, tmp_line))
 	{
 		gp->feed(tmp_line + "\n"); // BEWARE it may need to be \r\n depending on OS
+		if (gp->parse() >= PARSE_FAILURE)
+		{
+			std::cout << "Incorrect request, must quit treatment :" << tmp_line << std::endl;
+			delete gp;
+			return 0;
+		}
+
 		std::cout << "I've read :" << tmp_line << std::endl;
 	}
-	e_parsing_states result = gp->parse();
-	std::cout << "BILAN " << GetString(result) << "[" << tmp_line << "]" << std::endl;
+	ResponseBuilder *resp = gp->finishParse();
+
 	delete gp;
+	if (!resp)
+	{
+		std::cout << "An error occured at the end of the parsing" << std::endl;
+		return 0;
+	}
+	std::cout << "BILAN "
+			  << "[" << *resp << "]" << std::endl;
+	delete resp;
 	return 0;
 }
