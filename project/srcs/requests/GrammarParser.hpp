@@ -100,6 +100,7 @@ private:
 	int _deepnessMinBeforeSave;
 	e_var_type _saveType;
 	int _indexTokenInitSave;
+	e_parsing_states _current_state;
 
 	void deleteFrontPriority();
 	bool saveIfNecesary();

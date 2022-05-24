@@ -27,7 +27,7 @@ GrammarParserBuilderMarker::GrammarParserBuilderMarker(
 															 // _countCharRead(0)
 {
 	if (resetRequestIndex < 0)
-		throw new BuildError();
+		throw BuildError();
 }
 
 GrammarParserBuilderMarker::GrammarParserBuilderMarker(
@@ -148,7 +148,7 @@ void GrammarParserBuilderMarker::setRep(int min, int max)
 std::string GrammarParserBuilderMarker::getCurrentToken() const
 {
 	if (this->_tokenIndex >= _maxIndexToken)
-		throw new TokenOutOfBound();
+		throw TokenOutOfBound();
 	return this->_gv->getTokens()[this->_tokenIndex];
 }
 

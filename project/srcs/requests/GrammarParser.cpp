@@ -246,8 +246,10 @@ bool checkValidityForVar(GrammarVariables *gv, t_grammar_map &gramMap)
 	{
 		if ((id = getBuilderIDForToken(tokens[i], gramMap)) == NON_VALID)
 			return false;
-		if (!DEBUG)
+		if (DEBUG)
+		{
 			std::cout << COLORS[id] << " " << tokens[i] << " " << RESET;
+		}
 	}
 	return true;
 }
@@ -308,7 +310,8 @@ GrammarParser::GrammarParser(t_grammar_map vars, std::string request) : _vars(va
 																		_current_buffer(NULL),
 																		_deepnessMinBeforeSave(-1),
 																		_saveType(NO_VAR_TYPE),
-																		_indexTokenInitSave(-1)
+																		_indexTokenInitSave(-1),
+																		_current_state(PARSE_NOT_ENOUGH_DATAS)
 {
 }
 
@@ -320,7 +323,8 @@ GrammarParser::GrammarParser(const GrammarParser &src) : _vars(src._vars),
 														 _current_buffer(src._current_buffer),
 														 _deepnessMinBeforeSave(src._deepnessMinBeforeSave),
 														 _saveType(src._saveType),
-														 _indexTokenInitSave(src._indexTokenInitSave)
+														 _indexTokenInitSave(src._indexTokenInitSave),
+														 _current_state(src._current_state)
 {
 	(void)src;
 }
@@ -377,7 +381,7 @@ bool GrammarParser::saveIfNecesary()
 	{
 		if (this->_parsed_datas.find(this->_key_buffer) != this->_parsed_datas.end())
 		{
-			throw new IllegalParsingState();
+			throw IllegalParsingState();
 		}
 		this->_parsed_datas[this->_key_buffer] = _priority_states.front()->getBuffer();
 		this->_key_buffer = "";
@@ -405,7 +409,7 @@ void GrammarParser::deleteFrontPriority()
 	}
 	else if (!_priority_states.front()->isValidInTheEnd() && _priority_states.size() == 1)
 	{
-		throw new IllegalParsingState();
+		throw IllegalParsingState();
 	}
 	if (_priority_states.front()->isValidInTheEnd())
 	{
@@ -454,6 +458,7 @@ void GrammarParser::clear()
 	this->_value_buffer = "";
 	this->_key_buffer = "";
 	this->_current_buffer = NULL;
+	this->_current_state = PARSE_NOT_ENOUGH_DATAS;
 }
 
 void GrammarParser::initParse()
@@ -461,18 +466,16 @@ void GrammarParser::initParse()
 	if (_priority_states.size() != 0)
 		return;
 	this->_parsed_datas.clear();
-	this->_value_buffer = "";
-	this->_key_buffer = "";
-	this->_current_buffer = NULL;
 	_priority_states.push_back(new GrammarParserBuilderMarker(0, 0, this->_vars[ID_BASE_REQUEST]));
 }
 
 e_parsing_states GrammarParser::parse()
 {
+	if (_current_state >= PARSE_FAILURE)
+		return _current_state;
 	initParse();
 
 	// int i = 0;
-	e_parsing_states current;
 	do
 	{
 		// if (i++ > 10000)
@@ -489,42 +492,53 @@ e_parsing_states GrammarParser::parse()
 			catch (const std::exception &e)
 			{
 				std::cerr << e.what() << " from parse \n";
-				return PARSE_FATAL_FAILURE;
+				{
+					_current_state = PARSE_FATAL_FAILURE;
+					return _current_state;
+				}
 			}
 		}
 
 		if (_priority_states.size() == 0)
-			return PARSE_UNEXPECTED_END_PATTERN;
+		{
+			_current_state = PARSE_UNEXPECTED_END_PATTERN;
+			return _current_state;
+		}
 		if (((unsigned int)this->_priority_states.front()->getResetRequestIndex()) >= this->_request.size())
 		{
-			return PARSE_NOTHING_MORE;
+			_current_state = PARSE_NOTHING_MORE;
+			return _current_state;
 		}
 		_priority_states.front()->prepareNextParsing();
 		std::string token = _priority_states.front()->getCurrentToken();
 		int id = getBuilderIDForToken(token, this->_vars);
 		if (id == NON_VALID)
-			return PARSE_FATAL_FAILURE;
+		{
+			_current_state = PARSE_FATAL_FAILURE;
+			return _current_state;
+		}
 		if (!DEBUG)
 			std::cout << COLORS[id];
 		GrammarParserBuilderMarker *gp = _priority_states.front();
 		try
 		{
-			current = (this->*GrammarParser::_builderDictionnary[id].second)(token, gp, id);
+			_current_state = (this->*GrammarParser::_builderDictionnary[id].second)(token, gp, id);
 		}
 		catch (const std::exception &e)
 		{
 			if (!DEBUG)
 				std::cout << RESET;
 			std::cerr << e.what() << " from " << id << '\n';
-			return PARSE_FATAL_FAILURE;
+			_current_state = PARSE_FATAL_FAILURE;
+			return _current_state;
 		}
 
 		if (!DEBUG)
 			std::cout << RESET;
-		if (current == PARSE_FAILURE)
+		if (_current_state == PARSE_FAILURE)
 			gp->setIsCurrentlyValid(false);
-	} while (current != PARSE_NOT_ENOUGH_DATAS && current != PARSE_FATAL_FAILURE);
-	return current;
+	} while (_current_state != PARSE_NOT_ENOUGH_DATAS && _current_state != PARSE_FATAL_FAILURE);
+	return _current_state;
 }
 
 ResponseBuilder *GrammarParser::finishParse()
@@ -652,7 +666,7 @@ e_parsing_states GrammarParser::consume_INTERVAL(std::string token, GrammarParse
 
 e_parsing_states GrammarParser::consume_MULTIVALUES(std::string token, GrammarParserBuilderMarker *gp, int id)
 {
-	throw new IllegalParsingState();
+	throw IllegalParsingState();
 	(void)token;
 	(void)id;
 	(void)gp;

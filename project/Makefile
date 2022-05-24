@@ -6,11 +6,12 @@
 #    By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#              #
-#    Updated: 2022/05/24 18:41:17 by scarboni         ###   ########.fr        #
+#    Updated: 2022/05/24 21:50:28 by scarboni         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME 				= webserv
+COMPILE 			= compile
 
 OBJ_PATH			= bin/
 
@@ -29,19 +30,25 @@ TESTCONFIG			= testConfig
 TESTPARSERRULE		= testParserRule
 TESTPARSER			= testParser
 
-SRCS = 	main.cpp
-
-ifeq ($(TESTS), $(TESTPARSERRULE))
-	SRCS = mainParserTest.cpp
-	NAME = $(TESTPARSER)
-	CPPFLAGS += -DDEBUG=true
-else
-	CPPFLAGS += -DDEBUG=false
-endif
 
 ifndef TESTS
 	TESTS=""
+	SRCS = 	main.cpp
+	CPPFLAGS += -DDEBUG=false
+else
+		CPPFLAGS += -DDEBUG=true
+	ifeq ($(TESTS), $(TESTPARSERRULE))
+		SRCS = mainParserTest.cpp
+		NAME = $(TESTPARSER)
+	else
+		ifeq ($(TESTS), $(TESTCONFIGRULE))
+			SRCS = mainTestConfig.cpp
+			NAME = $(TESTCONFIG)
+		endif
+	endif
 endif
+
+
 
 ifndef LEAKS
 	LEAKS = 
@@ -83,8 +90,10 @@ $(OBJ_PATHS_INIT)	:
 	@echo "Generating bin folder and subfolders" $@
 	@mkdir -p  $@  
 
-$(NAME): $(OBJ_PATHS_INIT)  $(OBJ)
+$(COMPILE): $(OBJ_PATHS_INIT)  $(OBJ)
 	$(CXX) $(CPPFLAGS) -o $(NAME) $(OBJ) $(LDFLAGS)
+	
+$(NAME): $(COMPILE)
 
 $(OBJ_PATH)%.o: $(SRC_PATH)%.cpp $(HEADERS_FILES)
 	${CXX} ${CPPFLAGS}   -c $< -o $@
@@ -108,6 +117,7 @@ re: fclean all
 
 define tester_sep
 	printf "\n\n\n\n____.--.--.____.--.--.____.--.--.____.--.--.__** $(1) **__.--.--.____.--.--.____.--.--.____.--.--.____\n" ;\
+	$(MAKE) $(COMPILE) TESTS=$(1) LEAKS="$(LEAKS)" ;\
 	$(MAKE) $(1) TESTS=$(1) LEAKS="$(LEAKS)"
 endef
 
@@ -123,16 +133,18 @@ endef
 
 define launch_only_legal_tests
 	@ if [ $(TESTS) = $(1) ]; then \
+		echo "HELLO" $(TESTS) $(1) "end" ;\
 		$(2)
 	else \
+		echo "HELLODUH" $(TESTS) $(1) "end" ;\
 		$(call tester_sep,$(1)) ;\
 	fi ;
 endef
 
 PARSER_FILE_EXT = .yml
 REQUESTS_FOLDER=requests_samples/
-EXAMPLE_REQUESTS_RAW=get_likeAPony post_almost_empty_file post_pdf post_xpm_file ERROR1
-# EXAMPLE_REQUESTS_RAW=ERROR1
+# EXAMPLE_REQUESTS_RAW=get_likeAPony post_almost_empty_file post_pdf post_xpm_file ERROR1
+EXAMPLE_REQUESTS_RAW=ERROR1
 EXAMPLE_REQUESTS_PREF=$(addprefix $(REQUESTS_FOLDER), $(EXAMPLE_REQUESTS_RAW))
 EXAMPLE_REQUESTS=$(addsuffix $(PARSER_FILE_EXT), $(EXAMPLE_REQUESTS_PREF))
 
@@ -147,7 +159,8 @@ define launch_test_from_array_args
 	$(call launch_one_test_without_sep,$$LAST)
 endef
 
-$(TESTPARSERRULE):	$(NAME)
+
+$(TESTPARSERRULE):	
 	$(call launch_only_legal_tests,$(TESTPARSERRULE),\
 		$(call launch_test_from_array_args,$(EXAMPLE_REQUESTS)) ;\)
 
@@ -159,13 +172,13 @@ ARGS_CONFIGS_TESTS_RAW_PREF = $(addprefix $(CONFIG_FOLDER), $(ARGS_CONFIGS_TESTS
 ARGS_CONFIGS_TESTS = $(addsuffix $(CONFIG_FILE_EXT), $(ARGS_CONFIGS_TESTS_RAW_PREF))
 
 
-$(TESTCONFIG): $(NAME)
-	$(call launch_only_legal_tests,$(TESTCONFIG),\
+$(TESTCONFIGRULE): 
+	$(call launch_only_legal_tests,$(TESTCONFIGRULE),\
 		$(call launch_one_test_with_sep) ;\
 		$(call launch_one_test_with_sep, Too much args) ;\
 		$(call launch_test_from_array_args,$(ARGS_CONFIGS_TESTS)) ;\)
 
-allTests: $(TESTCONFIG) $(TESTPARSERRULE) 
+allTests: $(TESTCONFIGRULE) $(TESTPARSERRULE) 
 
 
 .PHONY: clean fclean re bonus
