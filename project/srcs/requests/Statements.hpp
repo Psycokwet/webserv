@@ -1,32 +1,30 @@
 #ifndef STATEMENTS_HPP
-# define STATEMENTS_HPP
+#define STATEMENTS_HPP
 
-# include <iostream>
-# include <string>
-# include "GrammarVariables.hpp"
+#include <iostream>
+#include <string>
+#include "GrammarVariables.hpp"
 class Statements
 {
 
-	public:
+public:
+	Statements(int deepness = -1, std::string type = "", GrammarVariables *gv = NULL);
+	Statements(Statements const &src);
+	~Statements();
 
-		Statements(int deepness = -1, std::string type = "", GrammarVariables *gv = NULL);
-		Statements( Statements const & src );
-		~Statements();
+	Statements &operator=(Statements const &rhs);
+	bool isTheRightClosingStatement(std::string type, GrammarVariables *gv);
+	std::ostream &print(std::ostream &o) const;
+	void setMustBeValid();
+	void isValid();
 
-		Statements &		operator=( Statements const & rhs );
-		bool isTheRightClosingStatement(std::string type, GrammarVariables *gv);
-		std::ostream &			print( std::ostream & o) const;
-		void setMustBeValid();
-		void isValid();
-
-	private:
-		std::string _type;
-		bool _mustBeValid;
-		GrammarVariables *_gv;
-		int _deepness;
-
+private:
+	std::string _type;
+	bool _mustBeValid;
+	GrammarVariables *_gv;
+	int _deepness;
 };
 
-std::ostream &			operator<<( std::ostream & o, Statements const & i );
+std::ostream &operator<<(std::ostream &o, Statements const &i);
 
 #endif /* ****************************************************** STATEMENTS_H */
