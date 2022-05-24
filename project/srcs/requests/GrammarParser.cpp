@@ -474,15 +474,8 @@ e_parsing_states GrammarParser::parse()
 	if (_current_state >= PARSE_FAILURE)
 		return _current_state;
 	initParse();
-
-	// int i = 0;
 	do
 	{
-		// if (i++ > 10000)
-		// {
-		// 	return PARSE_QUIT_DEBUG;
-		// }
-
 		while (_priority_states.size() > 1 && !_priority_states.front()->canBeParsed())
 		{
 			try
@@ -494,6 +487,8 @@ e_parsing_states GrammarParser::parse()
 				std::cerr << e.what() << " from parse \n";
 				{
 					_current_state = PARSE_FATAL_FAILURE;
+					if (DEBUG)
+						std::cout << RESET;
 					return _current_state;
 				}
 			}
@@ -502,12 +497,12 @@ e_parsing_states GrammarParser::parse()
 		if (_priority_states.size() == 0)
 		{
 			_current_state = PARSE_UNEXPECTED_END_PATTERN;
-			return _current_state;
+			break;
 		}
 		if (((unsigned int)this->_priority_states.front()->getResetRequestIndex()) >= this->_request.size())
 		{
 			_current_state = PARSE_NOTHING_MORE;
-			return _current_state;
+			break;
 		}
 		_priority_states.front()->prepareNextParsing();
 		std::string token = _priority_states.front()->getCurrentToken();
@@ -515,9 +510,9 @@ e_parsing_states GrammarParser::parse()
 		if (id == NON_VALID)
 		{
 			_current_state = PARSE_FATAL_FAILURE;
-			return _current_state;
+			break;
 		}
-		if (!DEBUG)
+		if (DEBUG)
 			std::cout << COLORS[id];
 		GrammarParserBuilderMarker *gp = _priority_states.front();
 		try
@@ -526,18 +521,20 @@ e_parsing_states GrammarParser::parse()
 		}
 		catch (const std::exception &e)
 		{
-			if (!DEBUG)
+			if (DEBUG)
 				std::cout << RESET;
 			std::cerr << e.what() << " from " << id << '\n';
 			_current_state = PARSE_FATAL_FAILURE;
-			return _current_state;
+			break;
 		}
 
-		if (!DEBUG)
+		if (DEBUG)
 			std::cout << RESET;
 		if (_current_state == PARSE_FAILURE)
 			gp->setIsCurrentlyValid(false);
 	} while (_current_state != PARSE_NOT_ENOUGH_DATAS && _current_state != PARSE_FATAL_FAILURE);
+	if (DEBUG)
+		std::cout << RESET;
 	return _current_state;
 }
 

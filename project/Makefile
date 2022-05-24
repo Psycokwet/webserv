@@ -6,7 +6,7 @@
 #    By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#              #
-#    Updated: 2022/05/24 21:50:28 by scarboni         ###   ########.fr        #
+#    Updated: 2022/05/24 21:54:03 by scarboni         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -133,10 +133,8 @@ endef
 
 define launch_only_legal_tests
 	@ if [ $(TESTS) = $(1) ]; then \
-		echo "HELLO" $(TESTS) $(1) "end" ;\
 		$(2)
 	else \
-		echo "HELLODUH" $(TESTS) $(1) "end" ;\
 		$(call tester_sep,$(1)) ;\
 	fi ;
 endef
