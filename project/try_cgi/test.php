@@ -11,12 +11,11 @@
         <h3>
             Hello
             <?php 
-                echo $_POST["firstname"] . " " . $_POST["lastname"];            
-            ?>
-            <br>
+                echo "Nhung";            
+            ?><br>
             You said: 
             <?php
-                echo $_POST["subject"];
+                echo "Nothing";
             ?> 
         </h3>
     </div>
