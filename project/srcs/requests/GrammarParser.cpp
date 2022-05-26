@@ -143,19 +143,6 @@ t_builder_dictionary GrammarParser::initBuilderDictionnary()
 
 t_builder_dictionary GrammarParser::_builderDictionnary = GrammarParser::initBuilderDictionnary();
 
-int isReallyBlank(int c)
-{
-	if (isblank(c) || c == '\r')
-		return true;
-	return false;
-}
-
-#define PREPARE_AND_SKIP_EMPTY_LIGNES(str)                       \
-	std::replace_if(str.begin(), str.end(), isReallyBlank, ' '); \
-	trim(str);                                                   \
-	if (str == "" || str[0] == ';')                              \
-		continue;
-
 GrammarVariables *parseVar(std::string tmp_line)
 {
 	std::string tmp_block;

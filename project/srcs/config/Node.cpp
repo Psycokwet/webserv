@@ -55,10 +55,6 @@ int Node::splitAddToNode(std::string &s, Node **current_node)
 	return EXIT_SUCCESS;
 }
 
-#define PREPARE_AND_SKIP_EMPTY_LIGNES(str) std::replace_if(str.begin(), str.end(), isblank, ' '); \
-		trim(str);\
-		if(str == "" || str[0] == '#')\
-			continue;
 
 int	Node::parseObject(std::ifstream &ifs, std::string tmp_line, Node **current_node)
 {
@@ -188,8 +184,9 @@ std::ostream & Node::print_list(std::ostream & o) const
 {
 	if(this->_inner_list.size() == 0)
 		return o;
+	
 	for(t_node_list::const_iterator it = this->_inner_list.begin(); it != this->_inner_list.end(); it++)
-		(*it)->print(o) << std::endl;
+		(*it)->print(o) << "\n";
 	return o;
 }
 
