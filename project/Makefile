@@ -6,7 +6,7 @@
 #    By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#              #
-#    Updated: 2022/05/24 21:57:01 by scarboni         ###   ########.fr        #
+#    Updated: 2022/05/26 20:21:24 by scarboni         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -139,12 +139,20 @@ define launch_only_legal_tests
 	fi ;
 endef
 
-PARSER_FILE_EXT = .yml
+# PARSER_FILE_EXT = .yml
 REQUESTS_FOLDER=requests_samples/
-EXAMPLE_REQUESTS_RAW=get_likeAPony post_almost_empty_file post_pdf post_xpm_file ERROR1
-# EXAMPLE_REQUESTS_RAW=ERROR1
-EXAMPLE_REQUESTS_PREF=$(addprefix $(REQUESTS_FOLDER), $(EXAMPLE_REQUESTS_RAW))
-EXAMPLE_REQUESTS=$(addsuffix $(PARSER_FILE_EXT), $(EXAMPLE_REQUESTS_PREF))
+GET_REQUESTS_FOLDER=$(addprefix $(REQUESTS_FOLDER), "GET/")
+DELETE_REQUESTS_FOLDER=$(addprefix $(REQUESTS_FOLDER), "DELETE/")
+POST_REQUESTS_FOLDER=$(addprefix $(REQUESTS_FOLDER), "POST/")
+ERROR_REQUESTS_FOLDER=$(addprefix $(REQUESTS_FOLDER), "ERROR/")
+
+GET_REQUESTS:= $(addprefix $(GET_REQUESTS_FOLDER), $(shell ls $(GET_REQUESTS_FOLDER)))
+DELETE_REQUESTS:= $(addprefix $(DELETE_REQUESTS_FOLDER), $(shell ls $(DELETE_REQUESTS_FOLDER)))
+POST_REQUESTS:= $(addprefix $(POST_REQUESTS_FOLDER), $(shell ls $(POST_REQUESTS_FOLDER)))
+ERROR_REQUESTS:= $(addprefix $(ERROR_REQUESTS_FOLDER), $(shell ls $(ERROR_REQUESTS_FOLDER)))
+
+# EXAMPLE_REQUESTS:= $(GET_REQUESTS) $(DELETE_REQUESTS) $(POST_REQUESTS) $(ERROR_REQUESTS)
+EXAMPLE_REQUESTS:= $(addprefix $(GET_REQUESTS_FOLDER), http_request.yml)
 
 define launch_test_from_array_args
 	COUNT=0;\

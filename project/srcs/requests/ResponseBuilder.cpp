@@ -72,7 +72,8 @@ ResponseBuilder::ResponseBuilder() :
 	_insert_order_resp_cat(std::vector<std::string>()), 
 	_resp_cat(std::map<std::string, std::string>()),
 	_key(""),
-	_value_buffer(NULL)
+	_value_buffer(NULL),
+	_parsing_validity_state(PARSE_NOT_ENOUGH_DATAS)
 {
 }
 
@@ -81,7 +82,8 @@ ResponseBuilder::ResponseBuilder(const ResponseBuilder &src):
 	_insert_order_resp_cat(std::vector<std::string>(src._insert_order_resp_cat)), 
 	_resp_cat(std::map<std::string, std::string>(src._resp_cat)),
 	_key(src._key),
-	_value_buffer(src._value_buffer)
+	_value_buffer(src._value_buffer),
+	_parsing_validity_state(src._parsing_validity_state)
 {
 	(void)src;
 }
@@ -116,6 +118,9 @@ std::ostream &ResponseBuilder::print_response(std::ostream &o) const
 
 std::ostream &ResponseBuilder::print(std::ostream &o) const
 {
+	o << "Current state :" << GetString(_parsing_validity_state)<< std::endl;
+	o << "Current key :" << _key<< std::endl;
+	o << "Current buffer :" << ((_value_buffer == NULL || _parsing_validity_state >= PARSE_FAILURE) ? "NULL": *_value_buffer) << std::endl;
 	o << "Base request :" << std::endl;
 	return print_cont(o, _parsed_datas, "]\n", "[", ": ");
 }
@@ -176,6 +181,16 @@ void ResponseBuilder::set_value_buffer_parsedDatas(std::string *value_buffer)
 	if(this->_value_buffer != NULL)
 		throw ValueBufferAlreadyDeclared();
 	this->_value_buffer = value_buffer;
+}
+
+void ResponseBuilder::set_parsing_validity_state(e_parsing_states parsing_validity_state)
+{
+	this->_parsing_validity_state = parsing_validity_state;
+}
+
+e_parsing_states ResponseBuilder::get_parsing_validity_state() const
+{
+	return this->_parsing_validity_state;
 }
 
 /* ************************************************************************** */

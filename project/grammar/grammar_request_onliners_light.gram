@@ -130,7 +130,7 @@ obs_text = 0x80-FF
 
 field_vchar = VCHAR / obs_text
 
-field_content = field_vchar [ 1* ( SP / HTAB ) field_vchar ]
+field_content = ( 1* ( SP / HTAB ) field_vchar ) / field_vchar
 
 token = 1* tchar
 
