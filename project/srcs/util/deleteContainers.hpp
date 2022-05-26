@@ -9,23 +9,23 @@
 # include <vector>
 
 template <typename T> 
-void util_delete(std::ostream &o, std::map<std::string, T> container)
+void util_delete(std::map<std::string, T>& container)
 {
 	for (typename std::map<std::string,T>::iterator it = container.begin(); it != container.end(); it++)
-		delete it;
+		delete it->second;
 	container.clear();
 }
 
 template <typename T> 
-void util_delete(std::ostream &o, std::list<T> container)
+void util_delete(std::list<T>& container)
 {
 	for (typename std::list<T>::iterator it = container.begin(); it != container.end(); it++)
-		delete it;
+		delete *it;
 	container.clear();
 }
 
 template <typename T> 
-void util_delete(std::ostream &o, std::vector<T> container)
+void util_delete(std::vector<T>& container)
 {
 	for (int i = 0; container.size(); i++)
 		delete container[i];
