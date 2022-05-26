@@ -157,7 +157,8 @@ MasterServer *ConfigConsumer::validateEntry(std::string config_path)
 
 	Node::t_node_map my_map = firstNode->getDirectChildrensMap();
 
-std::cout<<*firstNode<<std::endl;
+	if(DEBUG)
+		std::cout << *firstNode <<std::endl;
 	// ? To parse config for MasterServer or already build a MasterServer?
 	// ! Start off with an empty MasterServer (No child server or any config done there, or default config only if you need some)
 	MasterServer *ms = new MasterServer();
