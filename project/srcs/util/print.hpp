@@ -99,9 +99,9 @@ std::ostream & print_ptr(std::ostream &o, std::list<T>& container, std::string e
 template <typename T> 
 std::ostream & print_ptr(std::ostream &o, std::vector<T>& container, std::string end = "\n", std::string start = "")
 {
-	for (int i = 0; container.size(); i++)
+	for(typename std::vector<T>::const_iterator it = container.begin(); it != container.end(); it++)
 	{
-		o << start << *container[i] << end;
+		o << start << **it << end;
 	}
 	return o;
 }
@@ -134,9 +134,9 @@ std::ostream & print_ptr(std::ostream &o, const std::list<T>& container, std::st
 template <typename T> 
 std::ostream & print_ptr(std::ostream &o, const std::vector<T>& container, std::string end = "\n", std::string start = "")
 {
-	for (int i = 0; container.size(); i++)
+	for(typename std::vector<T>::const_iterator it = container.begin(); it != container.end(); it++)
 	{
-		o << start << *container[i] << end;
+		o << start << **it << end;
 	}
 	return o;
 }
