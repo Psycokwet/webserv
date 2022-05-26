@@ -86,6 +86,7 @@ public:
 			return "Parser encountered an error in its own process";
 		}
 	};
+	ResponseBuilder *getResponseBuilder();
 
 private:
 	GrammarParser(t_grammar_map vars = t_grammar_map(), std::string request = "");
@@ -93,14 +94,10 @@ private:
 	std::string _request;
 	std::list<GrammarParserBuilderMarker *> _priority_states;
 
-	std::string _key_buffer;
-	std::string _value_buffer;
-	std::string *_current_buffer;
 	std::map<std::string, std::string> _parsed_datas;
-	int _deepnessMinBeforeSave;
 	e_var_type _saveType;
-	int _indexTokenInitSave;
 	e_parsing_states _current_state;
+	ResponseBuilder *_resp;
 
 	void deleteFrontPriority();
 	bool saveIfNecesary();
