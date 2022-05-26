@@ -52,8 +52,6 @@ const std::map<int, std::string> ResponseBuilder::initReturnCodes()
 	errorCodes[500] = "Gateway Time-out";
 	errorCodes[500] = "HTTP Version not supported";
 
-
-
 	return errorCodes;
 }
 
