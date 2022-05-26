@@ -14,3 +14,10 @@ void trim(std::string &s)
 	ltrim(s);
 	rtrim(s);
 }
+
+int isReallyBlank(int c)
+{
+	if (isblank(c) || c == '\r')
+		return true;
+	return false;
+}
