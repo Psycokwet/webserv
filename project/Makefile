@@ -6,7 +6,7 @@
 #    By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#              #
-#    Updated: 2022/05/24 21:54:03 by scarboni         ###   ########.fr        #
+#    Updated: 2022/05/24 21:57:01 by scarboni         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -141,8 +141,8 @@ endef
 
 PARSER_FILE_EXT = .yml
 REQUESTS_FOLDER=requests_samples/
-# EXAMPLE_REQUESTS_RAW=get_likeAPony post_almost_empty_file post_pdf post_xpm_file ERROR1
-EXAMPLE_REQUESTS_RAW=ERROR1
+EXAMPLE_REQUESTS_RAW=get_likeAPony post_almost_empty_file post_pdf post_xpm_file ERROR1
+# EXAMPLE_REQUESTS_RAW=ERROR1
 EXAMPLE_REQUESTS_PREF=$(addprefix $(REQUESTS_FOLDER), $(EXAMPLE_REQUESTS_RAW))
 EXAMPLE_REQUESTS=$(addsuffix $(PARSER_FILE_EXT), $(EXAMPLE_REQUESTS_PREF))
 

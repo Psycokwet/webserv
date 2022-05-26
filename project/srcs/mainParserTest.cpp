@@ -34,7 +34,7 @@ int main(int ac, char **av)
 	if (!gp)
 		return 0;
 	// std::cout << *gp << std::endl;
-	std::cout << "Grammar parser is valid" << std::endl;
+	std::cout << "\nGrammar parser is valid" << std::endl;
 
 	std::ifstream ifs(av[1]);
 	std::string tmp_line = "";
