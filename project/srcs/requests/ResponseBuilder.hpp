@@ -20,6 +20,8 @@ public:
 	static ResponseBuilder *build(std::map<std::string, std::string> &_parsed_datas, e_parsing_states endStatus);
 	std::ostream &print(std::ostream &o) const;
 
+	static const std::map<int, std::string> initReturnCodes();
+	static const std::map<int, std::string> http_return_codes;
 private:
 	ResponseBuilder(std::map<std::string, std::string> &_parsed_datas);
 	std::map<std::string, std::string> _parsed_datas;
