@@ -188,24 +188,6 @@ int getBuilderIDForToken(std::string token, t_grammar_map &gramMap)
 	return NON_VALID;
 }
 
-#define RESET "\033[0m"
-#define BLACK "\033[30m"			  /* Black */
-#define RED "\033[31m"				  /* Red */
-#define GREEN "\033[32m"			  /* Green */
-#define YELLOW "\033[33m"			  /* Yellow */
-#define BLUE "\033[34m"				  /* Blue */
-#define MAGENTA "\033[35m"			  /* Magenta */
-#define CYAN "\033[36m"				  /* Cyan */
-#define WHITE "\033[37m"			  /* White */
-#define BOLDBLACK "\033[1m\033[30m"	  /* Bold Black */
-#define BOLDRED "\033[1m\033[31m"	  /* Bold Red */
-#define BOLDGREEN "\033[1m\033[32m"	  /* Bold Green */
-#define BOLDYELLOW "\033[1m\033[33m"  /* Bold Yellow */
-#define BOLDBLUE "\033[1m\033[34m"	  /* Bold Blue */
-#define BOLDMAGENTA "\033[1m\033[35m" /* Bold Magenta */
-#define BOLDCYAN "\033[1m\033[36m"	  /* Bold Cyan */
-#define BOLDWHITE "\033[1m\033[37m"	  /* Bold White */
-
 static const char *COLORS[] = {
 	BOLDGREEN,
 	YELLOW,
@@ -293,7 +275,6 @@ GrammarParser::GrammarParser(t_grammar_map vars, std::string request) : _vars(va
 																		_request(request),
 																		_priority_states(),
 																		_saveType(NO_VAR_TYPE),
-																		_current_state(PARSE_NOT_ENOUGH_DATAS),
 																		_resp(NULL)
 {
 }
@@ -302,7 +283,6 @@ GrammarParser::GrammarParser(const GrammarParser &src) : _vars(src._vars),
 														 _request(src._request),
 														 _priority_states(src._priority_states),
 														 _saveType(src._saveType),
-														 _current_state(src._current_state),
 														 _resp(src._resp)
 {
 	(void)src;
@@ -429,7 +409,6 @@ void GrammarParser::clear()
 	this->_resp = NULL;
 	this->_parsed_datas.clear();
 	this->_request = "";
-	this->_current_state = PARSE_NOT_ENOUGH_DATAS;
 }
 
 void GrammarParser::initParse()
@@ -443,9 +422,9 @@ void GrammarParser::initParse()
 
 e_parsing_states GrammarParser::parse()
 {
-	if (_current_state >= PARSE_FAILURE)
-		return _current_state;
 	initParse();
+	if (_resp->get_parsing_validity_state() >= PARSE_FAILURE)
+		return _resp->get_parsing_validity_state();
 	do
 	{
 		while (_priority_states.size() > 1 && !_priority_states.front()->canBeParsed())
@@ -458,22 +437,22 @@ e_parsing_states GrammarParser::parse()
 			{
 				std::cerr << e.what() << " from parse \n";
 				{
-					_current_state = PARSE_FATAL_FAILURE;
+					_resp->set_parsing_validity_state(PARSE_FATAL_FAILURE);
 					if (DEBUG)
 						std::cout << RESET;
-					return _current_state;
+					return _resp->get_parsing_validity_state();
 				}
 			}
 		}
 
 		if (_priority_states.size() == 0)
 		{
-			_current_state = PARSE_UNEXPECTED_END_PATTERN;
+			_resp->set_parsing_validity_state(PARSE_UNEXPECTED_END_PATTERN);
 			break;
 		}
 		if (((unsigned int)this->_priority_states.front()->getResetRequestIndex()) >= this->_request.size())
 		{
-			_current_state = PARSE_NOTHING_MORE;
+			_resp->set_parsing_validity_state(PARSE_NOTHING_MORE);
 			break;
 		}
 		_priority_states.front()->prepareNextParsing();
@@ -481,7 +460,7 @@ e_parsing_states GrammarParser::parse()
 		int id = getBuilderIDForToken(token, this->_vars);
 		if (id == NON_VALID)
 		{
-			_current_state = PARSE_FATAL_FAILURE;
+			_resp->set_parsing_validity_state(PARSE_FATAL_FAILURE);
 			break;
 		}
 		if (DEBUG)
@@ -489,25 +468,25 @@ e_parsing_states GrammarParser::parse()
 		GrammarParserBuilderMarker *gp = _priority_states.front();
 		try
 		{
-			_current_state = (this->*GrammarParser::_builderDictionnary[id].second)(token, gp, id);
+			_resp->set_parsing_validity_state((this->*GrammarParser::_builderDictionnary[id].second)(token, gp, id));
 		}
 		catch (const std::exception &e)
 		{
 			if (DEBUG)
 				std::cout << RESET;
 			std::cerr << e.what() << " from " << id << '\n';
-			_current_state = PARSE_FATAL_FAILURE;
+			_resp->set_parsing_validity_state(PARSE_FATAL_FAILURE);
 			break;
 		}
 
 		if (DEBUG)
 			std::cout << RESET;
-		if (_current_state == PARSE_FAILURE)
+		if (_resp->get_parsing_validity_state() == PARSE_FAILURE)
 			gp->setIsCurrentlyValid(false);
-	} while (_current_state != PARSE_NOT_ENOUGH_DATAS && _current_state != PARSE_FATAL_FAILURE);
+	} while (_resp->get_parsing_validity_state() != PARSE_NOT_ENOUGH_DATAS && _resp->get_parsing_validity_state() != PARSE_FATAL_FAILURE);
 	if (DEBUG)
 		std::cout << RESET;
-	return _current_state;
+	return _resp->get_parsing_validity_state();
 }
 
 ResponseBuilder *GrammarParser::finishParse()

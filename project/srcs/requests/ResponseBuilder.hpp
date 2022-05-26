@@ -63,7 +63,8 @@ public:
 			return "A value buffer have been previously set and not consumed";
 		}
 	};
-	
+	void set_parsing_validity_state(e_parsing_states parsing_validity_state);
+	e_parsing_states get_parsing_validity_state() const;
 private:
 	ResponseBuilder();
 	std::map<std::string, std::string> _parsed_datas;
@@ -71,6 +72,7 @@ private:
 	std::map<std::string, std::string> _resp_cat;
 	std::string _key;
 	std::string *_value_buffer;
+	e_parsing_states _parsing_validity_state;
 };
 
 std::ostream &operator<<(std::ostream &o, ResponseBuilder const &i);

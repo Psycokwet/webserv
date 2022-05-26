@@ -44,12 +44,11 @@ int main(int ac, char **av)
 		gp->feed(tmp_line + "\n"); // BEWARE it may need to be \r\n depending on OS
 		if (gp->parse() >= PARSE_FAILURE)
 		{
-			std::cout << "Incorrect request, must quit treatment :" << tmp_line << std::endl;
+			std::cout << RED << "Incorrect request, must quit treatment from line :" << tmp_line << std::endl <<  "with intermediate result :";
+			std::cout << *gp->getResponseBuilder() << RESET << std::endl;
 			delete gp;
 			return 0;
 		}
-
-		std::cout << "I've read :" << tmp_line << std::endl;
 	}
 	ResponseBuilder *resp = gp->finishParse();
 
