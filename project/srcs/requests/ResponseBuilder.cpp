@@ -49,12 +49,7 @@ ResponseBuilder &ResponseBuilder::operator=(ResponseBuilder const &rhs)
 std::ostream &ResponseBuilder::print(std::ostream &o) const
 {
 	o << "Base request :" << std::endl;
-	for (std::map<std::string, std::string>::const_iterator it = this->_parsed_datas.begin(); it != this->_parsed_datas.end(); it++)
-	{
-		o << "[" << it->first << ":::" << it->second << "]" << std::endl;
-		/* code */
-	}
-	return o;
+	return print_cont(o, _parsed_datas, "]\n", "[", ": ");
 }
 
 std::ostream &operator<<(std::ostream &o, ResponseBuilder const &i)
