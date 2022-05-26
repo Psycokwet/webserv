@@ -54,7 +54,8 @@ public:
 	};
 
 	void addToBuffer(std::string buffer);
-	std::string getBuffer();
+	std::string getBuffer() const;
+	std::string *getBufferPtr();
 	bool incTokenTo(int newIndex);
 	int getMaxIndexToken() const;
 	int getResetTo() const;

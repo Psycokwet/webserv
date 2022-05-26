@@ -292,26 +292,18 @@ GrammarParser *GrammarParser::build(std::string filename)
 GrammarParser::GrammarParser(t_grammar_map vars, std::string request) : _vars(vars),
 																		_request(request),
 																		_priority_states(),
-																		_key_buffer(""),
-																		_value_buffer(""),
-																		_current_buffer(NULL),
-																		_deepnessMinBeforeSave(-1),
 																		_saveType(NO_VAR_TYPE),
-																		_indexTokenInitSave(-1),
-																		_current_state(PARSE_NOT_ENOUGH_DATAS)
+																		_current_state(PARSE_NOT_ENOUGH_DATAS),
+																		_resp(NULL)
 {
 }
 
 GrammarParser::GrammarParser(const GrammarParser &src) : _vars(src._vars),
 														 _request(src._request),
 														 _priority_states(src._priority_states),
-														 _key_buffer(src._key_buffer),
-														 _value_buffer(src._value_buffer),
-														 _current_buffer(src._current_buffer),
-														 _deepnessMinBeforeSave(src._deepnessMinBeforeSave),
 														 _saveType(src._saveType),
-														 _indexTokenInitSave(src._indexTokenInitSave),
-														 _current_state(src._current_state)
+														 _current_state(src._current_state),
+														 _resp(src._resp)
 {
 	(void)src;
 }
@@ -322,10 +314,11 @@ GrammarParser::GrammarParser(const GrammarParser &src) : _vars(src._vars),
 
 GrammarParser::~GrammarParser()
 {
-	for (t_grammar_map::const_iterator it = this->_vars.begin(); it != this->_vars.end(); it++)
-		delete it->second;
-	for (std::list<GrammarParserBuilderMarker *>::const_iterator it = this->_priority_states.begin(); it != this->_priority_states.end(); it++)
-		delete *it;
+	util_delete(this->_vars);
+	util_delete(this->_priority_states);
+	if(_resp)
+		delete _resp;
+	_resp = NULL;
 }
 
 /*
@@ -366,20 +359,13 @@ bool GrammarParser::saveIfNecesary()
 	e_var_type frontType = _priority_states.front()->getVar()->getType();
 	if (frontType == ONLY_VALUE || frontType == VALUE)
 	{
-		if (this->_parsed_datas.find(this->_key_buffer) != this->_parsed_datas.end())
-		{
-			throw IllegalParsingState();
-		}
-		this->_parsed_datas[this->_key_buffer] = _priority_states.front()->getBuffer();
-		this->_key_buffer = "";
-		this->_current_buffer = NULL;
+		this->_resp->add_value_parsedDatas(_priority_states.front()->getBuffer());
 		_saveType = NO_VAR_TYPE;
 		return true;
 	}
 	else if (frontType == KEY)
 	{
-
-		this->_key_buffer = _priority_states.front()->getBuffer();
+		this->_resp->add_key_parsedDatas(_priority_states.front()->getBuffer());
 		_saveType = NO_VAR_TYPE;
 		return true;
 	}
@@ -440,11 +426,9 @@ void GrammarParser::feed(std::string buff)
 
 void GrammarParser::clear()
 {
+	this->_resp = NULL;
 	this->_parsed_datas.clear();
 	this->_request = "";
-	this->_value_buffer = "";
-	this->_key_buffer = "";
-	this->_current_buffer = NULL;
 	this->_current_state = PARSE_NOT_ENOUGH_DATAS;
 }
 
@@ -453,6 +437,7 @@ void GrammarParser::initParse()
 	if (_priority_states.size() != 0)
 		return;
 	this->_parsed_datas.clear();
+	this->_resp = ResponseBuilder::init();
 	_priority_states.push_back(new GrammarParserBuilderMarker(0, 0, this->_vars[ID_BASE_REQUEST]));
 }
 
@@ -529,7 +514,11 @@ ResponseBuilder *GrammarParser::finishParse()
 {
 	e_parsing_states result = parse();
 	if (result != PARSE_NOTHING_MORE)
-		return NULL;
+	{
+		ResponseBuilder *resp = this->_resp->end_build(this->_request, result);
+		clear();
+		return resp;
+	}
 	if (_saveType != NO_VAR_TYPE)
 	{
 		while (_priority_states.front()->getVar()->getType() == NO_VAR_TYPE)
@@ -541,13 +530,14 @@ ResponseBuilder *GrammarParser::finishParse()
 			catch (const std::exception &e)
 			{
 				std::cerr << e.what() << " from finish parsing" << '\n';
-				return NULL;
+				ResponseBuilder *resp = this->_resp->end_build(this->_request, result);
+				clear();
+				return resp;
 			}
 		}
 	}
-	std::cout << "[" << _key_buffer << "]" << std::endl;
 	saveIfNecesary();
-	ResponseBuilder *resp = ResponseBuilder::build(this->_parsed_datas, result);
+	ResponseBuilder *resp = this->_resp->end_build(this->_request, result);
 	clear();
 	return resp;
 }
@@ -603,7 +593,7 @@ e_parsing_states GrammarParser::consume_MULTI(std::string token, GrammarParserBu
 e_parsing_states GrammarParser::consume_VALUE(std::string token, GrammarParserBuilderMarker *gp, int id)
 {
 	long valid_value = strtol(token.substr(2).c_str(), NULL, 16);
-	char c = this->_request.at(gp->getResetRequestIndex());
+	unsigned char c = this->_request.at(gp->getResetRequestIndex());
 	std::string tmp;
 	tmp += c;
 	if (c != valid_value)
@@ -736,18 +726,17 @@ e_parsing_states GrammarParser::consume_VAR(std::string token, GrammarParserBuil
 	if (gv->getType() == ONLY_VALUE)
 	{
 		_saveType = gv->getType();
-		this->_key_buffer = "#" + gv->getName();
-		this->_current_buffer = &this->_value_buffer;
+		this->_resp->add_key_parsedDatas("#" + gv->getName());
+		this->_resp->set_value_buffer_parsedDatas(gp->getBufferPtr());
 	}
 	else if (gv->getType() == KEY)
 	{
 		_saveType = gv->getType();
-		this->_current_buffer = &this->_key_buffer;
 	}
 	else if (gv->getType() == VALUE)
 	{
 		_saveType = gv->getType();
-		this->_current_buffer = &this->_value_buffer;
+		this->_resp->set_value_buffer_parsedDatas(gp->getBufferPtr());
 	}
 	tryIncToken();
 	if (gp == _priority_states.front())
@@ -759,5 +748,11 @@ e_parsing_states GrammarParser::consume_VAR(std::string token, GrammarParserBuil
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
+
+ResponseBuilder *GrammarParser::getResponseBuilder()
+{
+	return this->_resp;
+}
+
 
 /* ************************************************************************** */

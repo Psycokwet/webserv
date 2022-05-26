@@ -288,11 +288,17 @@ void GrammarParserBuilderMarker::addToBuffer(std::string buffer)
 	this->_buffer += buffer;
 }
 
-std::string GrammarParserBuilderMarker::getBuffer()
+std::string GrammarParserBuilderMarker::getBuffer() const
 {
 	if (_isCurrentlyValid)
 		return this->_confirmedBuffer + this->_buffer;
 	return this->_confirmedBuffer;
+}
+
+
+std::string *GrammarParserBuilderMarker::getBufferPtr()
+{
+	return &this->_confirmedBuffer;
 }
 
 GrammarVariables *GrammarParserBuilderMarker::getVar()
