@@ -63,12 +63,12 @@ GrammarParserBuilderMarker::~GrammarParserBuilderMarker()
 
 GrammarParserBuilderMarker &GrammarParserBuilderMarker::operator=(GrammarParserBuilderMarker const &rhs)
 {
-	this->_deepness = rhs._deepness;
-	this->_gv = rhs._gv;
-	this->_tokenIndex = rhs._tokenIndex;
+	_deepness = rhs._deepness;
+	_gv = rhs._gv;
+	_tokenIndex = rhs._tokenIndex;
 	// if ( this != &rhs )
 	//{
-	// this->_value = rhs.getValue();
+	// _value = rhs.getValue();
 	//}
 	return *this;
 }
@@ -81,22 +81,21 @@ std::ostream &operator<<(std::ostream &o, GrammarParserBuilderMarker const &i)
 std::ostream &GrammarParserBuilderMarker::print(std::ostream &o) const
 {
 	o << "WHOAMI [" << this << "] ; ";
-	o << "this->requestIndex [" << this->getResetRequestIndex() << "] ; ";
-	o << "this->_resetRequestIndex [" << this->_resetRequestIndex << "] ; ";
-	o << "this->_lastId [" << this->_lastId << "] ; ";
-	o << "this->_resetLastId [" << this->_resetLastId << "] ; ";
-	o << "this->_confirmedBuffer [" << this->_confirmedBuffer << "] ; ";
-	o << "this->_buffer [" << this->_buffer << "] ; ";
-	o << "this->_deepness " << this->_deepness << " ; ";
-	o << "this->_gv [" << *this->_gv << "] ; ";
-	o << "this->_tokenIndex " << this->_tokenIndex << " ; ";
-	o << "this->_count " << this->_count << " ; ";
-	o << "this->_resetTo " << this->_resetTo << " ; ";
-	o << "this->_maxIndexToken " << this->_maxIndexToken << " ; ";
-	o << "this->_min " << this->_min << " ; ";
-	o << "this->_max " << this->_max << " ; ";
-	o << "this->_isCurrentlyValid " << (this->_isCurrentlyValid == true ? "true" : "false") << " ; ";
-	o << "this->_gv [" << *this->_gv << "] ; ";
+	o << "requestIndex [" << getResetRequestIndex() << "] ; ";
+	o << "_resetRequestIndex [" << _resetRequestIndex << "] ; ";
+	o << "_lastId [" << _lastId << "] ; ";
+	o << "_resetLastId [" << _resetLastId << "] ; ";
+	o << "_confirmedBuffer [" << _confirmedBuffer << "] ; ";
+	o << "_buffer [" << _buffer << "] ; ";
+	o << "_deepness " << _deepness << " ; ";
+	o << "_gv [" << *_gv << "] ; ";
+	o << "_tokenIndex " << _tokenIndex << " ; ";
+	o << "_count " << _count << " ; ";
+	o << "_resetTo " << _resetTo << " ; ";
+	o << "_maxIndexToken " << _maxIndexToken << " ; ";
+	o << "_min " << _min << " ; ";
+	o << "_max " << _max << " ; ";
+	o << "_isCurrentlyValid " << (_isCurrentlyValid == true ? "true" : "false") << " ; ";
 	return o;
 }
 
@@ -109,22 +108,22 @@ std::ostream &GrammarParserBuilderMarker::print(std::ostream &o) const
 
 int GrammarParserBuilderMarker::findMaxIndex() const
 {
-	if (!IS_OPENING_STATEMENT(this->getCurrentToken()))
-		return this->_tokenIndex + 1;
+	if (!IS_OPENING_STATEMENT(getCurrentToken()))
+		return _tokenIndex + 1;
 	std::list<Statements> stats = std::list<Statements>();
-	std::vector<std::string> &tokens = this->_gv->getTokens();
-	int i = this->_tokenIndex;
-	stats.push_back(Statements(this->_deepness, tokens[i], this->_gv));
+	std::vector<std::string> &tokens = _gv->getTokens();
+	int i = _tokenIndex;
+	stats.push_back(Statements(_deepness, tokens[i], _gv));
 	while (stats.size() != 0)
 	{
 		i++;
 		if (i >= sizeTokens())
 			return -1;
 		if (IS_OPENING_STATEMENT(tokens[i]))
-			stats.push_back(Statements(this->_deepness, tokens[i], this->_gv));
+			stats.push_back(Statements(_deepness, tokens[i], _gv));
 		else if (IS_CLOSING_STATEMENT(tokens[i]))
 		{
-			if (stats.size() == 0 || !stats.back().isTheRightClosingStatement(tokens[i], this->_gv))
+			if (stats.size() == 0 || !stats.back().isTheRightClosingStatement(tokens[i], _gv))
 				return -1;
 			stats.pop_back();
 		}
@@ -134,56 +133,56 @@ int GrammarParserBuilderMarker::findMaxIndex() const
 
 void GrammarParserBuilderMarker::setRep(int min, int max)
 {
-	this->_min = min;
-	this->_max = max;
-	this->_resetTo = this->_tokenIndex;
-	this->_maxIndexToken = findMaxIndex();
+	_min = min;
+	_max = max;
+	_resetTo = _tokenIndex;
+	_maxIndexToken = findMaxIndex();
 	if (_maxIndexToken > (_tokenIndex + 1))
 	{
-		this->_tokenIndex++;
-		this->_resetTo = this->_tokenIndex;
+		_tokenIndex++;
+		_resetTo = _tokenIndex;
 	}
 }
 
 std::string GrammarParserBuilderMarker::getCurrentToken() const
 {
-	if (this->_tokenIndex >= _maxIndexToken)
+	if (_tokenIndex >= _maxIndexToken)
 		throw TokenOutOfBound();
-	return this->_gv->getTokens()[this->_tokenIndex];
+	return _gv->getTokens()[_tokenIndex];
 }
 
 void GrammarParserBuilderMarker::reset()
 {
-	this->_tokenIndex = this->_resetTo;
-	this->_lastId = this->_resetLastId;
-	this->_isCurrentlyValid = true;
-	this->_confirmedBuffer += _buffer;
-	this->_buffer = "";
+	_tokenIndex = _resetTo;
+	_lastId = _resetLastId;
+	_isCurrentlyValid = true;
+	_confirmedBuffer += _buffer;
+	_buffer = "";
 
-	this->_count++;
+	_count++;
 }
 
 bool GrammarParserBuilderMarker::canBeParsed()
 {
-	if (this->_maxIndexToken != this->_tokenIndex && !_isCurrentlyValid && this->getCurrentToken() != "/" && this->_lastId != INDEX_OR)
+	if (_maxIndexToken != _tokenIndex && !_isCurrentlyValid && getCurrentToken() != "/" && _lastId != INDEX_OR)
 		return false;
-	if (this->_maxIndexToken == this->_tokenIndex &&
-		(this->_max <= (this->_count + 1) || !_isCurrentlyValid))
+	if (_maxIndexToken == _tokenIndex &&
+		(_max <= (_count + 1) || !_isCurrentlyValid))
 		return false;
 	return true;
 }
 
 void GrammarParserBuilderMarker::prepareNextParsing()
 {
-	if (this->_maxIndexToken == this->_tokenIndex && this->_max > this->_count)
+	if (_maxIndexToken == _tokenIndex && _max > _count)
 		reset();
 }
 
 bool GrammarParserBuilderMarker::incToken()
 {
-	if (this->_maxIndexToken > this->_tokenIndex)
+	if (_maxIndexToken > _tokenIndex)
 	{
-		this->_tokenIndex++;
+		_tokenIndex++;
 		return true;
 	}
 	return false;
@@ -191,9 +190,9 @@ bool GrammarParserBuilderMarker::incToken()
 
 bool GrammarParserBuilderMarker::incTokenTo(int newIndex)
 {
-	if (this->_maxIndexToken >= newIndex)
+	if (_maxIndexToken >= newIndex)
 	{
-		this->_tokenIndex = newIndex;
+		_tokenIndex = newIndex;
 		return true;
 	}
 	return false;
@@ -201,30 +200,30 @@ bool GrammarParserBuilderMarker::incTokenTo(int newIndex)
 
 int GrammarParserBuilderMarker::sizeTokens() const
 {
-	return this->_gv->getTokens().size();
+	return _gv->getTokens().size();
 }
 
 bool GrammarParserBuilderMarker::hasEnoughRep() const
 {
-	if (this->_count >= this->_min || (this->_count + 1 >= this->_min && this->_tokenIndex == this->_maxIndexToken && _isCurrentlyValid))
+	if (_count >= _min || (_count + 1 >= _min && _tokenIndex == _maxIndexToken && _isCurrentlyValid))
 		return true;
 	return false;
 }
 bool GrammarParserBuilderMarker::hasFinishedCurrentRep() const
 {
-	if (this->_tokenIndex >= this->_maxIndexToken)
+	if (_tokenIndex >= _maxIndexToken)
 		return true;
 	return false;
 }
 
 void GrammarParserBuilderMarker::resetBuffer()
 {
-	this->_buffer = "";
+	_buffer = "";
 }
 
 bool GrammarParserBuilderMarker::isValidInTheEnd() const
 {
-	if ((this->getIsCurrentlyValid() && this->hasEnoughRep() && this->hasFinishedCurrentRep()) || this->hasEnoughRep())
+	if ((getIsCurrentlyValid() && hasEnoughRep() && hasFinishedCurrentRep()) || hasEnoughRep())
 		return true;
 	return false;
 }
@@ -234,14 +233,14 @@ bool GrammarParserBuilderMarker::isValidInTheEnd() const
 */
 void GrammarParserBuilderMarker::setResetRequestIndex(int resetRequestIndex)
 {
-	this->_resetRequestIndex = resetRequestIndex;
+	_resetRequestIndex = resetRequestIndex;
 }
 
 int GrammarParserBuilderMarker::getResetRequestIndex() const
 {
 	if (_isCurrentlyValid)
-		return _resetRequestIndex + this->_buffer.length() + this->_confirmedBuffer.length();
-	return _resetRequestIndex + this->_confirmedBuffer.length();
+		return _resetRequestIndex + _buffer.length() + _confirmedBuffer.length();
+	return _resetRequestIndex + _confirmedBuffer.length();
 }
 
 int GrammarParserBuilderMarker::getResetTo() const
@@ -251,59 +250,59 @@ int GrammarParserBuilderMarker::getResetTo() const
 
 int GrammarParserBuilderMarker::getDeepness() const
 {
-	return this->_deepness;
+	return _deepness;
 }
 
 int GrammarParserBuilderMarker::getTokenIndex() const
 {
-	return this->_tokenIndex;
+	return _tokenIndex;
 }
 
 int GrammarParserBuilderMarker::getLastId() const
 {
-	return this->_lastId;
+	return _lastId;
 }
 
 void GrammarParserBuilderMarker::setLastId(int id)
 {
-	this->_lastId = id;
+	_lastId = id;
 }
 
 bool GrammarParserBuilderMarker::getIsCurrentlyValid() const
 {
-	return this->_isCurrentlyValid;
+	return _isCurrentlyValid;
 }
 void GrammarParserBuilderMarker::setIsCurrentlyValid(bool valid)
 {
-	this->_isCurrentlyValid = valid;
+	_isCurrentlyValid = valid;
 }
 
 int GrammarParserBuilderMarker::getMaxIndexToken() const
 {
-	return this->_maxIndexToken;
+	return _maxIndexToken;
 }
 
 void GrammarParserBuilderMarker::addToBuffer(std::string buffer)
 {
-	this->_buffer += buffer;
+	_buffer += buffer;
 }
 
 std::string GrammarParserBuilderMarker::getBuffer() const
 {
 	if (_isCurrentlyValid)
-		return this->_confirmedBuffer + this->_buffer;
-	return this->_confirmedBuffer;
+		return _confirmedBuffer + _buffer;
+	return _confirmedBuffer;
 }
 
 
 std::string *GrammarParserBuilderMarker::getBufferPtr()
 {
-	return &this->_confirmedBuffer;
+	return &_confirmedBuffer;
 }
 
 GrammarVariables *GrammarParserBuilderMarker::getVar()
 {
-	return this->_gv;
+	return _gv;
 }
 
 /* ************************************************************************** */
