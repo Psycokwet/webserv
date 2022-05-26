@@ -157,6 +157,7 @@ MasterServer *ConfigConsumer::validateEntry(std::string config_path)
 
 	Node::t_node_map my_map = firstNode->getDirectChildrensMap();
 
+std::cout<<*firstNode<<std::endl;
 	// ? To parse config for MasterServer or already build a MasterServer?
 	// ! Start off with an empty MasterServer (No child server or any config done there, or default config only if you need some)
 	MasterServer *ms = new MasterServer();
@@ -167,7 +168,6 @@ MasterServer *ConfigConsumer::validateEntry(std::string config_path)
 		std::cout << "Invalid configuration file : Directives are not supported or in wrong Context." << std::endl;
 		return NULL;
 	}
-
 	// Node::t_node_list servers = firstNode->getChildrenByFirstName("server");
 	// for(Node::t_node_list ::const_iterator it = servers.begin(); it != servers.end(); it++)
 	// 	std::cout << **it << std::endl; //two * because the list contain pointers to nodes
