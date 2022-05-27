@@ -290,15 +290,21 @@ void MasterServer::client_read(int fd)
         i = 0;
         while (i < _maxFd)
         {
-            if((_fdSet[i].type == FD_CLIENT) && (i != fd)) // && (_fdSet[i].host == _fdSet[fd].host))
+            if((_fdSet[i].type == FD_CLIENT) && (i != fd) && (_fdSet[i].host == _fdSet[fd].host)) // ! need to work on this conditions, is sending response to all clients?
             {
+                // char src[1000]; // will be response
+                // char dest[1000]; // will be buf_read
+                // strcpy(src, "HTTP/1.1 200 OK\nDate:Fri, 16 Mar 2020 17:21:12 GMT\nServer: my_server\nContent-Type: text/html;charset=UTF-8\nContent-Length: 1846\n\n<!DOCTYPE html>\n<html><h1>Hello world</h1></html>\n");
+                // strcpy(dest, src);
+                // send(i, dest, strlen(dest), 0);
+
                 // Send Response based on Request
-                strcpy(_fdSet[fd].buf_read, "HTTP/1.1 200 OK\nDate:Fri, 16 Mar 2020 17:21:12 GMT\nServer: my_server\nContent-Type: text/html;charset=UTF-8\nContent-Length: 1846\n\n<!DOCTYPE html>\n<html><h1>Hello world</h1></html>\n");
                 send(i, _fdSet[fd].buf_read, strlen(_fdSet[fd].buf_read), 0);
             }
+            i++;
         }
     }
-    printf("client read finish\n");
+    printf("client read finish\n\n");
 
 }
 
