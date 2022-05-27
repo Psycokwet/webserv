@@ -1,6 +1,6 @@
 #ifndef NODE_HPP
 # define NODE_HPP
-
+# include "../util/parse.hpp"
 # include <ctype.h>
 # include <iostream>
 # include <sstream>
@@ -8,9 +8,9 @@
 # include <list>
 # include <map>
 # include <vector>
-# include <algorithm>
-# include <fstream>
 # include "../../includes/enumFactory.h"
+# include "../util/deleteContainers.hpp"
+# include "../util/print.hpp"
 # define E_TYPE_ENUM(XX) \
     XX(NO_TYPE,=0x00000001) \
     XX(HASHMAP,=0x00000010) \

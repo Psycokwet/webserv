@@ -111,6 +111,8 @@ MasterServer *ConfigConsumer::validateEntry(std::string config_path)
 	Node *firstNode = Node::digestConfigurationFile(config_path);
 	if( !firstNode)
 		return NULL;
+	if(DEBUG)
+		std::cout << *firstNode <<std::endl;
 	MasterServer *ms = new MasterServer();
 
 	if (ConfigConsumer::checkDirectChildrens(firstNode->getDirectChildrensMap(), ms) != EXIT_SUCCESS) 

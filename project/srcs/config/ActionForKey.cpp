@@ -26,9 +26,9 @@ ActionForKey::~ActionForKey()
 ** --------------------------------- OVERLOAD ---------------------------------
 */
 
-ActionForKey &				ActionForKey::operator=( ActionForKey const & rhs )
+ActionForKey &ActionForKey::operator=(ActionForKey const &rhs)
 {
-	if ( this != &rhs )
+	if (this != &rhs)
 	{
 		this->_max_level = rhs._max_level;
 		this->_min_level = rhs._min_level;
@@ -37,7 +37,7 @@ ActionForKey &				ActionForKey::operator=( ActionForKey const & rhs )
 	return *this;
 }
 
-std::ostream &			operator<<( std::ostream & o, ActionForKey const & i )
+std::ostream &operator<<(std::ostream &o, ActionForKey const &i)
 {
 	(void)i;
 	o << "min = " << i.getMinLevel() << "max = " << i.getMaxLevel();
