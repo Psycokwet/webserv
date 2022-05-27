@@ -6,7 +6,7 @@
 #    By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#              #
-#    Updated: 2022/05/27 12:40:15 by scarboni         ###   ########.fr        #
+#    Updated: 2022/05/27 18:39:56 by scarboni         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,6 +23,7 @@ SRC_PATH			= ./srcs/
 CONFIG_PATH			= config/
 SERVER_PATH			= server/
 REQUEST_PATH		= requests/
+RESPONSE_PATH		= response/
 UTIL_PATH			= util/
 
 TESTCONFIGRULE		= testConfigRule
@@ -60,13 +61,16 @@ ifndef LEAKS
 	LEAKS = valgrind --leak-check=full
 endif
 
-OBJ_PATHS			+= $(OBJ_PATH) $(addprefix $(OBJ_PATH), $(CONFIG_PATH) $(SERVER_PATH) $(REQUEST_PATH) $(UTIL_PATH) )
+OBJ_PATHS			+= $(OBJ_PATH) $(addprefix $(OBJ_PATH), $(CONFIG_PATH) $(SERVER_PATH) $(RESPONSE_PATH) $(REQUEST_PATH) $(UTIL_PATH) )
+
+RESPONSE_FILES = 	ResponseBuilder.cpp
+					
+SRCS += $(addprefix $(RESPONSE_PATH), $(RESPONSE_FILES))
 
 REQUESTS_FILES = 	GrammarParser.cpp \
 					GrammarVariables.cpp \
 					GrammarParserBuilderMarker.cpp \
-					Statements.cpp \
-					ResponseBuilder.cpp
+					Statements.cpp
 					
 SRCS += $(addprefix $(REQUEST_PATH), $(REQUESTS_FILES))
 UTIL_FILES = parse.cpp 
