@@ -6,7 +6,7 @@
 #    By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#              #
-#    Updated: 2022/05/26 20:21:24 by scarboni         ###   ########.fr        #
+#    Updated: 2022/05/27 12:40:15 by scarboni         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -30,6 +30,11 @@ TESTCONFIG			= testConfig
 TESTPARSERRULE		= testParserRule
 TESTPARSER			= testParser
 
+LAST_RUN_LOGS_FOLDER	= logs
+SAVED_LOGS_FOLDER		= pastLogs
+
+
+CPPFLAGS += -DLOGS_FOLDER=$(LAST_RUN_LOGS_FOLDER)
 
 ifndef TESTS
 	TESTS=""
@@ -82,15 +87,26 @@ SRC_FILES	+=	$(SRCS)
 SRC			= 	$(addprefix $(SRC_PATH), $(SRC_FILES))
 OBJ 		= 	$(addprefix $(OBJ_PATH), $(SRC_FILES:cpp=o))
 
-OBJ_PATHS_INIT			= $(OBJ_PATHS)
+PATHS_INIT			= $(OBJ_PATHS) $(SAVED_LOGS_FOLDER) $(LAST_RUN_LOGS_FOLDER)
+
+CLEAN_UNWANTED_PATHS = CleanPreviousPaths
+SAVE_LAST_LOGS = SaveLastLogs
 
 all: $(NAME)
 
-$(OBJ_PATHS_INIT)	:
+$(SAVE_LAST_LOGS)	:
+	@echo "Saving previous logs"
+	@mv  $(LAST_RUN_LOGS_FOLDER)  $(SAVED_LOGS_FOLDER)/$(shell date "+%y_%m_%d_%H_%M_%S")
+
+$(CLEAN_UNWANTED_PATHS)	: 
+	@echo "deleting previous run special paths..." $(LAST_RUN_LOGS_FOLDER)
+	@rm -rf  $(LAST_RUN_LOGS_FOLDER) 
+
+$(PATHS_INIT)	: $(CLEAN_UNWANTED_PATHS)
 	@echo "Generating bin folder and subfolders" $@
 	@mkdir -p  $@  
 
-$(COMPILE): $(OBJ_PATHS_INIT)  $(OBJ)
+$(COMPILE): $(PATHS_INIT)  $(OBJ)
 	$(CXX) $(CPPFLAGS) -o $(NAME) $(OBJ) $(LDFLAGS)
 	
 $(NAME): $(COMPILE)
@@ -109,6 +125,18 @@ fclean:
 	@echo "\nDeleting executable..."
 	@rm -f $(NAME)
 	@rm -f $(TESTPARSER)
+	@echo "\033[0m"	
+
+cleanLogs:
+	@echo "\033[0;31m\nDeleting last logs..."
+	@rm -rf $(LAST_RUN_LOGS_FOLDER)
+	@echo "\033[0m"		
+
+fcleanLogs:
+	@echo "\033[0;31m\nDeleting previous logs..."
+	@rm -rf $(SAVED_LOGS_FOLDER)
+	@echo "\033[0;31m\nDeleting last logs..."
+	@rm -rf $(LAST_RUN_LOGS_FOLDER)
 	@echo "\033[0m"		
 
 re: fclean all
