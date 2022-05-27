@@ -105,12 +105,17 @@ void MasterServer::run() // ! do like main_loops
 void MasterServer::init_env()
 {
     int     i;
+    /**************************************************************************
+    ! Do not use this, it causes freeze in computer.
+    RLIMIT_NOFILE - The maximum number of file descriptors that the process may have open at one time.
+    *************************************************************************
     struct rlimit rlp;
-
-    //RLIMIT_NOFILE - The maximum number of file descriptors that the process may have open at one time.
     if (getrlimit(RLIMIT_NOFILE, &rlp) == -1)
         return ; // or throw something
     this->_maxFd = rlp.rlim_cur;
+
+    **************************************************************************/
+    this->_maxFd = FD_MAX; // ! use this instead of above method.
     i = 0;
     while (i < this->_maxFd)
     {
@@ -270,8 +275,9 @@ void MasterServer::client_read(int fd)
     int r;
     int i;
 
+    //Receive request
     r = recv(fd, _fdSet[fd].buf_read, BUF_SIZE, 0);
-    printf("buf_read = %s\n", _fdSet[fd].buf_read);
+    printf("buf_read =\n%s\n", _fdSet[fd].buf_read);
     if (r <= 0)
     {
         close(fd);
@@ -284,10 +290,16 @@ void MasterServer::client_read(int fd)
         i = 0;
         while (i < _maxFd)
         {
-            if((_fdSet[i].type == FD_CLIENT) && (i != fd) && (_fdSet[i].host == _fdSet[fd].host))
-                send(i, _fdSet[fd].buf_read, r, 0);
+            if((_fdSet[i].type == FD_CLIENT) && (i != fd)) // && (_fdSet[i].host == _fdSet[fd].host))
+            {
+                // Send Response based on Request
+                strcpy(_fdSet[fd].buf_read, "HTTP/1.1 200 OK\nDate:Fri, 16 Mar 2020 17:21:12 GMT\nServer: my_server\nContent-Type: text/html;charset=UTF-8\nContent-Length: 1846\n\n<!DOCTYPE html>\n<html><h1>Hello world</h1></html>\n");
+                send(i, _fdSet[fd].buf_read, strlen(_fdSet[fd].buf_read), 0);
+            }
         }
     }
+    printf("client read finish\n");
+
 }
 
 void MasterServer::client_write(int fd)
