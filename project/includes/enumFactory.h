@@ -6,7 +6,7 @@
 /*   By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#             */
-/*   Updated: 2022/03/21 16:47:03 by scarboni         ###   ########.fr       */
+/*   Updated: 2022/05/03 14:09:13 by scarboni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,16 +14,16 @@
 # define ENUM_FACTORY_H
 # include <string.h>
 
-# define HAS_TYPE(current, type) ((current & type) == type)// ! Why bitwise AND here ? Why not using logic AND &&? How does it work?
+# define HAS_TYPE(current, type) ((current & type) == type)
 
 // expansion macro for enum value definition
 # define ENUM_VALUE(name,assign) name assign, // ! expanded to "name assign," ?
 
 // expansion macro for enum to string conversion
-# define ENUM_CASE(name,assign) case name: return #name; // ! why do we have assign here if we don't use it? Expanded to: "case name: return #name"?
+# define ENUM_CASE(name,assign) case name: return #name; 
 
 // expansion macro for string to enum conversion
-# define ENUM_STRCMP(name,assign) if (std::string(str) == std::string(#name)) return name; // ! str comes from where?
+# define ENUM_STRCMP(name,assign) if (std::string(str) == std::string(#name)) return name;
 
 // expansion macro for enum to string conversion
 # define ENUM_ITERATE(name,assign) if (HAS_TYPE(mix_value, name)) (*fun)(name, raw);
