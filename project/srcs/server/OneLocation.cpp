@@ -20,18 +20,6 @@ DIRECTIVES_MAP OneLocation::initializeDirectivesMap()
 
 DIRECTIVES_MAP OneLocation::_directives_to_setter = OneLocation::initializeDirectivesMap();
 
-static int getNumber(std::string value)
-{
-	unsigned int i = 0;
-	while(isdigit(value[i])) i++;
-	if (i != strlen(value.c_str()))
-		throw ALocation::InvalidValueError();
-	long int size = atol(value.c_str());
-	if (size > INT_MAX)
-		throw ALocation::InvalidValueError();
-	else
-		return size;
-}
 
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
@@ -164,7 +152,7 @@ AServerItem *OneLocation::addMaxSize(Node *node)
 		Node::t_inner_args_container values = node->get_inner_args();
 		if (values.size() != 2)
 			throw IncompleteDirective();
-		_client_max_body_size = getNumber(values[1]);
+		_client_max_body_size = getIntNumberWithGuard(values[1]);
 	}
 	else
 		throw MultipleDeclareError();
@@ -182,7 +170,7 @@ AServerItem *OneLocation::addErrorPage(Node *node)
 			throw IncompleteDirective();
 		for (unsigned int i = 1; i < values.size() - 1; i++)
 		{
-			int code = getNumber(values[i]);
+			int code = getIntNumberWithGuard(values[i]);
 			this->_error_page.errorCodes.push_back(code);
 		}
 		this->_error_page.uri = values[values.size() - 1];

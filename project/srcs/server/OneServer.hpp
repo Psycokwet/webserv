@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include "../util/numbers.hpp"
 #include "../config/Node.hpp"
 #include "AServerItem.hpp"
 #include "ALocation.hpp"

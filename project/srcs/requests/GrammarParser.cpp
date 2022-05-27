@@ -5,13 +5,6 @@ DEFINE_ENUM(e_parsing_states, E_PARSING_STATE_ENUM)
 ** ---------------------------------- LOCAL ----------------------------------
 */
 
-bool isItTwoDigitHexa(std::string token)
-{
-	if (token.length() != 2 || !isxdigit(token.at(0)) || !isxdigit(token.at(1)))
-		return false;
-	return true;
-}
-
 bool check_OR(std::string token, t_grammar_map &gm)
 {
 	(void)gm;
@@ -552,10 +545,10 @@ e_parsing_states GrammarParser::consume_MULTI(std::string token, GrammarParserBu
 	if (!std::getline(ss, tmp_block, '*'))
 		return PARSE_FATAL_FAILURE;
 	if (tmp_block.size() > 0)
-		min = strtol(tmp_block.c_str(), NULL, 10);
+		min = getIntNumberWithoutGuard(tmp_block);
 
 	if (std::getline(ss, tmp_block, '*') && tmp_block.size() > 0)
-		max = strtol(tmp_block.c_str(), NULL, 10);
+		max = getIntNumberWithoutGuard(tmp_block);
 	GrammarParserBuilderMarker *loopgp = new GrammarParserBuilderMarker(gp->getResetRequestIndex(), gp->getDeepness() + 1, gp->getVar(), gp->getTokenIndex(), id);
 	loopgp->setRep(min, max);
 	int check = loopgp->getMaxIndexToken();
@@ -571,7 +564,7 @@ e_parsing_states GrammarParser::consume_MULTI(std::string token, GrammarParserBu
 
 e_parsing_states GrammarParser::consume_VALUE(std::string token, GrammarParserBuilderMarker *gp, int id)
 {
-	long valid_value = strtol(token.substr(2).c_str(), NULL, 16);
+	long valid_value = getTwoDigitHexaWithoutGuard(token.substr(2));
 	unsigned char c = this->_request.at(gp->getResetRequestIndex());
 	std::string tmp;
 	tmp += c;
@@ -597,8 +590,8 @@ e_parsing_states GrammarParser::consume_QUOTEVALUE(std::string token, GrammarPar
 
 e_parsing_states GrammarParser::consume_INTERVAL(std::string token, GrammarParserBuilderMarker *gp, int id)
 {
-	long valid_min = strtol(token.substr(2, 4).c_str(), NULL, 16);
-	long valid_max = strtol(token.substr(5, 7).c_str(), NULL, 16);
+	long valid_min = getTwoDigitHexaWithoutGuard(token.substr(2, 4));
+	long valid_max = getTwoDigitHexaWithoutGuard(token.substr(5, 7));
 	unsigned char c = this->_request.at(gp->getResetRequestIndex());
 	if (c > valid_max || c < valid_min)
 	{

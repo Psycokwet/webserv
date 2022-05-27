@@ -8,7 +8,7 @@
 #include "../config/Node.hpp"
 // #include "ErrorPage.hpp"
 // #include "Listen.hpp"
-
+#include "../util/numbers.hpp"
 #include "ALocation.hpp"
 class OneLocation :public ALocation
 {

@@ -43,27 +43,6 @@ AServerItem *OneServer::consume(Node *node)
 	return (this->*directiveConsumer)(node); 
 }
 
-static bool isNumber(std::string value)
-{
-	unsigned int i = 0;
-	while(isdigit(value[i])) i++;
-	if (i != strlen(value.c_str()))
-		return false;
-	return true;
-}
-
-static int getNumber(std::string value)
-{
-	if (isNumber(value) == false)
-		throw ALocation::InvalidValueError();
-	long int size = atol(value.c_str());
-	if (size > INT_MAX)
-		throw ALocation::InvalidValueError();
-	else
-		return size;
-}
-
-
 static std::vector<std::string> split(const std::string& s, char seperator)
 {
    std::vector<std::string> output;
@@ -217,20 +196,20 @@ AServerItem *OneServer::addListen(Node *node)
 			if (output.size() == 2)
 			{
 				_listen._address = getDecimalValueOfIPV4_String(output[0].c_str());
-				_listen._port = getNumber(output[1]);
+				_listen._port = getIntNumberWithGuard(output[1]);
 			}
 			else if(output.size() == 1)
 			{
-				if(isNumber(output[0]))
-					_listen._port = getNumber(output[0]);
+				if(isIntNumber(output[0]))
+					_listen._port = getIntNumberWithGuard(output[0]);
 				else
 					_listen._address = getDecimalValueOfIPV4_String(output[0].c_str());
 			}
 		}
 		else if (values.size () == 2)
 		{
-			if (isNumber(values[1]))
-				_listen._port = getNumber(values[1]);
+			if (isIntNumber(values[1]))
+				_listen._port = getIntNumberWithGuard(values[1]);
 			else
 				_listen._address = getDecimalValueOfIPV4_String(values[1].c_str());
 		}
@@ -325,7 +304,7 @@ AServerItem *OneServer::addMaxSize(Node *node)
 		Node::t_inner_args_container values = node->get_inner_args();
 		if (values.size() != 2)
 			throw IncompleteDirective();
-		_client_max_body_size = getNumber(values[1]);
+		_client_max_body_size = getIntNumberWithGuard(values[1]);
 	}
 	else
 		throw MultipleDeclareError();
@@ -343,7 +322,7 @@ AServerItem *OneServer::addErrorPage(Node *node)
 			throw IncompleteDirective();
 		for (unsigned int i = 1; i < values.size() - 1; i++)
 		{
-			int code = getNumber(values[i]);
+			int code = getIntNumberWithGuard(values[i]);
 			this->_error_page.errorCodes.push_back(code);
 		}
 		this->_error_page.uri = values[values.size() - 1];
