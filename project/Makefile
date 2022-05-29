@@ -6,7 +6,7 @@
 #    By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#              #
-#    Updated: 2022/05/27 18:39:56 by scarboni         ###   ########.fr        #
+#    Updated: 2022/05/28 19:23:39 by scarboni         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -35,7 +35,7 @@ LAST_RUN_LOGS_FOLDER	= logs
 SAVED_LOGS_FOLDER		= pastLogs
 
 
-CPPFLAGS += -DLOGS_FOLDER=$(LAST_RUN_LOGS_FOLDER)
+CPPFLAGS += -DLOGS_FOLDER='"$(LAST_RUN_LOGS_FOLDER)"'
 
 ifndef TESTS
 	TESTS=""
@@ -73,7 +73,8 @@ REQUESTS_FILES = 	GrammarParser.cpp \
 					Statements.cpp
 					
 SRCS += $(addprefix $(REQUEST_PATH), $(REQUESTS_FILES))
-UTIL_FILES = parse.cpp 
+UTIL_FILES =	parse.cpp \
+				logger.cpp		
 SRCS += $(addprefix $(UTIL_PATH), $(UTIL_FILES))
 
 SERVER_FILES =  MasterServer.cpp \

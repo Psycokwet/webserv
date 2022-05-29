@@ -8,6 +8,9 @@
 #include "../requests/GrammarParser.hpp"
 # include "../util/deleteContainers.hpp"
 # include "../util/print.hpp"
+# include "../util/logger.hpp"
+
+#define RESPONSE_LOG_FILE_NAME "ResponseBuilder.logs"
 
 class GrammarParser;
 class ResponseBuilder
@@ -21,6 +24,7 @@ public:
 	static ResponseBuilder *init();
 	ResponseBuilder *end_build(std::string raw, e_parsing_states endStatus);
 	std::ostream &print(std::ostream &o) const;
+	std::ostream &print_int(std::ostream &o) const;
 	std::ostream &print_request(std::ostream &o) const;
 	std::ostream &print_response(std::ostream &o) const;
 
