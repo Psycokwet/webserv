@@ -1,0 +1,294 @@
+Listener on port number 8080
+Waiting for connections...
+New connection , socket fd is 4 , ip is : 127.0.0.1 , sin_port : 59878
+Welcome message sent successfully
+Adding to list of sockets at position of 0
+List of opened socket:
+4 0 0 
+bytes read: 5851
+Sent from Client:
+---------------------------
+POST / HTTP/1.1
+Host: localhost:8080
+Connection: keep-alive
+Content-Length: 5075
+Cache-Control: max-age=0
+DNT: 1
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.162 Safari/537.36
+Sec-Fetch-Dest: document
+Origin: http://localhost:8080
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryE5Z2xUfIfmaw05W6
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+Sec-Fetch-Site: same-origin
+Sec-Fetch-Mode: navigate
+Sec-Fetch-User: ?1
+Referer: http://localhost:8080/
+Accept-Encoding: gzip, deflate, br
+Accept-Language: en-GB,en;q=0.9,fr-FR;q=0.8,fr;q=0.7,de-DE;q=0.6,de;q=0.5,en-US;q=0.4
+
+------WebKitFormBoundaryE5Z2xUfIfmaw05W6
+Content-Disposition: form-data; name="nfile"; filename="bluestone.xpm"
+Content-Type: image/x-xpixmap
+
+/* XPM */
+static char *cc975ac0cf4042c0fc11c7cfa2e0e427[] = {
+/* columns rows colors chars-per-pixel */
+"64 64 20 1 ",
+"  c black",
+". c #202020",
+"X c #2C2C2C",
+"o c gray22",
+"O c #000040",
+"+ c #00004C",
+"@ c #000058",
+"# c #000064",
+"$ c #000070",
+"% c #00007C",
+"& c gray33",
+"* c #000088",
+"= c #000098",
+"- c #0000A4",
+"; c #0000B0",
+": c #0000BC",
+"> c #0000C8",
+", c #0000D4",
+"< c #0000E0",
+"1 c #4040FC",
+/* pixels */
+"o$%%%%%%%%%%%%%%%%%%%$oo****************************oo$%%%%%%%$X",
+".---------------------..::::::::::::::::::::::::::::..;;;;;;;;;.",
+" ---*-%--=%==%==%-%$$@ .:-:;%-:=$$=*--*$*-:-*=-::-=$ .;:-=-;;=% ",
+" -=%*===%%-=-#==%$%%$# .::-===$=@$@@%--#$$#$$@$**$#$ .;;--%=--@ ",
+" -*-$>>=%%%=**%#@%$@@# .                             .;-;::;-%% ",
+" -*%->>#%%%-===*$$%@@O .-------------------...........;:-;-%%#@ ",
+" -==;;---=---==$$#@#$# .-:::;-==:==;==;::-- .----==#..;==-%**## ",
+" --=-;;-=%#--=**%##@OO .-;:<>;-:-===;;---=- .-==*=%# .;==-$***# ",
+" -=%=--*=%=$$***$%%#@O .-;>:>=;--:==-%-%=-% .-===%%# .;:-=--**O ",
+" -***-%%%--$@##$#%%%@O .-;;;===;----=*#%%%# .--=%%@@ .:%%=--=@O ",
+" =%*-**$=--$$#@###%%@O .-:;;;==;::--##*%%#@ .--=%-%@ .:%:-%==@O ",
+" =*=%%-*#%@%#@#%O@OO#O .-:--;;;;:;;-##$-##O .-%*=%@@ .::%%##%%O ",
+" =%=%#**%#%#%#O$$OOO#O .-;--=:==-;;-==%%@@# .-***$$# .:%$#%#%%O ",
+" ==%%%$#@@#%#$#OO$O#@O .-;<>**==*%%%*=*%##O .--**$$# .:%%$@@@@O ",
+" =%=##$#%#OOOOOOOOOOOO .-:>>***--%**%*$%#@O .-%=-@@@ .          ",
+"                       .-:--=**---**=##%#@O .---=-@# ...........",
+"-:;-;-----;---- ;;;--== -;=-*=----%==%%@@OO .=-=-=$# .---- :::::",
+":;-=-:;-*--%-=% ;;=::%: ----:-=---*#$%OO#@O .==%$%$@ .-;*% ::-;:",
+":;==*--*%==%%== ;::;=%% -;=-:-*%**#%%$OO#OO .==@@@#O .-;;% :-;;;",
+";-=;;==%%%=%%%% ;:;;==# -;---*-%%#$$@@@##@O .=%@#@@O .-*%@ :::;;",
+"-*=;:;%%==%=@%% ;:=%==# ---====%#@##@##@OOO .=%#@@OO .-@#@ ::;;;",
+"--*=;,%=%%##$%% ;=:%%%#                     .             .::--=",
+";*%*=-=%%=#$%@@ ;==#%%@ .........................;;;;;;;;..:--==",
+";-*=%=%==%$%#%@ ;:=*#@# .;;;;;;;;;;;;;;;;;;;;=-..;>;>---= .:;===",
+";;=*;====%%$@@@ -:%**#@ .;:;-:::;:-;-:;%-:::%-@ .;>;>>-=* .::===",
+";-*%*;;#%=**$@# -%#$$@# .;:-;><<:,<-:--::----%@ .;>>>>-*% .:;:--",
+"-=%*-;;-=%**$@# =%@@@@# .;;-:,,<:<,,;%-%%-%%-@@ .;;->-*-# .:::--",
+";=;==-;-#%$$$@@         .;::;;>>--,,--%%%$-%%@@ .;>----*# .:::;;",
+"-**--=--#$@#@OO .........;;:;;;---:---%**%%@@@# .;>>--*%$ .:--:;",
+"-=*---=%$#@##@@ .;;;;--..;--:;**-:;%--%***$$$@@ .;>>==--@ .:--;;",
+"=*=*--%##@@@#O# .;;*-=* .;:;:;**---%---$**@$$$O .;;>===-@ .::==%",
+"=**%**%##$%%#OO .;--=*= .;::-;;;=-%%%--$@#@#$$O .;;-*;--# .:**==",
+"=*-=$%%$#$%%#@O .;-=*$# .;:-%-;;--%$%#$$$@OO@OO .;;>*;;=# .:**%%",
+"=-=**%##@++$#@O .;;*;*@ .;--:%--=%$%%##$$#OO##O .;->-*==@ .::%%%",
+"%==*%%%%@++@@#O .;;;$$# .;%:%--%%$#%%%##@@###+O .;>--=@$# .:--==",
+"%**%$%%%@@#@@@@ .;;;-@@ .;-:%--$##@%%%#@@@@+++O .;>-=%=$@ .:--=*",
+"%*#$%#%%@#@O@#@ .;==@*# .;-%--%@@@@####@OOOOOOO .;>-%==%# .:=--%",
+"%=%#%#$@#OO@OOO .;==;@# .                       .-;-%#%%# .:=**%",
+"%*=*$%$@@@O#O@O .;;*;*@ .........................-;;-%@#O .::**%",
+"%=*%#$%$OOOOOOO .;;**@# .----------------------..-;-:-%#O .:==%*",
+"                .;;%%@@ .-::::::;-------=*%:=-% .->--:*@O .     ",
+".....@@$$***%$#..-;%%%@ .;:>>:--;;>:==--=%*%*=% .----**@O .*=** ",
+".=-;:::::::::::..--*%%# .;:>>>;;;;::%%%%---==%# .->-%$@@O .==%% ",
+".-:::::;-;:---: .--=@## .;::::,,;;;%%%%%%=%%$=# .-;*$#@$O .=%$$ ",
+".-:;;,,;:::=-:: .-=*@@@ .;::;:,,,%-=%%$$$*%%%%# .--$#$@@O .=$%@ ",
+".:::;,,:==-::=; .       .-;:;::,,:--=%$$##@%%%# .*%%@@@#O .*%$@ ",
+".:-;-;;;===:-** .........--;>==:-:----%%##%#@++ .         .*$@# ",
+".::;=*;;-==-::- .::;--=..-->>===;---%%=*$##@@OO ............... ",
+".::=-:;*-;;;%-- .:%:*=* .-:::;==:::-%%%%###@@OO .;;;;:::::::::: ",
+".::::-*:*;%%-*- .:-;;=% .-;--;;;::::-%*$@###$@+ .;;--;;;;-*:--% ",
+".:-:=--:;=%+%-- .::%-%$ .-:---=-::::---@@@@#$$# .;-;,,;;;=---=% ",
+".:;==:<:-*-%%-- .:;--%- .-::--:**:::---$@@#@+++ .;::,>>;;**-=%# ",
+".:-:-<1<==-=*%* .:;-%-$ .--:==%%%*---%%%##@@@OO .;=:=>>;;--%%%@ ",
+".:;:;:<:-%--++# .:-;;%# .--:-**%%%*%*@@==$$@+OO .;:;===--%%%%@# ",
+".:-:;;;***%$++# .::;=*# .-=::=:%%*%%*%@==*$$#@# .;;-===-%$#%@@# ",
+".-:;;-%%=-==%## .:;-**% .-:=-:-*%$$**@@%==%$@@O .;;=-==-%$#$%@@ ",
+
+____________________________________________
+
+Listener on port number 8080
+Waiting for connections...
+New connection , socket fd is 4 , ip is : 127.0.0.1 , sin_port : 59908
+Welcome message sent successfully
+Adding to list of sockets at position of 0
+List of opened socket:
+4 0 0 
+bytes read: 1079
+Sent from Client:
+---------------------------
+POST / HTTP/1.1
+Host: localhost:8080
+Connection: keep-alive
+Content-Length: 304
+Cache-Control: max-age=0
+Origin: http://localhost:8080
+Upgrade-Insecure-Requests: 1
+DNT: 1
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundarypItSUvmOBTdFkVv4
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.162 Safari/537.36
+Sec-Fetch-Dest: document
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+Sec-Fetch-Site: same-origin
+Sec-Fetch-Mode: navigate
+Sec-Fetch-User: ?1
+Referer: http://localhost:8080/
+Accept-Encoding: gzip, deflate, br
+Accept-Language: en-GB,en;q=0.9,fr-FR;q=0.8,fr;q=0.7,de-DE;q=0.6,de;q=0.5,en-US;q=0.4
+
+------WebKitFormBoundarypItSUvmOBTdFkVv4
+Content-Disposition: form-data; name="nfile"; filename="empty_or_almost.txt"
+Content-Type: text/plain
+
+EMPTY FILE
+------WebKitFormBoundarypItSUvmOBTdFkVv4
+Content-Disposition: form-data; name="submit"
+
+Valider
+------WebKitFormBoundarypItSUvmOBTdFkVv4--
+----------------------------
+New connection , socket fd is 5 , ip is : 127.0.0.1 , sin_port : 59912
+Welcome message sent successfully
+Adding to list of sockets at position of 1
+List of opened socket:
+4 5 0 
+____________________________________________
+
+Listener on port number 8080
+Waiting for connections...
+New connection , socket fd is 4 , ip is : 127.0.0.1 , sin_port : 59928
+Welcome message sent successfully
+Adding to list of sockets at position of 0
+List of opened socket:
+4 0 0 
+bytes read: 100000
+Sent from Client:
+---------------------------
+POST / HTTP/1.1
+Host: localhost:8080
+Connection: keep-alive
+Content-Length: 1314960
+Cache-Control: max-age=0
+Origin: http://localhost:8080
+Upgrade-Insecure-Requests: 1
+DNT: 1
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundarys28AIYmK10MrrAGi
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.162 Safari/537.36
+Sec-Fetch-Dest: document
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+Sec-Fetch-Site: same-origin
+Sec-Fetch-Mode: navigate
+Sec-Fetch-User: ?1
+Referer: http://localhost:8080/
+Accept-Encoding: gzip, deflate, br
+Accept-Language: en-GB,en;q=0.9,fr-FR;q=0.8,fr;q=0.7,de-DE;q=0.6,de;q=0.5,en-US;q=0.4
+
+------WebKitFormBoundarys28AIYmK10MrrAGi
+Content-Disposition: form-data; name="nfile"; filename="en.subject.pdf"
+Content-Type: application/pdf
+
+%PDF-1.5
+%����
+19 0 obj
+<<
+/Length 544       
+/Filter /FlateDecode
+>>
+stream
+̠��߷����%8��;����Es4�?��U�������=c�}V��4
+R1L9C��������y��O�&�t��b��$��z6_�
+Q�˪$�� �9�#&�D��L~�e���(�}����cr,8BLFJ� (+J\ŠzێiV�4�紕��H�O�H�Λ���{u7��M3�c�u�M�II�ӌ$���ڌ0Kx�IQx,Sk�>�C]�~��b�,�o/8���`X�Vb�>��]�7z�*�y9�<��S��?����V�[�5���7���w�aҭ9ڴ��4x�qq����8�(WiɓC�Zz皓  ��7
+%H�4�e�o˔��W��΀�:uuB�Yučc�L
+                           w��OAY�O��\�W!��V윭Bq��`۫�b7�J�IX;I*̡�ԃ4�g�3��n"�0�Fr4�:86��W佌�6�f���}����l�
+                                                                                                      �8���\$=�o;������g�S
+endstream
+endobj
+17 0 obj
+<<
+/Type /XObject
+/Subtype /Form
+/FormType 1
+/PTEX.FileName (/Users/benny/go/src/42born2git.42.fr/pedago_world/42-cursus/inner-circle/webserv/resources/latex/back.pdf)
+/PTEX.PageNumber 1
+/PTEX.InfoDict 26 0 R
+/BBox [0 0 595.275574 841.889771]
+/Group 20 0 R
+/Resources <<
+/ExtGState <<
+/a0 <<
+/CA 1
+/ca 1
+>>
+>>/XObject <<
+/x5 27 0 R
+>>>>
+/Length 92
+/Filter /FlateDecode
+>>
+stream
+x��1� 
+      Fὧ�/`�J��^����]<�H����(��`}bo
+M�!%t^po�qR�_���Q�      k�2`=�-��*��r�)�5
+endstream
+endobj
+27 0 obj
+<<
+/Length 28 0 R
+/Filter /FlateDecode
+/Type /XObject
+/Subtype /Image
+/Width 744
+/Height 1052
+/ColorSpace /DeviceRGB
+/Interpolate true
+/BitsPerComponent 8
+>>
+stream
+x���ۚ�6����kM[RzXv*���V��hnA��|��|j�\)   ������?�篿�z���l�!�����z��￣�_���ׯ���������?���F����P�?~����[�NӰ����@��JNz��7�g����~*U?Rp2!��U�eb��H�>�43C���5mN�y�wr���������"{b��p2
+                                                                                                                                                                             V#�k������l�'jC��+���ڂvdgh��-M��%��T��----------------------------
+New connection , socket fd is 5 , ip is : 127.0.0.1 , sin_port : 59932
+Welcome message sent successfully
+Adding to list of sockets at position of 1
+List of opened socket:
+4 5 0 
+
+____________________________________________
+
+Listener on port number 8080
+Waiting for connections...
+New connection , socket fd is 4 , ip is : 127.0.0.1 , sin_port : 59952
+Welcome message sent successfully
+Adding to list of sockets at position of 0
+List of opened socket:
+4 0 0 
+bytes read: 581
+Sent from Client:
+---------------------------
+GET /likeAPony HTTP/1.1
+Host: localhost:8080
+Connection: keep-alive
+DNT: 1
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.162 Safari/537.36
+Sec-Fetch-Dest: document
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+Sec-Fetch-Site: none
+Sec-Fetch-Mode: navigate
+Sec-Fetch-User: ?1
+Accept-Encoding: gzip, deflate, br
+Accept-Language: en-GB,en;q=0.9,fr-FR;q=0.8,fr;q=0.7,de-DE;q=0.6,de;q=0.5,en-US;q=0.4
+
+----------------------------
+New connection , socket fd is 5 , ip is : 127.0.0.1 , sin_port : 59956
+Welcome message sent successfully
+Adding to list of sockets at position of 1
+List of opened socket:
+4 5 0 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   webserv.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+        */
+/*   By: thi-nguy <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#             */
-/*   Updated: 2022/03/19 22:14:43 by scarboni         ###   ########.fr       */
+/*   Updated: 2022/05/27 14:23:34 by thi-nguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,12 +28,40 @@
 //epoll epoll_create epoll_ctl epoll_wait
 // # include <sys/kqueue.h> not working for some reasons on my vm, should try at school
 //kqueue kevent
+
 # include <sys/socket.h>
 //socket accept listen send recv bind connect setsockopt getsockname
+
 # include <netinet/in.h>
 //inet_addr 
 #include <fcntl.h>
 //fcntl
 
+#include <sys/resource.h> // struct rlimit, getrlimit
+
 # include <iostream>
+
+#define MAX_CLIENTS 1000
+#define LOCALHOST  2130706433
+#define BUF_SIZE 100000
+
+#define FD_MAX 50 // number of fd we want to handle at a time
+#define FD_FREE 0
+#define FD_SERV 1
+#define FD_CLIENT 2
+
+#define NO_HOST 0
+
+#define MAX(x, y) ((x > y) ? x : y) 
+
+// typedef struct 	s_fd {
+//     int     type;
+//     int     host;
+//     void(MasterServer::*fct_read) (int);
+//     void(MasterServer::*fct_write) (int);
+//     char    buf_read[BUF_SIZE + 1];
+//     char    buf_write[BUF_SIZE + 1];
+// } 	t_fd;
+
+
 #endif

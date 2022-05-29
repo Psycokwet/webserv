@@ -3,14 +3,13 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+        */
+/*   By: thi-nguy <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#             */
-/*   Updated: 2022/04/27 21:26:59 by scarboni         ###   ########.fr       */
+/*   Updated: 2022/05/16 12:31:37 by thi-nguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/webserv.h"
 #include "config/ConfigConsumer.hpp"
 
 #define DEFAULT_CONFIG_PATH "./config_files/default.conf"
@@ -33,9 +32,15 @@ int		main(int ac, char *av[])
 
 	MasterServer *ms = ConfigConsumer::validateEntry(config_path);
 	if(!ms)
-		return 0;
+		return 1;
 	std::cout <<"Print result " << *ms << std::endl;
 
+	if (ms->build() != 0) // ! Better throw something?
+	{
+		std::cout << "Error: Can not setup MasterServer" << std::endl;
+		return 1;
+	}
+	ms->run();
 	delete ms;
 	return 0;
 }

@@ -43,6 +43,7 @@
 DECLARE_ENUM(e_parsing_states, E_PARSING_STATE_ENUM)
 
 #include "../util/parse.hpp"
+#include "../util/numbers.hpp"
 #include <ctype.h>
 #include <iostream>
 #include <sstream>
