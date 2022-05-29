@@ -2,8 +2,7 @@
 /**********************************************
  * Need to do 'fork'
  * Use 'execve' to run the script .php
- * Get the result, put it into a http response
- * Use 'pipe' to read output to a buffer
+ * Get the result
  * ********************************************/ 
  
 /*
@@ -42,6 +41,49 @@ void CgiHandler::_initEnv()
 
 char**  CgiHandler::_mapToArray() const
 {
-    
+    char **return_array = new char*[_envVars.size() + 1];
+    int k = 0;
+    std::map<std::string, std::string>::const_iterator i;
+    for (i = _envVars.begin(); i != _envVars.end(); i++)
+    {
+        std::string item = i->first + "=" + i->second;
 
+        return_array[k] = new char[item.length() + 1];
+        std::strcpy(return_array[k], item.c_str());
+        k++;
+    }
+    return_array[k] = NULL;
+    return return_array;
+}
+
+std::string CgiHandler::executeCgi(std::string & fileName)
+{
+    pid_t       pid;
+    char        **env_params;
+
+    env_params = this->_mapToArray();
+
+    pid = fork();
+
+    if (pid == -1) // return Error
+    {
+        return ("Code/Status for crashing");
+    }
+    else
+    {
+        if (pid != 0) // child process
+        {
+            // excecve
+            // write to file
+
+        }
+        else // main projcess
+        {
+            // waitpid (wait for child process)
+            // read the file above into a string
+
+        }
+    }
+    //close every Fd, file
+    // return (the string we got above)
 }
