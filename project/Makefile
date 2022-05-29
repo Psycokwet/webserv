@@ -6,9 +6,10 @@
 #    By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#              #
-#    Updated: 2022/05/28 19:23:39 by scarboni         ###   ########.fr        #
+#    Updated: 2022/05/26 20:21:24 by scarboni         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
+
 
 NAME 				= webserv
 COMPILE 			= compile
@@ -74,12 +75,15 @@ REQUESTS_FILES = 	GrammarParser.cpp \
 					
 SRCS += $(addprefix $(REQUEST_PATH), $(REQUESTS_FILES))
 UTIL_FILES =	parse.cpp \
+				numbers.cpp \
 				logger.cpp		
 SRCS += $(addprefix $(UTIL_PATH), $(UTIL_FILES))
 
 SERVER_FILES =  MasterServer.cpp \
 				OneServer.cpp \
-				AServerItem.cpp
+				AServerItem.cpp \
+				OneLocation.cpp \
+				ALocation.cpp
 SRCS += $(addprefix $(SERVER_PATH), $(SERVER_FILES))
 
 CONFIG_FILES =  Node.cpp \
@@ -184,8 +188,8 @@ DELETE_REQUESTS:= $(addprefix $(DELETE_REQUESTS_FOLDER), $(shell ls $(DELETE_REQ
 POST_REQUESTS:= $(addprefix $(POST_REQUESTS_FOLDER), $(shell ls $(POST_REQUESTS_FOLDER)))
 ERROR_REQUESTS:= $(addprefix $(ERROR_REQUESTS_FOLDER), $(shell ls $(ERROR_REQUESTS_FOLDER)))
 
-# EXAMPLE_REQUESTS:= $(GET_REQUESTS) $(DELETE_REQUESTS) $(POST_REQUESTS) $(ERROR_REQUESTS)
-EXAMPLE_REQUESTS:= $(addprefix $(GET_REQUESTS_FOLDER), http_request.yml)
+EXAMPLE_REQUESTS:= $(GET_REQUESTS) $(DELETE_REQUESTS) $(POST_REQUESTS) $(ERROR_REQUESTS)
+# EXAMPLE_REQUESTS:= $(addprefix $(GET_REQUESTS_FOLDER), http_request.yml)
 
 define launch_test_from_array_args
 	COUNT=0;\
