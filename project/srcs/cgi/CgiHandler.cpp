@@ -58,32 +58,51 @@ char**  CgiHandler::_mapToArray() const
 
 std::string CgiHandler::executeCgi(std::string & fileName)
 {
+    int         fdIn = dup(STDIN_FILENO);
+    int         fdOut = dup(STDOUT_FILENO);
+    int         fd[2];
+    int         status;
     pid_t       pid;
+    char        buffer[CGI_BUFFER_SIZE + 1];
+    std::string new_body;
     char        **env_params;
 
     env_params = this->_mapToArray();
 
+    if (pipe(fd) == 1)
+        return (ERROR_500);
     pid = fork();
-
     if (pid == -1) // return Error
     {
-        return ("Code/Status for crashing");
+        return (ERROR_500);
+        // return ("ERROR 500 - Server crash"); // Will add this into Response
     }
-    else
+    else if (pid == 0)
     {
-        if (pid != 0) // child process
-        {
-            // excecve
-            // write to file
-
-        }
-        else // main projcess
-        {
-            // waitpid (wait for child process)
-            // read the file above into a string
-
-        }
+        if (dup2(fd[0], STDOUT_FILENO) == -1)
+            return (ERROR_500);
+        if (dup2(fd[1], STDIN_FILENO) == -1)
+            return (ERROR_500);
+        close (fd[0]);
+        if (execve(fileName.c_str(), NULL, env_params) == -1)
+            return (ERROR_500);
     }
-    //close every Fd, file
-    // return (the string we got above)
+    else // main projcess
+    {
+        waitpid(pid, &status, 0);
+        int ret = 1;
+		while (ret > 0)
+		{
+			std::memset(buffer, 0, CGI_BUFFER_SIZE);
+			ret = read(fd[0], buffer, CGI_BUFFER_SIZE);
+			new_body += buffer;
+		}
+	}
+    close (fd[1]);
+    // free memory
+    for (size_t i = 0; env_params[i]; i++)
+		delete[] env_params[i];
+	delete[] env_params;
+    
+    return new_body;
 }

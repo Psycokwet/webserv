@@ -4,7 +4,12 @@
 #include <map>
 #include <cstring>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <unistd.h>
+#include <fcntl.h>             
+
+#define CGI_BUFFER_SIZE 100
+#define ERROR_500 "Internal Server ERROR 500\n"
 
 class CgiHandler
 {
