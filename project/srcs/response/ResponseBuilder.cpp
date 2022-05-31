@@ -116,13 +116,23 @@ std::ostream &ResponseBuilder::print_response(std::ostream &o) const
 	return print_cont(o, _parsed_datas, "]\n", "[", ": ");
 }
 
-std::ostream &ResponseBuilder::print(std::ostream &o) const
+std::ostream &ResponseBuilder::print_int(std::ostream &o) const
 {
 	o << "Current state :" << GetString(_parsing_validity_state)<< std::endl;
 	o << "Current key :" << _key<< std::endl;
 	o << "Current buffer :" << ((_value_buffer == NULL || _parsing_validity_state >= PARSE_FAILURE) ? "NULL": *_value_buffer) << std::endl;
 	o << "Base request :" << std::endl;
 	return print_cont(o, _parsed_datas, "]\n", "[", ": ");
+}
+
+std::ostream &ResponseBuilder::print(std::ostream &o) const
+{
+	if(DEBUG)
+	{
+		logger(RESPONSE_LOG_FILE_NAME, streamFunctionToString(&ResponseBuilder::print_int, this));
+	}
+
+	return print_int(o);
 }
 
 std::ostream &operator<<(std::ostream &o, ResponseBuilder const &i)

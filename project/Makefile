@@ -6,7 +6,7 @@
 #    By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#              #
-#    Updated: 2022/05/27 18:24:03 by scarboni         ###   ########.fr        #
+#    Updated: 2022/05/26 20:21:24 by scarboni         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,6 +24,7 @@ SRC_PATH			= ./srcs/
 CONFIG_PATH			= config/
 SERVER_PATH			= server/
 REQUEST_PATH		= requests/
+RESPONSE_PATH		= response/
 UTIL_PATH			= util/
 
 TESTCONFIGRULE		= testConfigRule
@@ -31,6 +32,11 @@ TESTCONFIG			= testConfig
 TESTPARSERRULE		= testParserRule
 TESTPARSER			= testParser
 
+LAST_RUN_LOGS_FOLDER	= logs
+SAVED_LOGS_FOLDER		= pastLogs
+
+
+CPPFLAGS += -DLOGS_FOLDER='"$(LAST_RUN_LOGS_FOLDER)"'
 
 ifndef TESTS
 	TESTS=""
@@ -56,18 +62,21 @@ ifndef LEAKS
 	LEAKS = valgrind --leak-check=full
 endif
 
-OBJ_PATHS			+= $(OBJ_PATH) $(addprefix $(OBJ_PATH), $(CONFIG_PATH) $(SERVER_PATH) $(REQUEST_PATH) $(UTIL_PATH) )
+OBJ_PATHS			+= $(OBJ_PATH) $(addprefix $(OBJ_PATH), $(CONFIG_PATH) $(SERVER_PATH) $(RESPONSE_PATH) $(REQUEST_PATH) $(UTIL_PATH) )
+
+RESPONSE_FILES = 	ResponseBuilder.cpp
+					
+SRCS += $(addprefix $(RESPONSE_PATH), $(RESPONSE_FILES))
 
 REQUESTS_FILES = 	GrammarParser.cpp \
 					GrammarVariables.cpp \
 					GrammarParserBuilderMarker.cpp \
-					Statements.cpp \
-					ResponseBuilder.cpp
+					Statements.cpp
 					
 SRCS += $(addprefix $(REQUEST_PATH), $(REQUESTS_FILES))
 UTIL_FILES =	parse.cpp \
-				numbers.cpp
-
+				numbers.cpp \
+				logger.cpp		
 SRCS += $(addprefix $(UTIL_PATH), $(UTIL_FILES))
 
 SERVER_FILES =  MasterServer.cpp \
@@ -87,15 +96,26 @@ SRC_FILES	+=	$(SRCS)
 SRC			= 	$(addprefix $(SRC_PATH), $(SRC_FILES))
 OBJ 		= 	$(addprefix $(OBJ_PATH), $(SRC_FILES:cpp=o))
 
-OBJ_PATHS_INIT			= $(OBJ_PATHS)
+PATHS_INIT			= $(OBJ_PATHS) $(SAVED_LOGS_FOLDER) $(LAST_RUN_LOGS_FOLDER)
+
+CLEAN_UNWANTED_PATHS = CleanPreviousPaths
+SAVE_LAST_LOGS = SaveLastLogs
 
 all: $(NAME)
 
-$(OBJ_PATHS_INIT)	:
+$(SAVE_LAST_LOGS)	:
+	@echo "Saving previous logs"
+	@mv  $(LAST_RUN_LOGS_FOLDER)  $(SAVED_LOGS_FOLDER)/$(shell date "+%y_%m_%d_%H_%M_%S")
+
+$(CLEAN_UNWANTED_PATHS)	: 
+	@echo "deleting previous run special paths..." $(LAST_RUN_LOGS_FOLDER)
+	@rm -rf  $(LAST_RUN_LOGS_FOLDER) 
+
+$(PATHS_INIT)	: $(CLEAN_UNWANTED_PATHS)
 	@echo "Generating bin folder and subfolders" $@
 	@mkdir -p  $@  
 
-$(COMPILE): $(OBJ_PATHS_INIT)  $(OBJ)
+$(COMPILE): $(PATHS_INIT)  $(OBJ)
 	$(CXX) $(CPPFLAGS) -o $(NAME) $(OBJ) $(LDFLAGS)
 	
 $(NAME): $(COMPILE)
@@ -114,6 +134,18 @@ fclean:
 	@echo "\nDeleting executable..."
 	@rm -f $(NAME)
 	@rm -f $(TESTPARSER)
+	@echo "\033[0m"	
+
+cleanLogs:
+	@echo "\033[0;31m\nDeleting last logs..."
+	@rm -rf $(LAST_RUN_LOGS_FOLDER)
+	@echo "\033[0m"		
+
+fcleanLogs:
+	@echo "\033[0;31m\nDeleting previous logs..."
+	@rm -rf $(SAVED_LOGS_FOLDER)
+	@echo "\033[0;31m\nDeleting last logs..."
+	@rm -rf $(LAST_RUN_LOGS_FOLDER)
 	@echo "\033[0m"		
 
 re: fclean all

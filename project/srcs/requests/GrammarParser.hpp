@@ -54,7 +54,7 @@ DECLARE_ENUM(e_parsing_states, E_PARSING_STATE_ENUM)
 #include <vector>
 #include "GrammarVariables.hpp"
 #include "GrammarParserBuilderMarker.hpp"
-#include "ResponseBuilder.hpp"
+#include "../response/ResponseBuilder.hpp"
 #include <climits>
 
 typedef std::map<std::string, GrammarVariables *> t_grammar_map;

@@ -1,6 +1,7 @@
 webserv
 testParser
 testConfig
+project/logs/*
 
 # Prerequisites
 *.d
