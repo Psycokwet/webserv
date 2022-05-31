@@ -6,6 +6,22 @@
  * ********************************************/ 
  
 /*
+** ------------------------------- STATIC --------------------------------
+*/
+
+char **stringToArray(std::vector<std::string> argVector)
+{
+    char **return_array = new char*[argVector.size() + 1];
+    unsigned long i;
+    for (i = 0; i < argVector.size(); i++)
+    {
+        return_array[i] = new char[argVector[i].length() + 1];
+        std::strcpy(return_array[i], argVector[i].c_str());
+    }
+    return_array[i] = NULL;
+    return return_array;
+}
+/*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 CgiHandler::CgiHandler()
@@ -58,51 +74,54 @@ char**  CgiHandler::_mapToArray() const
 
 std::string CgiHandler::executeCgi(std::string & fileName)
 {
-    int         fdIn = dup(STDIN_FILENO);
-    int         fdOut = dup(STDOUT_FILENO);
-    int         fd[2];
-    int         status;
     pid_t       pid;
+    int         status;
+    int         pipe_ret;
     char        buffer[CGI_BUFFER_SIZE + 1];
     std::string new_body;
-    char        **env_params;
+    char        **envVec;
+    char        **argVec;
 
-    env_params = this->_mapToArray();
+    std::vector<std::string> stringVec;
+    stringVec.push_back("php");
+    stringVec.push_back(fileName);
 
-    if (pipe(fd) == 1)
-        return (ERROR_500);
+    envVec = this->_mapToArray();
+    argVec = stringToArray(stringVec);
+
     pid = fork();
-    if (pid == -1) // return Error
+    if (pid == -1)
+        return ERROR_500;
+    if (pid == 0) // child
     {
-        return (ERROR_500);
-        // return ("ERROR 500 - Server crash"); // Will add this into Response
+        int fileFd = open("new.txt", O_WRONLY | O_CREAT, 0777);
+        if (fileFd == -1)
+            return ERROR_500;
+        int fileFd2 = dup2(fileFd, STDOUT_FILENO);
+        close (fileFd);
+        if (execve(CMD_PHP_LINUX, argVec, envVec) == -1)
+            return ERROR_500;
     }
-    else if (pid == 0)
+    else // parent
     {
-        if (dup2(fd[0], STDOUT_FILENO) == -1)
-            return (ERROR_500);
-        if (dup2(fd[1], STDIN_FILENO) == -1)
-            return (ERROR_500);
-        close (fd[0]);
-        if (execve(fileName.c_str(), NULL, env_params) == -1)
-            return (ERROR_500);
-    }
-    else // main projcess
-    {
-        waitpid(pid, &status, 0);
+        waitpid(-1, &status, 0);
+        int fileFd = open("new.txt", O_RDONLY);
+        if (fileFd == -1)
+            return ERROR_500;
+        
         int ret = 1;
-		while (ret > 0)
-		{
-			std::memset(buffer, 0, CGI_BUFFER_SIZE);
-			ret = read(fd[0], buffer, CGI_BUFFER_SIZE);
-			new_body += buffer;
-		}
-	}
-    close (fd[1]);
+        while (ret > 0)
+        {
+            std::memset(buffer, 0, CGI_BUFFER_SIZE);
+            ret = read(fileFd, buffer, CGI_BUFFER_SIZE - 1);
+            new_body += buffer;
+        }
+        close (fileFd);
+    }
     // free memory
-    for (size_t i = 0; env_params[i]; i++)
-		delete[] env_params[i];
-	delete[] env_params;
-    
+    for (size_t i = 0; envVec[i]; i++)
+		delete[] envVec[i];
+	delete[] envVec;
+
     return new_body;
 }
