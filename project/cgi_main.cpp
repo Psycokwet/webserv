@@ -62,6 +62,8 @@ char**  mapToArray(std::map<std::string, std::string> envVars)
 }
 
 
+#define CGI_OUTPUT_FILE "new.txt"
+
 std::string executeCgi(std::string & fileName, std::map<std::string, std::string> env_map)
 {
     pid_t       pid;
@@ -87,7 +89,7 @@ std::string executeCgi(std::string & fileName, std::map<std::string, std::string
     }
     else if (pid == 0) // child
     {
-        int fileFd = open("new.txt", O_WRONLY | O_CREAT, 0777); // everyone can access the file. Create the file if does not exist. Open it.
+        int fileFd = open(CGI_OUTPUT_FILE, O_WRONLY | O_CREAT, 0777); // everyone can access the file. Create the file if does not exist. Open it.
         if (fileFd == -1)
             return (ERROR_500);
 
@@ -100,7 +102,7 @@ std::string executeCgi(std::string & fileName, std::map<std::string, std::string
     else // main projcess
     {
         waitpid(-1, &status, 0); // -1: wait for any child process to die
-        int fileFd = open("new.txt", O_RDONLY);
+        int fileFd = open(CGI_OUTPUT_FILE, O_RDONLY);
         int ret = 1;
 		while (ret > 0)
 		{
