@@ -4,7 +4,7 @@
 ** ---------------------------------- STATIC ----------------------------------
 */
 
-static void clean_fd(t_fd *fd)
+static void init_fd(t_fd *fd)
 {
     bzero(fd->buf_read, BUF_SIZE + 1);
     bzero(fd->buf_write, BUF_SIZE + 1);
@@ -13,6 +13,13 @@ static void clean_fd(t_fd *fd)
     fd->fct_read = NULL;
     fd->fct_write = NULL;
     fd->parser = NULL;
+}
+
+static void clean_fd(t_fd *fd)
+{
+	if(fd->parser)
+		delete fd->parser;
+	init_fd(fd);
 }
 
 /*
@@ -99,7 +106,7 @@ void MasterServer::run() // ! do like main_loops
     /*************************************************************/
     while (1)
     {
-        init_fd();
+        init_fdSet();
         do_select();
         check_fd();
     }
@@ -128,13 +135,13 @@ void MasterServer::init_env()
     {
         t_fd    new_fd;
 
-        clean_fd(&new_fd);
+        init_fd(&new_fd);
         this->_fdSet.push_back(new_fd);
         i++;
     }
 
-    std::cout << "\n_maxFD: " << _maxFd;
-    std::cout << "\nSize of fdSet: " << _fdSet.size() << std::endl;
+    // std::cout << "\n_maxFD: " << _maxFd;
+    // std::cout << "\nSize of fdSet: " << _fdSet.size() << std::endl;
 }
 
 void MasterServer::get_server_ready()
@@ -214,14 +221,15 @@ void MasterServer::server_accept(int s)
     csin_len = sizeof(csin);
     cs = accept(s, (struct sockaddr*)&csin, &csin_len);
     printf("New client #%d from %s:%d\n", cs, inet_ntoa(csin.sin_addr), ntohs(csin.sin_port));
-    clean_fd(&_fdSet[cs]);
+    init_fd(&_fdSet[cs]);
     _fdSet[cs].type = FD_CLIENT;
     _fdSet[cs].host = _fdSet[cs].host;
     _fdSet[cs].fct_read = &MasterServer::client_read;
     _fdSet[cs].fct_write = &MasterServer::client_write;
+    _fdSet[cs].parser = new GrammarParser(*_base_request_parser);
 }
 
-void MasterServer::init_fd()
+void MasterServer::init_fdSet()
 {
     int i;
 
@@ -281,11 +289,20 @@ void MasterServer::do_select()
 void MasterServer::client_read(int fd)
 {
     int r;
-    int i;
+    // int i;
 
     //Receive request
     r = recv(fd, _fdSet[fd].buf_read, BUF_SIZE, 0);
+	_fdSet[fd].parser->feed(_fdSet[fd].buf_read);
     printf("buf_read =\n%s\n", _fdSet[fd].buf_read);
+
+    bzero(_fdSet[fd].buf_read, BUF_SIZE + 1);
+	if(r == BUF_SIZE){
+	    printf("client read incomplete \n");
+
+		return;
+	}
+	
     if (r <= 0)
     {
         close(fd);
@@ -293,26 +310,30 @@ void MasterServer::client_read(int fd)
         printf("Client #%d gone away\n", fd);
         
     }
+	else if(_fdSet[fd].parser->parse() >= PARSE_FAILURE)
+	{
+        printf("Client #%d bad request\n", fd);
+	}
     else
     {
-        i = 0;
-        while (i < _maxFd)
-        {
-            if((_fdSet[i].type == FD_CLIENT) && (i != fd) && (_fdSet[i].host == _fdSet[fd].host)) // ! need to work on this conditions, is sending response to all clients?
-            {
-                // char src[1000]; // will be response
-                // char dest[1000]; // will be buf_read
-                // strcpy(src, "HTTP/1.1 200 OK\nDate:Fri, 16 Mar 2020 17:21:12 GMT\nServer: my_server\nContent-Type: text/html;charset=UTF-8\nContent-Length: 1846\n\n<!DOCTYPE html>\n<html><h1>Hello world</h1></html>\n");
-                // strcpy(dest, src);
-                // send(i, dest, strlen(dest), 0);
+        // i = 0;
+        // while (i < _maxFd)
+        // {
+        //     if((_fdSet[i].type == FD_CLIENT) && (i != fd) && (_fdSet[i].host == _fdSet[fd].host)) // ! need to work on this conditions, is sending response to all clients?
+        //     {
+        //         // char src[1000]; // will be response
+        //         // char dest[1000]; // will be buf_read
+        //         // strcpy(src, "HTTP/1.1 200 OK\nDate:Fri, 16 Mar 2020 17:21:12 GMT\nServer: my_server\nContent-Type: text/html;charset=UTF-8\nContent-Length: 1846\n\n<!DOCTYPE html>\n<html><h1>Hello world</h1></html>\n");
+        //         // strcpy(dest, src);
+        //         // send(i, dest, strlen(dest), 0);
 
-                // Send Response based on Request
-                send(i, _fdSet[fd].buf_read, strlen(_fdSet[fd].buf_read), 0);
-            }
-            i++;
-        }
+        //         // Send Response based on Request
+        //         send(i, _fdSet[fd].buf_read, strlen(_fdSet[fd].buf_read), 0);
+        //     }
+        //     i++;
+        // }
     }
-    printf("client read finish\n\n");
+    printf("client read finish %d\n\n", r);
 
 }
 

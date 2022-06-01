@@ -57,7 +57,7 @@ class MasterServer :public AServerItem
 		OneServer   *createServer();
         void        init_env();
         void        get_server_ready();
-        void        init_fd();
+        void        init_fdSet();
         void        do_select();
         void        check_fd();
         
