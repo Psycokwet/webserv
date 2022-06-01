@@ -17,7 +17,9 @@ static void clean_fd(t_fd *fd)
 */
 
 MasterServer::MasterServer()
-{}
+{
+    
+}
 
 MasterServer::MasterServer(const MasterServer & src): AServerItem()
 {
@@ -88,27 +90,26 @@ void MasterServer::run() // ! do like main_loops
 {
     std::string command;
     std::cout << "Your Server is built" << std::endl;
-    while (command.compare("EXIT") != 0)
-    {
-        std::cout << "What do you want it to do?" << std::endl;
-        std::cout << "(RUN, EXIT)" << std::endl;
-        std::getline(std::cin, command);
-        if (command.compare("RUN") == 0)
-            std::cout << "Server is running" << std::endl;
-        else if (command.compare("EXIT") != 0 && command.compare("RUN") != 0)
-            std::cout << "Command is invalid. Returning to the main menu" << std::endl;
-    }
-    std::cout << "Stop the server" << std::endl;
     /*************************************************************/
     /* Loop waiting for incoming connects or for incoming data   */
     /* on any of the connected sockets.                          */
     /*************************************************************/
-    while (1)
+    while (command.compare("EXIT") != 0)
     {
+        std::cout << "Do you want to EXIT?" << std::endl;
+        std::getline(std::cin, command);
+        if (command.compare("EXIT") != 0 && command.compare("RUN") != 0)
+            std::cout << "Command is invalid. Returning to the main menu" << std::endl;
         init_fd();
         do_select();
         check_fd();
+        // if (command.compare("RUN") == 0)
+        //     std::cout << "Server is running" << std::endl;
     }
+    std::cout << "Exit program" << std::endl;
+    // while (1)
+    // {
+    // }
 }
 
 /*
@@ -138,9 +139,6 @@ void MasterServer::init_env()
         this->_fdSet.push_back(new_fd);
         i++;
     }
-
-    std::cout << "\n_maxFD: " << _maxFd;
-    std::cout << "\nSize of fdSet: " << _fdSet.size() << std::endl;
 }
 
 void MasterServer::get_server_ready()

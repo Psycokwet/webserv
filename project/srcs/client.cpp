@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <unistd.h>
 #include <string>
+#include <cstring>
 #include <arpa/inet.h> // for inet_pton
 #define PORT 8080
 
