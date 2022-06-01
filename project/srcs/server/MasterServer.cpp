@@ -326,9 +326,14 @@ void MasterServer::client_read(int fd)
 
 		//         // Send Response based on Request
 
-		std::cout << *resp << std::endl;
+		resp->execute();
+		std::string finalResponsefake =
+			streamFunctionToString(&ResponseBuilder::print_response, resp);
+		std::cout
+			<< "finalResponsefake" << std::endl
+			<< finalResponsefake << std::endl;
 		std::string finalResponse = "HTTP/1.1 200 OK\nDate:Fri, 16 Mar 2020 17:21:12 GMT\nServer: my_server\nContent-Type: text/html;charset=UTF-8\nContent-Length: 1846\n\n<!DOCTYPE html>\n<html><h1>Hello world</h1></html>\n";
-		send(fd, finalResponse.c_str(), finalResponse.size(), 0);
+		send(fd, finalResponsefake.c_str(), finalResponsefake.size(), 0);
 		//     }
 		//     i++;
 		// }

@@ -55,7 +55,7 @@ const std::map<int, std::string> ResponseBuilder::initReturnCodes()
 	return errorCodes;
 }
 
-const std::map<int, std::string> ResponseBuilder::http_return_codes = ResponseBuilder::initReturnCodes();
+std::map<int, std::string> ResponseBuilder::_http_return_codes = ResponseBuilder::initReturnCodes();
 
 ResponseBuilder *ResponseBuilder::init()
 {
@@ -67,23 +67,25 @@ ResponseBuilder *ResponseBuilder::init()
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-ResponseBuilder::ResponseBuilder() :
-	_parsed_datas(std::map<std::string, std::string>()),
-	_insert_order_resp_cat(std::vector<std::string>()), 
-	_resp_cat(std::map<std::string, std::string>()),
-	_key(""),
-	_value_buffer(NULL),
-	_parsing_validity_state(PARSE_NOT_ENOUGH_DATAS)
+ResponseBuilder::ResponseBuilder() : _parsed_datas(std::map<std::string, std::string>()),
+									 _insert_order_resp_cat(std::vector<std::string>()),
+									 _resp_cat(std::map<std::string, std::string>()),
+									 _key(""),
+									 _value_buffer(NULL),
+									 _parsing_validity_state(PARSE_NOT_ENOUGH_DATAS),
+									 _exec_code(200),
+									 _response_members(std::map<std::string, std::string>())
 {
 }
 
-ResponseBuilder::ResponseBuilder(const ResponseBuilder &src):
-	_parsed_datas(src._parsed_datas),
-	_insert_order_resp_cat(std::vector<std::string>(src._insert_order_resp_cat)), 
-	_resp_cat(std::map<std::string, std::string>(src._resp_cat)),
-	_key(src._key),
-	_value_buffer(src._value_buffer),
-	_parsing_validity_state(src._parsing_validity_state)
+ResponseBuilder::ResponseBuilder(const ResponseBuilder &src) : _parsed_datas(src._parsed_datas),
+															   _insert_order_resp_cat(std::vector<std::string>(src._insert_order_resp_cat)),
+															   _resp_cat(std::map<std::string, std::string>(src._resp_cat)),
+															   _key(src._key),
+															   _value_buffer(src._value_buffer),
+															   _parsing_validity_state(src._parsing_validity_state),
+															   _exec_code(src._exec_code),
+															   _response_members(src._response_members)
 {
 	(void)src;
 }
@@ -113,14 +115,17 @@ std::ostream &ResponseBuilder::print_request(std::ostream &o) const
 
 std::ostream &ResponseBuilder::print_response(std::ostream &o) const
 {
-	return print_cont(o, _parsed_datas, "]\n", "[", ": ");
+	o << HTTP_VERSION << " " << _exec_code << " " << ResponseBuilder::_http_return_codes[_exec_code] << std::endl;
+	print_cont(o, _response_members, "\n", "", ": ");
+	o << "\n\n<!DOCTYPE html>\n<html><h1>Hello world</h1></html>";
+	return o;
 }
 
 std::ostream &ResponseBuilder::print(std::ostream &o) const
 {
-	o << "Current state :" << GetString(_parsing_validity_state)<< std::endl;
-	o << "Current key :" << _key<< std::endl;
-	o << "Current buffer :" << ((_value_buffer == NULL || _parsing_validity_state >= PARSE_FAILURE) ? "NULL": *_value_buffer) << std::endl;
+	o << "Current state :" << GetString(_parsing_validity_state) << std::endl;
+	o << "Current key :" << _key << std::endl;
+	o << "Current buffer :" << ((_value_buffer == NULL || _parsing_validity_state >= PARSE_FAILURE) ? "NULL" : *_value_buffer) << std::endl;
 	o << "Base request :" << std::endl;
 	return print_cont(o, _parsed_datas, "]\n", "[", ": ");
 }
@@ -141,16 +146,23 @@ ResponseBuilder *ResponseBuilder::end_build(std::string raw, e_parsing_states en
 	(void)endStatus;
 	return this;
 }
+
+void ResponseBuilder::execute()
+{
+	_response_members["Date"] = "Fri, 16 Mar 2020 17:21:12 GMT";
+	_response_members["Server"] = "my_server";
+	_response_members["Content-Type"] = "text/html;charset=UTF-8";
+	_response_members["Content-Length"] = "1846";
+}
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
-
 
 void ResponseBuilder::add_value_parsedDatas(std::string value)
 {
 	if (this->_parsed_datas.find(this->_key) != this->_parsed_datas.end())
 		throw KeyAlreadyUsed();
-	if(_key == "")
+	if (_key == "")
 		throw KeyNotDeclared();
 	this->_parsed_datas[_key] = value;
 	this->_key = "";
@@ -159,16 +171,16 @@ void ResponseBuilder::add_value_parsedDatas(std::string value)
 
 void ResponseBuilder::add_key_parsedDatas(std::string key)
 {
-	if(this->_value_buffer != NULL)
+	if (this->_value_buffer != NULL)
 		throw ValueBufferAlreadyDeclared();
-	if(_key != "")
+	if (_key != "")
 		throw KeyAlreadyDeclared();
 	this->_key = key;
 }
 
 std::string ResponseBuilder::get_key_parsedDatas() const
 {
-	if(_key == "")
+	if (_key == "")
 		throw KeyNotDeclared();
 	return this->_key;
 }
@@ -179,7 +191,7 @@ std::string *ResponseBuilder::get_value_buffer_parsedDatas() const
 }
 void ResponseBuilder::set_value_buffer_parsedDatas(std::string *value_buffer)
 {
-	if(this->_value_buffer != NULL)
+	if (this->_value_buffer != NULL)
 		throw ValueBufferAlreadyDeclared();
 	this->_value_buffer = value_buffer;
 }
