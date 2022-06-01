@@ -20,7 +20,11 @@ static void clean_fd(t_fd *fd)
 */
 
 MasterServer::MasterServer()
-{}
+{
+	_base_request_parser =	GrammarParser::build(GRAMMAR_FILE);
+	if(!_base_request_parser)
+		throw BuildError();
+}
 
 MasterServer::MasterServer(const MasterServer & src): AServerItem()
 {
@@ -197,7 +201,7 @@ void MasterServer::get_server_ready()
         _fdSet[s].type = FD_SERV;
         _fdSet[s].host = config_listen._port;
         _fdSet[s].fct_read = &MasterServer::server_accept;
-		_fdSet[s].parser = GrammarParser::build(GRAMMAR_FILE);
+		_fdSet[s].parser = NULL;
     }
 }
 

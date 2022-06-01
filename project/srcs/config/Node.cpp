@@ -111,30 +111,6 @@ Node::Node(e_type type, Node *parent, int deepness, t_inner_args_container inner
 {
 }
 
-// void Node::copy_map(const t_node_map &oldmap, t_node_map &newmap, Node *parent)
-// {
-// 	std::cout<<"hash"<<std::endl;
-// 	for(t_node_map::const_iterator it = oldmap.begin(); it != oldmap.end(); it++)
-// 		newmap[it->first] = Node(it->second, parent);
-// }
-
-// void Node::copy_list(const t_node_list &oldlist, t_node_list &newlist, Node *parent)
-// {
-// 	std::cout<<"list"<<std::endl;
-// 	for(t_node_list::const_iterator it = oldlist.begin(); it != oldlist.end(); it++)
-// 		newlist.push_back(Node(*it, parent));
-// }
-
-
-// Node::Node( const Node &src, Node *parent): _type(src._type), _parent(parent), _inner_args(t_inner_args_container(src._inner_args))
-// {
-// 	if(HAS_TYPE(_type, HASHMAP))
-// 		copy_map(src._inner_map, this->_inner_map, this);
-// 	if(HAS_TYPE(_type, LIST))
-// 		copy_list(src._inner_list, this->_inner_list, this);
-// }
-
-
 /*
 ** -------------------------------- DESTRUCTOR --------------------------------
 */
@@ -171,16 +147,16 @@ std::ostream & Node::print_map(std::ostream & o) const
 	if(this->_inner_map.size() == 0)
 		return o;
 	if(this->_parent)
-		o << "{" <<std::endl;
+		o << "{" << std::endl;
 	for(t_node_map::const_iterator it = this->_inner_map.begin(); it != this->_inner_map.end(); it++)
 		it->second->print(o);
 	if(this->_parent)
-		o << "}" <<std::endl;
+		o << "}" << std::endl;
 	return o;
 }
 std::ostream & Node::print_list(std::ostream & o) const
 {
-	return print_ptr(o, this->_inner_list);
+	return print_ptr_method(o, this->_inner_list);
 }
 
 std::ostream & Node::print_inner_args(std::ostream & o) const
@@ -196,13 +172,12 @@ std::ostream & Node::print(std::ostream & o) const
 	}
 	if(HAS_TYPE(_type, LIST))
 		print_list(o);
-
 	return o;
 }
 
 std::ostream &			operator<<( std::ostream & o, Node const & i )
 {
-	i.print(o);
+	one_file_logger(&i, streamFunctionToString(&Node::print, &i));
 	return o;
 }
 

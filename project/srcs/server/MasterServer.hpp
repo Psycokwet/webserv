@@ -33,6 +33,17 @@ class MasterServer :public AServerItem
         int build();
         void run();
 
+
+      class BuildError : public std::exception
+      {
+          public:
+              virtual const char *what() const throw()
+              {
+                return "ERROR: Couldn't finish the build";
+              }
+      };
+
+
     private:
         std::vector< OneServer* >      _configAllServer;
         std::vector< t_fd >            _fdSet;

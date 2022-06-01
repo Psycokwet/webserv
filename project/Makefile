@@ -6,7 +6,7 @@
 #    By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#              #
-#    Updated: 2022/05/31 14:47:00 by scarboni         ###   ########.fr        #
+#    Updated: 2022/06/01 12:52:47 by scarboni         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -141,6 +141,8 @@ fclean:
 	@echo "\nDeleting executable..."
 	@rm -f $(NAME)
 	@rm -f $(TESTPARSER)
+	@rm -f $(TESTSERVER)
+	@rm -f $(TESTCONFIG)
 	@echo "\033[0m"	
 
 cleanLogs:
