@@ -57,6 +57,8 @@ DECLARE_ENUM(e_parsing_states, E_PARSING_STATE_ENUM)
 #include "../response/ResponseBuilder.hpp"
 #include <climits>
 
+#define ACTIVATE_GP_RAW_LOG true
+
 typedef std::map<std::string, GrammarVariables *> t_grammar_map;
 class GrammarParser;
 class ResponseBuilder;

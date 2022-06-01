@@ -208,6 +208,7 @@ bool checkValidityForVar(GrammarVariables *gv, t_grammar_map &gramMap)
 	{
 		if ((id = getBuilderIDForToken(tokens[i], gramMap)) == NON_VALID)
 			return false;
+
 		one_file_logger_raw(std::string(COLORS[id]) + " " + tokens[i] + " " + RESET);
 	}
 	return true;
@@ -289,7 +290,7 @@ GrammarParser::~GrammarParser()
 {
 	util_delete(this->_vars);
 	util_delete(this->_priority_states);
-	if(_resp)
+	if (_resp)
 		delete _resp;
 	_resp = NULL;
 }
@@ -373,12 +374,18 @@ void GrammarParser::deleteFrontPriority()
 	}
 	else if (_priority_states.size() > 2)
 	{
+		if (_priority_states.front()->getVar()->getType() == _saveType)
+			_saveType = NO_VAR_TYPE;
 		delete _priority_states.front();
 		_priority_states.pop_front();
 		if (!_priority_states.front()->canBeParsed())
+		{
 			return deleteFrontPriority();
+		}
 		return;
 	}
+	if (_priority_states.front()->getVar()->getType() == _saveType)
+		_saveType = NO_VAR_TYPE;
 	delete _priority_states.front();
 	_priority_states.pop_front();
 }
@@ -432,7 +439,8 @@ e_parsing_states GrammarParser::parse()
 				std::cerr << e.what() << " from parse \n";
 				{
 					_resp->set_parsing_validity_state(PARSE_FATAL_FAILURE);
-					// one_file_logger_raw(RESET);
+					if (ACTIVATE_GP_RAW_LOG)
+						one_file_logger_raw(RESET);
 					return _resp->get_parsing_validity_state();
 				}
 			}
@@ -456,8 +464,10 @@ e_parsing_states GrammarParser::parse()
 			_resp->set_parsing_validity_state(PARSE_FATAL_FAILURE);
 			break;
 		}
-		// one_file_logger_raw(COLORS[id]);
+		if (ACTIVATE_GP_RAW_LOG)
+			one_file_logger_raw(COLORS[id]);
 		GrammarParserBuilderMarker *gp = _priority_states.front();
+		// one_file_logger_raw(streamFunctionToString(&GrammarParserBuilderMarker::print, gp) + "\n");
 		try
 		{
 			_resp->set_parsing_validity_state((this->*GrammarParser::_builderDictionnary[id].second)(token, gp, id));
@@ -468,12 +478,14 @@ e_parsing_states GrammarParser::parse()
 			_resp->set_parsing_validity_state(PARSE_FATAL_FAILURE);
 			break;
 		}
-		// one_file_logger_raw(RESET);
+		if (ACTIVATE_GP_RAW_LOG)
+			one_file_logger_raw(RESET);
 		if (_resp->get_parsing_validity_state() == PARSE_FAILURE)
 			gp->setIsCurrentlyValid(false);
 	} while (_resp->get_parsing_validity_state() != PARSE_NOT_ENOUGH_DATAS && _resp->get_parsing_validity_state() != PARSE_FATAL_FAILURE);
 
-	// one_file_logger_raw(RESET);
+	if (ACTIVATE_GP_RAW_LOG)
+		one_file_logger_raw(RESET);
 	return _resp->get_parsing_validity_state();
 }
 
@@ -720,6 +732,5 @@ ResponseBuilder *GrammarParser::getResponseBuilder()
 {
 	return this->_resp;
 }
-
 
 /* ************************************************************************** */
