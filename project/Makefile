@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+         #
+#    By: thi-nguy <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#              #
-#    Updated: 2022/05/26 20:21:24 by scarboni         ###   ########.fr        #
+#    Updated: 2022/06/01 15:14:53 by thi-nguy         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -38,7 +38,7 @@ SAVED_LOGS_FOLDER		= pastLogs
 
 CPPFLAGS += -DLOGS_FOLDER='"$(LAST_RUN_LOGS_FOLDER)"'
 
-ifndef TESTS
+ifndef TESTS #!Focus on this
 	TESTS=""
 	SRCS = 	main.cpp
 	CPPFLAGS += -DDEBUG=false
@@ -48,7 +48,7 @@ else
 		SRCS = mainParserTest.cpp
 		NAME = $(TESTPARSER)
 	else
-		ifeq ($(TESTS), $(TESTCONFIGRULE))
+		ifeq ($(TESTS), $(TESTCONFIGRULE)) # ! testConfigRule, give program name: testConfig
 			SRCS = mainTestConfig.cpp
 			NAME = $(TESTCONFIG)
 		endif
@@ -168,7 +168,7 @@ define launch_one_test_with_sep
 	printf "____.--.--.____.--.--.____.--.--.____.--.--.__Weeeeeeeeee__.--.--.____.--.--.____.--.--.____.--.--.____\n"
 endef
 
-define launch_only_legal_tests
+define launch_only_legal_tests # ! Focus on this
 	@ if [ $(TESTS) = $(1) ]; then \
 		$(2)
 	else \
@@ -215,7 +215,7 @@ ARGS_CONFIGS_TESTS_RAW_PREF = $(addprefix $(CONFIG_FOLDER), $(ARGS_CONFIGS_TESTS
 ARGS_CONFIGS_TESTS = $(addsuffix $(CONFIG_FILE_EXT), $(ARGS_CONFIGS_TESTS_RAW_PREF))
 
 
-$(TESTCONFIGRULE): 
+$(TESTCONFIGRULE): # ! Focus on this
 	$(call launch_only_legal_tests,$(TESTCONFIGRULE),\
 		$(call launch_one_test_with_sep) ;\
 		$(call launch_one_test_with_sep, Too much args) ;\

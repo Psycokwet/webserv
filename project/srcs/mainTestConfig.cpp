@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
+/*   mainTestConfig.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+        */
+/*   By: thi-nguy <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#             */
-/*   Updated: 2022/04/27 21:26:59 by scarboni         ###   ########.fr       */
+/*   Updated: 2022/06/01 15:25:01 by thi-nguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,10 +33,16 @@ int main(int ac, char *av[])
 		config_path = av[1];
 
 	MasterServer *ms = ConfigConsumer::validateEntry(config_path);
-	if (!ms)
-		return 0;
-	std::cout << "Print result " << *ms << std::endl;
+	if(!ms)
+		return 1;
+	std::cout <<"Print result " << *ms << std::endl;
 
+	// if (ms->build() != 0) // ! Better throw something?
+	// {
+	// 	std::cout << "Error: Can not setup MasterServer" << std::endl;
+	// 	return 1;
+	// }
+	// ms->run();
 	delete ms;
 	return 0;
 }

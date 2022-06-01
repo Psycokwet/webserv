@@ -86,6 +86,19 @@ int	MasterServer::build()
 
 void MasterServer::run() // ! do like main_loops
 {
+    std::string command;
+    std::cout << "Your Server is built" << std::endl;
+    while (command.compare("EXIT") != 0)
+    {
+        std::cout << "What do you want it to do?" << std::endl;
+        std::cout << "(RUN, EXIT)" << std::endl;
+        std::getline(std::cin, command);
+        if (command.compare("RUN") == 0)
+            std::cout << "Server is running" << std::endl;
+        else if (command.compare("EXIT") != 0 && command.compare("RUN") != 0)
+            std::cout << "Command is invalid. Returning to the main menu" << std::endl;
+    }
+    std::cout << "Stop the server" << std::endl;
     /*************************************************************/
     /* Loop waiting for incoming connects or for incoming data   */
     /* on any of the connected sockets.                          */
@@ -283,7 +296,6 @@ void MasterServer::client_read(int fd)
         close(fd);
         clean_fd(&_fdSet[fd]);
         printf("Client #%d gone away\n", fd);
-        
     }
     else
     {
