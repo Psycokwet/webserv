@@ -74,7 +74,7 @@ std::ostream &			MasterServer::print( std::ostream & o) const
 {
 	o << "I'm Master Server !" << std::endl;
 	for (size_t i = 0; i < this->_configAllServer.size(); i++)
-		o << *(this->_configAllServer[i]) << std::endl;
+		(this->_configAllServer[i])->print(o) << std::endl;
 	
 	return o;
 }

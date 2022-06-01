@@ -45,7 +45,7 @@ AServerItem *ConfigConsumer::consume(int deepness, Node *node, AServerItem *curr
 	if (inner_args.size() == 0)
 		return currentServerItem; 
 	std::string key = *(inner_args.begin());
-	std::cout << "\n... Key is: " << key << std::endl;
+	// std::cout << "\n... Key is: " << key << std::endl;
 	ACTION_MAP::iterator available_actions = ConfigConsumer::_authorize_key_and_actions.find(key); // ! get authorized info for a "key/directive"
 	if (available_actions == ConfigConsumer::_authorize_key_and_actions.end()) // ! If there is no action key that is predefined, return (NULL)
 		return NULL;
@@ -60,11 +60,11 @@ AServerItem *ConfigConsumer::consume(int deepness, Node *node, AServerItem *curr
 		{
 			Node::t_inner_args_container &parent_inner_args = raw_parent->getInnerArgs();
 		
-			std::cout << "testing... for "<< key << ": at deepness = "<< deepness;
+			// std::cout << "testing... for "<< key << ": at deepness = "<< deepness;
 			if (parent_inner_args.size() != 0) // ! if parents is something else than "server"
 				parentName = &parent_inner_args[0];
 		}
-		std::cout << " with parent = " << (parentName ? *parentName : "NO PARENT") << std::endl;
+		// std::cout << " with parent = " << (parentName ? *parentName : "NO PARENT") << std::endl;
 		if (it_list->isValid(deepness, parentName))
 			return currentServerItem->consume(node);
 	}

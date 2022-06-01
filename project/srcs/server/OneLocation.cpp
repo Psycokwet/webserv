@@ -71,7 +71,6 @@ std::ostream &			OneLocation::print( std::ostream & o) const
 
 AServerItem *OneLocation::addIndex(Node *node)
 {
-	std::cout << "OneLocation I'm trying to add a index directive from " << *node ;
 	if (this->_index[0].compare("index.html") == 0 && this->_index.size() == 1 )
 	{
 		Node::t_inner_args_container values = node->get_inner_args();
@@ -88,7 +87,6 @@ AServerItem *OneLocation::addIndex(Node *node)
 
 AServerItem *OneLocation::addRoot(Node *node)
 {
-	std::cout << "OneLocation I'm trying to add a root directive from " << *node;
 	if (this->_root.compare("html") == 0)
 	{
 		_root.clear();
@@ -104,7 +102,6 @@ AServerItem *OneLocation::addRoot(Node *node)
 
 AServerItem *OneLocation::addAutoIndex(Node *node)
 {
-	std::cout << "OneLocation I'm trying to add a autoindex directive from " << *node;
 	if (this->_autoindex == false)
 	{
 		Node::t_inner_args_container values = node->get_inner_args();
@@ -124,7 +121,6 @@ AServerItem *OneLocation::addAutoIndex(Node *node)
 
 AServerItem *OneLocation::addMethod(Node *node)
 {
-	std::cout << "OneLocation I'm trying to add a Method directive from " << *node ;
 	if (this->_method.begin()->compare("GET") == 0 && this->_method.size() == 1 )
 	{
 		Node::t_inner_args_container values = node->get_inner_args();
@@ -146,7 +142,6 @@ AServerItem *OneLocation::addMethod(Node *node)
 
 AServerItem *OneLocation::addMaxSize(Node *node)
 {
-	std::cout << "OneLocation I'm trying to add a client_max_body_size directive from " << *node;
 	if (this->_client_max_body_size == 1)
 	{
 		Node::t_inner_args_container values = node->get_inner_args();
@@ -162,7 +157,6 @@ AServerItem *OneLocation::addMaxSize(Node *node)
 
 AServerItem *OneLocation::addErrorPage(Node *node)
 {
-	std::cout << "OneLocation I'm trying to add a error_page directive from " << *node;
 	if (1) // ! Todo: add condition for _error_code is added for the first time
 	{
 		Node::t_inner_args_container values = node->get_inner_args();
@@ -181,9 +175,7 @@ AServerItem *OneLocation::addErrorPage(Node *node)
 }
 
 AServerItem *OneLocation::addCgi(Node *node)
-{
-	std::cout << "OneLocation I'm trying to add a cgi directive from " << *node;
-	
+{	
 	if (this->_cgi.compare("") == 0)
 	{
 		_cgi.clear();

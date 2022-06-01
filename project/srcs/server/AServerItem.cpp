@@ -40,7 +40,9 @@ AServerItem &				AServerItem::operator=( AServerItem const & rhs )
 
 std::ostream &			operator<<( std::ostream & o, AServerItem const & i )
 {
-	i.print(o);
+	one_file_logger(&i, streamFunctionToString(&AServerItem::print, &i));
+
+	// i.print(o);
 	return o;
 }
 

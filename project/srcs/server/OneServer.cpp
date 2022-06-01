@@ -112,35 +112,38 @@ OneServer::~OneServer()
 
 std::ostream &			OneServer::print( std::ostream & o) const
 {
-	o << "\tI'm OneServer and I have as _server_name = ";
+	o << "\n\tI'm OneServer and I have as _server_name = ";
 	for (unsigned long i = 0; i < _server_name.size(); i++)
 		o << _server_name[i] << " ";
 
-	o << "\t_listen: with address = " << _listen._address;
+	o << "\n\t_listen: with address = " << _listen._address;
 	o << ", port = " << _listen._port;
 	o << ", default_server = " << _listen._default_server;
 	
-	o << "\t_index = ";
+	o << "\n\t_index = ";
 	for (unsigned long i = 0; i < _index.size(); i++)
 		o << _index[i] << " ";
-	o << "\t_root = " << _root;
-	o << "\t_autoindex = " << _autoindex;
-	o << "\t_method = ";
+	o << "\n\t_root = " << _root;
+	o << "\n\t_autoindex = " << _autoindex;
+	o << "\n\t_method = ";
 	for (std::set<std::string>::const_iterator it = _method.begin(); it != _method.end(); it++)
 		o << *it << " ";
-	o << "\t_client_max_body_size = " << _client_max_body_size;
+	o << "\n\t_client_max_body_size = " << _client_max_body_size;
 
-	o << "\t_error_page: with codes = ";
+	o << "\n\t_error_page: with codes = ";
 	for (unsigned long i = 0; i < _error_page.errorCodes.size(); i++)
 		o << _error_page.errorCodes[i] << " ";
 	o << ", and uri = " << _error_page.uri;
 
-	o << "\t_cgi = " << _cgi;
+	o << "\n\t_cgi = " << _cgi;
 
 	
 	o << std::endl;
 	for (std::map< std::string, OneLocation* >::const_iterator it = this->_location.begin(); it != this->_location.end(); it++)
-		o << "\t\t" << "_location = "<< it->first << "\t" << *(it->second) << std::endl;
+	{
+		o << "\n\t\t" << "_location = "<< it->first << "\t" ;
+		(it->second)->print(o) << std::endl;
+	}
 	
 	return o;
 }
@@ -150,9 +153,7 @@ std::ostream &			OneServer::print( std::ostream & o) const
 */
 
 AServerItem *OneServer::addServerName(Node *node)
-{
-	std::cout << "OneServer I'm trying to add a server_name directive from " << *node;
-	
+{	
 	if (this->_server_name[0].compare("") == 0 && this->_server_name.size() == 1 )
 	{
 		_server_name.clear();
@@ -167,8 +168,6 @@ AServerItem *OneServer::addServerName(Node *node)
 
 AServerItem *OneServer::addLocation(Node *node)
 {
-	std::cout << "OneServer I'm trying to add a location directive from " << *node;
-
 	Node::t_inner_args_container values = node->get_inner_args();
 	if(values.size() != 2) // necessary because juste after you try to read values[1]
 		throw IncompleteDirective();
@@ -181,9 +180,7 @@ AServerItem *OneServer::addLocation(Node *node)
 
 
 AServerItem *OneServer::addListen(Node *node)
-{
-	std::cout << "OneServer I'm trying to add a listen directive from " << *node;
-	
+{	
 	if (_listen._port == 80 && _listen._address == LOCALHOST && _listen._default_server.compare("") == 0) 
 	{
 		Node::t_inner_args_container values = node->get_inner_args();
@@ -222,7 +219,6 @@ AServerItem *OneServer::addListen(Node *node)
 
 AServerItem *OneServer::addIndex(Node *node)
 {
-	std::cout << "OneServer I'm trying to add a index directive from " << *node ;
 	if (this->_index[0].compare("index.html") == 0 && this->_index.size() == 1 )
 	{
 		Node::t_inner_args_container values = node->get_inner_args();
@@ -239,7 +235,6 @@ AServerItem *OneServer::addIndex(Node *node)
 
 AServerItem *OneServer::addRoot(Node *node)
 {
-	std::cout << "OneServer I'm trying to add a root directive from " << *node;
 	if (this->_root.compare("html") == 0)
 	{
 		_root.clear();
@@ -255,7 +250,6 @@ AServerItem *OneServer::addRoot(Node *node)
 
 AServerItem *OneServer::addAutoIndex(Node *node)
 {
-	std::cout << "OneLocation I'm trying to add a method directive from " << *node;
 	if (this->_autoindex == false)
 	{
 		Node::t_inner_args_container values = node->get_inner_args();
@@ -275,7 +269,6 @@ AServerItem *OneServer::addAutoIndex(Node *node)
 
 AServerItem *OneServer::addMethod(Node *node)
 {
-	std::cout << "OneServer I'm trying to add a Method directive from " << *node ;
 	if (this->_method.begin()->compare("GET") == 0 && this->_method.size() == 1 )
 	{
 		Node::t_inner_args_container values = node->get_inner_args();
@@ -298,7 +291,6 @@ AServerItem *OneServer::addMethod(Node *node)
 
 AServerItem *OneServer::addMaxSize(Node *node)
 {
-	std::cout << "OneServer I'm trying to add a client_max_body_size directive from " << *node;
 	if (this->_client_max_body_size == 1)
 	{
 		Node::t_inner_args_container values = node->get_inner_args();
@@ -314,7 +306,6 @@ AServerItem *OneServer::addMaxSize(Node *node)
 
 AServerItem *OneServer::addErrorPage(Node *node)
 {
-	std::cout << "OneServer I'm trying to add a error_page directive from " << *node;
 	if (1) // ! Todo: add condition for _error_code is added for the first time
 	{
 		Node::t_inner_args_container values = node->get_inner_args();
@@ -333,9 +324,7 @@ AServerItem *OneServer::addErrorPage(Node *node)
 }
 
 AServerItem *OneServer::addCgi(Node *node)
-{
-	std::cout << "OneServer I'm trying to add a cgi directive from " << *node;
-	
+{	
 	if (this->_cgi.compare("") == 0)
 	{
 		_cgi.clear();
