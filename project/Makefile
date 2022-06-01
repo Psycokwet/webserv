@@ -6,7 +6,7 @@
 #    By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#              #
-#    Updated: 2022/05/26 20:21:24 by scarboni         ###   ########.fr        #
+#    Updated: 2022/05/31 14:47:00 by scarboni         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,6 +27,8 @@ REQUEST_PATH		= requests/
 RESPONSE_PATH		= response/
 UTIL_PATH			= util/
 
+TESTSERVERRULE		= testServerRule
+TESTSERVER			= testServer
 TESTCONFIGRULE		= testConfigRule
 TESTCONFIG			= testConfig
 TESTPARSERRULE		= testParserRule
@@ -51,6 +53,11 @@ else
 		ifeq ($(TESTS), $(TESTCONFIGRULE))
 			SRCS = mainTestConfig.cpp
 			NAME = $(TESTCONFIG)
+		else
+			ifeq ($(TESTS), $(TESTSERVERRULE))
+				SRCS = main.cpp
+				NAME = $(TESTSERVER)
+			endif
 		endif
 	endif
 endif
@@ -221,7 +228,11 @@ $(TESTCONFIGRULE):
 		$(call launch_one_test_with_sep, Too much args) ;\
 		$(call launch_test_from_array_args,$(ARGS_CONFIGS_TESTS)) ;\)
 
-allTests: $(TESTCONFIGRULE) $(TESTPARSERRULE) 
+$(TESTSERVERRULE): 
+	$(call launch_only_legal_tests,$(TESTSERVERRULE),\
+		$(call launch_one_test_with_sep, ./config_files/simple.conf) ;\)
+
+allTests: $(TESTCONFIGRULE) $(TESTPARSERRULE) $(TESTSERVERRULE) 
 
 
 .PHONY: clean fclean re bonus

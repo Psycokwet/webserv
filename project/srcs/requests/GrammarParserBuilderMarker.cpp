@@ -1,6 +1,5 @@
 #include "GrammarParserBuilderMarker.hpp"
 
-DEFINE_ENUM(e_states, E_STATES_ENUM)
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
