@@ -90,25 +90,26 @@ int	MasterServer::build()
 void MasterServer::run() // ! do like main_loops
 {
     std::string command;
-    std::cout << "Your Server is built" << std::endl;
+    std::cout << "Your Server is running ... \nInsert 'exit' to stop server." << std::endl;
     /*************************************************************/
     /* Loop waiting for incoming connects or for incoming data   */
     /* on any of the connected sockets.                          */
     // /*************************************************************/
-    // while (command.compare("Y") != 0)
-    // {
-    //     std::cout << "Do you want to EXIT? (Y-N)" << std::endl;
-    //     std::getline(std::cin, command);
-    //     if (command.compare("Y") != 0 && command.compare("N") != 0)
-    //         std::cout << "Command is invalid. Returning to the main menu" << std::endl;
-    // }
-    // std::cout << "Exit program" << std::endl;
     while (1)
     {
+        std::getline(std::cin, command);
+        if (command.compare("exit") != 0)
+        {
+            std::cout << "Command is invalid. Insert 'exit' to stop server." << std::endl;
+            continue ;
+        }
+        else
+            break ;
         init_fd(); //! Select fd that are not FD_FREE. Set it to _fdRead in default. if that fd has len (buf_write) > 0, it will be set to _fdWrite
         do_select(); // ! select if fd is type READ or WRITE, set them in _fdRead or _fdWrite
         check_fd(); // ! run through the _fdSet, if fd is on _fdRead, call fct_read, if it is on _fdWrite call fct_write
     }
+    std::cout << "Exit program" << std::endl;
 }
 
 /*
