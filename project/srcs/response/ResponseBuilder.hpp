@@ -9,10 +9,12 @@
 #include "../util/deleteContainers.hpp"
 #include "../util/print.hpp"
 #include "../util/logger.hpp"
+#include "../server/MasterServer.hpp"
 
 #define RESPONSE_LOG_FILE_NAME "ResponseBuilder.logs"
 #define HTTP_VERSION "HTTP/1.1"
 
+class MasterServer;
 class GrammarParser;
 class ResponseBuilder
 {
@@ -36,7 +38,7 @@ public:
 	std::string *get_value_buffer_parsedDatas() const;
 	void set_value_buffer_parsedDatas(std::string *value_buffer);
 
-	void execute();
+	void execute(MasterServer *ms);
 
 	class KeyNotDeclared : public std::exception
 	{

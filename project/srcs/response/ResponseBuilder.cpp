@@ -147,10 +147,11 @@ ResponseBuilder *ResponseBuilder::end_build(std::string raw, e_parsing_states en
 	return this;
 }
 
-void ResponseBuilder::execute()
+void ResponseBuilder::execute(MasterServer *ms)
 {
+	(void)ms;
 	_response_members["Date"] = "Fri, 16 Mar 2020 17:21:12 GMT";
-	_response_members["Server"] = "my_server";
+	_response_members["Server"] = "Webserv (V1.0.0)";
 	_response_members["Content-Type"] = "text/html;charset=UTF-8";
 	_response_members["Content-Length"] = "1846";
 }

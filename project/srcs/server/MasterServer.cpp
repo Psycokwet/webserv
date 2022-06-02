@@ -47,6 +47,10 @@ MasterServer::~MasterServer()
 {
 	for (unsigned int index = 0; index < this->_configAllServer.size(); index++)
 		delete this->_configAllServer[index];
+	for (std::vector<t_fd>::iterator it = this->_fdSet.begin(); it != this->_fdSet.end(); it++)
+		clean_fd(&(*it));
+	if (_base_request_parser)
+		delete _base_request_parser;
 }
 
 /*
@@ -108,6 +112,17 @@ void MasterServer::run() // ! do like main_loops
 	}
 }
 
+AServerItem *MasterServer::findTheFirstServerItemWith(AServerItem *(*test)(AServerItem *, void *), void *datas)
+{
+	AServerItem *result = NULL;
+	for (std::vector<OneServer *>::iterator it = _configAllServer.begin(); it != _configAllServer.end(); it++)
+	{
+		result = test(*it, datas);
+		if (result)
+			return result;
+	}
+	return NULL;
+}
 /*
 ** --------------------------------- PRIVATE METHODS ----------------------------------
 */
@@ -326,7 +341,7 @@ void MasterServer::client_read(int fd)
 
 		//         // Send Response based on Request
 
-		resp->execute();
+		resp->execute(this);
 		std::string finalResponsefake =
 			streamFunctionToString(&ResponseBuilder::print_response, resp);
 		std::cout
