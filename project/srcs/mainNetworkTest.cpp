@@ -6,7 +6,7 @@
 /*   By: thi-nguy <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#             */
-/*   Updated: 2022/06/01 17:48:04 by thi-nguy         ###   ########.fr       */
+/*   Updated: 2022/06/02 10:02:08 by thi-nguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,8 +33,8 @@ int		main(int ac, char *av[])
 	MasterServer *ms = ConfigConsumer::validateEntry(config_path);
 	if(!ms)
 		return 1;
-	std::cout <<"Print result " << *ms << std::endl;
-
+	if (DEBUG)
+		std::cout <<"Print result " << *ms << std::endl;
 	if (ms->build() != 0) // ! Better throw something?
 	{
 		std::cout << "Error: Can not setup MasterServer" << std::endl;

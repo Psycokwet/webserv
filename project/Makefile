@@ -6,7 +6,7 @@
 #    By: thi-nguy <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#              #
-#    Updated: 2022/06/01 15:14:53 by thi-nguy         ###   ########.fr        #
+#    Updated: 2022/06/02 10:34:31 by thi-nguy         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -31,6 +31,8 @@ TESTCONFIGRULE		= testConfigRule
 TESTCONFIG			= testConfig
 TESTPARSERRULE		= testParserRule
 TESTPARSER			= testParser
+TESTNETWORKRULE		= testNetworkRule
+TESTNETWORK			= testNetwork
 
 LAST_RUN_LOGS_FOLDER	= logs
 SAVED_LOGS_FOLDER		= pastLogs
@@ -43,7 +45,7 @@ ifndef TESTS #!Focus on this
 	SRCS = 	main.cpp
 	CPPFLAGS += -DDEBUG=false
 else
-		CPPFLAGS += -DDEBUG=true
+		CPPFLAGS += -DDEBUG=true # ! to set variable DEBUG = true here, ok I get it
 	ifeq ($(TESTS), $(TESTPARSERRULE))
 		SRCS = mainParserTest.cpp
 		NAME = $(TESTPARSER)
@@ -51,6 +53,11 @@ else
 		ifeq ($(TESTS), $(TESTCONFIGRULE)) # ! testConfigRule, give program name: testConfig
 			SRCS = mainTestConfig.cpp
 			NAME = $(TESTCONFIG)
+		else
+			ifeq ($(TESTS), $(TESTNETWORKRULE))
+				SRCS = mainNetworkTest.cpp
+				NAME = $(TESTNETWORK)
+			endif
 		endif
 	endif
 endif
@@ -134,6 +141,7 @@ fclean:
 	@echo "\nDeleting executable..."
 	@rm -f $(NAME)
 	@rm -f $(TESTPARSER)
+	@rm -f $(TESTNETWORK)
 	@echo "\033[0m"	
 
 cleanLogs:
@@ -219,6 +227,10 @@ $(TESTCONFIGRULE): # ! Focus on this
 	$(call launch_only_legal_tests,$(TESTCONFIGRULE),\
 		$(call launch_one_test_with_sep) ;\
 		$(call launch_one_test_with_sep, Too much args) ;\
+		$(call launch_test_from_array_args,$(ARGS_CONFIGS_TESTS)) ;\)
+
+$(TESTNETWORKRULE):	
+	$(call launch_only_legal_tests,$(TESTNETWORKRULE),\
 		$(call launch_test_from_array_args,$(ARGS_CONFIGS_TESTS)) ;\)
 
 allTests: $(TESTCONFIGRULE) $(TESTPARSERRULE) 
