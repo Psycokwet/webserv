@@ -79,9 +79,10 @@ int	MasterServer::build()
     /*************************************************************/
     /* Initialize the master fd_set                              */
     /*************************************************************/
-    init_env();
-    get_server_ready();
-    return 0;
+    init_env(); // ! set a vector of _fdSet, set all fd is FD_FREE
+    if (get_server_ready() == EXIT_FAILURE) // ! Set up fd socket for each server, change FD_FREE to FD_SERV
+        return EXIT_FAILURE;
+    return EXIT_SUCCESS;
 }
 
 
@@ -93,23 +94,21 @@ void MasterServer::run() // ! do like main_loops
     /*************************************************************/
     /* Loop waiting for incoming connects or for incoming data   */
     /* on any of the connected sockets.                          */
-    /*************************************************************/
-    while (command.compare("EXIT") != 0)
-    {
-        std::cout << "Do you want to EXIT?" << std::endl;
-        std::getline(std::cin, command);
-        if (command.compare("EXIT") != 0 && command.compare("RUN") != 0)
-            std::cout << "Command is invalid. Returning to the main menu" << std::endl;
-        init_fd();
-        do_select();
-        check_fd();
-        // if (command.compare("RUN") == 0)
-        //     std::cout << "Server is running" << std::endl;
-    }
-    std::cout << "Exit program" << std::endl;
-    // while (1)
+    // /*************************************************************/
+    // while (command.compare("Y") != 0)
     // {
+    //     std::cout << "Do you want to EXIT? (Y-N)" << std::endl;
+    //     std::getline(std::cin, command);
+    //     if (command.compare("Y") != 0 && command.compare("N") != 0)
+    //         std::cout << "Command is invalid. Returning to the main menu" << std::endl;
     // }
+    // std::cout << "Exit program" << std::endl;
+    while (1)
+    {
+        init_fd(); //! Select fd that are not FD_FREE. Set it to _fdRead in default. if that fd has len (buf_write) > 0, it will be set to _fdWrite
+        do_select(); // ! select if fd is type READ or WRITE, set them in _fdRead or _fdWrite
+        check_fd(); // ! run through the _fdSet, if fd is on _fdRead, call fct_read, if it is on _fdWrite call fct_write
+    }
 }
 
 /*
@@ -141,10 +140,28 @@ void MasterServer::init_env()
     }
 }
 
-void MasterServer::get_server_ready()
+int MasterServer::get_server_ready()
 {
-
-    for (unsigned long i = 0; i < _configAllServer.size(); i++)
+    int server_size = _configAllServer.size();
+    try
+    {
+        std::set<int> port_set;
+        std::pair<std::set<int>::iterator,bool> ret;
+        for (int i = 0; i < server_size; i++)
+        {
+            t_listen config_listen = _configAllServer[i]->getListen();
+            ret = port_set.insert(config_listen._port);
+            if (ret.second == false)
+                throw RepeatPort();
+        }
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        return EXIT_FAILURE;
+    }
+    
+    for (int i = 0; i < server_size; i++)
     {
         int                 s;
         struct sockaddr_in  sin;
@@ -158,10 +175,13 @@ void MasterServer::get_server_ready()
         * Returns a file descriptor for the new socket, or -1 for errors.                                            
         *************************************************************/
         s = socket(AF_INET, SOCK_STREAM, 0);
+        if (DEBUG){
+            std::cout << "Socket created is: " << s << std::endl;
+        }
         if (s == 0)
         {
             std::cerr << "Fail to set socket" << std::endl;
-            return ;
+            return EXIT_FAILURE;
         }
 
         /*************************************************************/
@@ -171,7 +191,7 @@ void MasterServer::get_server_ready()
         if (rc < 0)
         {
             std::cerr << "setsockopt() failed" << std::endl;
-            return ;
+            return EXIT_FAILURE ;
         }
 
         /*************************************************************/
@@ -188,7 +208,7 @@ void MasterServer::get_server_ready()
         if (rc < 0)
         {
             std::cerr << "Fail to bind to port " << config_listen._port << std::endl;
-            return ;
+            return EXIT_FAILURE ;
         }
 
         /*************************************************************/
@@ -199,13 +219,14 @@ void MasterServer::get_server_ready()
         if (rc < 0)
         {
             std::cerr << "Fail to listen" << std::endl;
-            return ;
+            return EXIT_FAILURE;
         }
 
         _fdSet[s].type = FD_SERV;
         _fdSet[s].host = config_listen._port;
         _fdSet[s].fct_read = &MasterServer::server_accept;
     }
+    return EXIT_SUCCESS;
 }
 
 void MasterServer::server_accept(int s)
@@ -216,6 +237,9 @@ void MasterServer::server_accept(int s)
 
     csin_len = sizeof(csin);
     cs = accept(s, (struct sockaddr*)&csin, &csin_len);
+    if (DEBUG)
+        std::cout << "fd after accept is: " << cs << std::endl;
+    
     printf("New client #%d from %s:%d\n", cs, inet_ntoa(csin.sin_addr), ntohs(csin.sin_port));
     clean_fd(&_fdSet[cs]);
     _fdSet[cs].type = FD_CLIENT;
