@@ -5,12 +5,14 @@
 #include <vector>
 #include "webserv.h"
 
+#define DEFAULT_PORT 8080
+
 typedef struct 	s_listen {
 	uint32_t 		_address;
 	int				_port;
 	std::string 	_default_server;
 
-	s_listen(uint32_t address = LOCALHOST, int port=80, std::string default_server="")
+	s_listen(uint32_t address = LOCALHOST, int port=DEFAULT_PORT, std::string default_server="")
 	{
 		_address = address;
 		_port = port;

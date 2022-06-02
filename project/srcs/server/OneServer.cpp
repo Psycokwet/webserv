@@ -185,7 +185,7 @@ AServerItem *OneServer::addListen(Node *node)
 {
 	std::cout << "OneServer I'm trying to add a listen directive from " << *node;
 	
-	if (_listen._port == 80 && _listen._address == LOCALHOST && _listen._default_server.compare("") == 0) 
+	if (_listen._port == DEFAULT_PORT && _listen._address == LOCALHOST && _listen._default_server.compare("") == 0) 
 	{
 		Node::t_inner_args_container values = node->get_inner_args();
 		if (values.size() < 2 || values.size() > 3)
