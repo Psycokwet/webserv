@@ -6,22 +6,6 @@
  * ********************************************/ 
  
 /*
-** ------------------------------- STATIC --------------------------------
-*/
-
-char **stringToArray(std::vector<std::string> argVector)
-{
-    char **return_array = new char*[argVector.size() + 1];
-    unsigned long i;
-    for (i = 0; i < argVector.size(); i++)
-    {
-        return_array[i] = new char[argVector[i].length() + 1];
-        std::strcpy(return_array[i], argVector[i].c_str());
-    }
-    return_array[i] = NULL;
-    return return_array;
-}
-/*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 CgiHandler::CgiHandler()
@@ -54,24 +38,6 @@ void CgiHandler::_initEnv()
     this->_envVars["SERVER_SOFTWARE"] = ""; // name and version of running server.
 } // ! are there more envVar?
 
-
-char**  CgiHandler::_mapToArray() const
-{
-    char **return_array = new char*[_envVars.size() + 1];
-    int k = 0;
-    std::map<std::string, std::string>::const_iterator i;
-    for (i = _envVars.begin(); i != _envVars.end(); i++)
-    {
-        std::string item = i->first + "=" + i->second;
-
-        return_array[k] = new char[item.length() + 1];
-        std::strcpy(return_array[k], item.c_str());
-        k++;
-    }
-    return_array[k] = NULL;
-    return return_array;
-}
-
 std::string CgiHandler::executeCgi(std::string & fileName)
 {
     pid_t       pid;
@@ -86,7 +52,7 @@ std::string CgiHandler::executeCgi(std::string & fileName)
     stringVec.push_back("php");
     stringVec.push_back(fileName);
 
-    envVec = this->_mapToArray();
+    envVec = mapToArray(_envVars);
     argVec = stringToArray(stringVec);
 
     pid = fork();

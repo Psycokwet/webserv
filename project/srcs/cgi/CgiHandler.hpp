@@ -8,7 +8,8 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <fcntl.h>             
+#include <fcntl.h>
+#include "../util/toArray.hpp"             
 
 #define CGI_BUFFER_SIZE 100
 #define CMD_PHP_LINUX "/usr/bin/php"
@@ -17,16 +18,14 @@
 class CgiHandler
 {
     public:
+        CgiHandler();
         std::string executeCgi(std::string & fileName);
         
 
     private:
         std::map<std::string, std::string>      _envVars;
         
-        CgiHandler();
         void        _initEnv();
-        char**      _mapToArray() const;
-
 };
 
 
