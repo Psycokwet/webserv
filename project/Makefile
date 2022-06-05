@@ -90,7 +90,9 @@ REQUESTS_FILES = 	GrammarParser.cpp \
 SRCS += $(addprefix $(REQUEST_PATH), $(REQUESTS_FILES))
 UTIL_FILES =	parse.cpp \
 				numbers.cpp \
-				logger.cpp		
+				logger.cpp	\
+				compareContainers.cpp	\
+				containerTo.cpp
 SRCS += $(addprefix $(UTIL_PATH), $(UTIL_FILES))
 
 SERVER_FILES =  MasterServer.cpp \

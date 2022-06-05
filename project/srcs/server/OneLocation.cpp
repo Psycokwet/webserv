@@ -15,17 +15,16 @@ DIRECTIVES_MAP OneLocation::initializeDirectivesMap()
 	map["client_max_body_size"] = &ALocation::addMaxSize;
 	map["error_page"] = &ALocation::addErrorPage;
 	map["cgi"] = &ALocation::addCgi;
-    return map;
+	return map;
 }
 
 DIRECTIVES_MAP OneLocation::_directives_to_setter = OneLocation::initializeDirectivesMap();
-
 
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-OneLocation::OneLocation()
+OneLocation::OneLocation(AServerItem *parent) : _parent(parent)
 {
 }
 
@@ -41,7 +40,7 @@ OneLocation::~OneLocation()
 ** --------------------------------- OVERLOAD ---------------------------------
 */
 
-std::ostream &			OneLocation::print( std::ostream & o) const
+std::ostream &OneLocation::print(std::ostream &o) const
 {
 	o << "I'm OneLocation and I have as \n\t\t\t_index = ";
 	for (unsigned long i = 0; i < _index.size(); i++)
@@ -73,7 +72,7 @@ std::ostream &			OneLocation::print( std::ostream & o) const
 
 AServerItem *OneLocation::addIndex(Node *node)
 {
-	if (this->_index[0].compare("index.html") == 0 && this->_index.size() == 1 )
+	if (this->_index[0].compare("index.html") == 0 && this->_index.size() == 1)
 	{
 		Node::t_inner_args_container values = node->get_inner_args();
 		if (values.size() < 2)
@@ -123,7 +122,7 @@ AServerItem *OneLocation::addAutoIndex(Node *node)
 
 AServerItem *OneLocation::addMethod(Node *node)
 {
-	if (this->_method.begin()->compare("GET") == 0 && this->_method.size() == 1 )
+	if (this->_method.begin()->compare("GET") == 0 && this->_method.size() == 1)
 	{
 		Node::t_inner_args_container values = node->get_inner_args();
 		if (values.size() < 2)
@@ -156,7 +155,6 @@ AServerItem *OneLocation::addMaxSize(Node *node)
 	return this;
 }
 
-
 AServerItem *OneLocation::addErrorPage(Node *node)
 {
 	if (1) // ! Todo: add condition for _error_code is added for the first time
@@ -179,7 +177,7 @@ AServerItem *OneLocation::addErrorPage(Node *node)
 AServerItem *OneLocation::addCgi(Node *node)
 {
 	std::cout << "OneLocation I'm trying to add a cgi directive from " << *node;
-	
+
 	if (this->_cgi[0].compare("") == 0 && this->_cgi.size() == 1)
 	{
 		Node::t_inner_args_container values = node->get_inner_args();
@@ -198,7 +196,7 @@ AServerItem *OneLocation::addCgi(Node *node)
 ** --------------------------------- ACCESSOR ---------------------------------
 */
 
-DIRECTIVES_MAP & OneLocation::getDirectiveMap()
+DIRECTIVES_MAP &OneLocation::getDirectiveMap()
 {
 	return this->_directives_to_setter;
 }

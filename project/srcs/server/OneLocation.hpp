@@ -10,25 +10,26 @@
 // #include "Listen.hpp"
 #include "../util/numbers.hpp"
 #include "ALocation.hpp"
-class OneLocation :public ALocation
+class OneLocation : public ALocation
 {
-    public:
-        OneLocation();
-        ~OneLocation();
-    	virtual std::ostream & print( std::ostream & o) const;
-      	static DIRECTIVES_MAP initializeDirectivesMap();
+public:
+	OneLocation(AServerItem *_parent = NULL);
+	~OneLocation();
+	virtual std::ostream &print(std::ostream &o) const;
+	static DIRECTIVES_MAP initializeDirectivesMap();
 
-		virtual AServerItem *addIndex(Node *node);
-		virtual AServerItem *addRoot(Node *node);
-		virtual AServerItem *addAutoIndex(Node *node);
-		virtual AServerItem *addMethod(Node *node);
-		virtual AServerItem *addMaxSize(Node *node);
-		virtual AServerItem *addErrorPage(Node *node);
-		virtual AServerItem * addCgi(Node *node);
+	virtual AServerItem *addIndex(Node *node);
+	virtual AServerItem *addRoot(Node *node);
+	virtual AServerItem *addAutoIndex(Node *node);
+	virtual AServerItem *addMethod(Node *node);
+	virtual AServerItem *addMaxSize(Node *node);
+	virtual AServerItem *addErrorPage(Node *node);
+	virtual AServerItem *addCgi(Node *node);
 
-	protected:
-     	static DIRECTIVES_MAP _directives_to_setter;
-      	virtual DIRECTIVES_MAP & getDirectiveMap();
+protected:
+	static DIRECTIVES_MAP _directives_to_setter;
+	virtual DIRECTIVES_MAP &getDirectiveMap();
+	AServerItem *_parent;
 };
 
 #endif /*------------------- OneLocation --------*/

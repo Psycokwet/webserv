@@ -14,14 +14,6 @@
 
 #define DEFAULT_CONFIG_PATH "./config_files/default.conf"
 
-AServerItem *test(AServerItem *asi, void *datas)
-{
-
-	(void)asi;
-	(void)datas;
-	return NULL;
-}
-
 int main(int ac, char *av[])
 {
 	std::string config_path;
@@ -44,15 +36,11 @@ int main(int ac, char *av[])
 		return 1;
 	std::cout << "Print result " << *ms << std::endl;
 
-	AServerItem *asi = ms->findTheFirstServerItemWith(&test, NULL);
-	if (asi)
-		std::cout << "____________________\nPrint result " << *asi << std::endl;
-
-	// if (ms->build() != 0) // ! Better throw something?
-	// {
-	// 	std::cout << "Error: Can not setup MasterServer" << std::endl;
-	// 	return 1;
-	// }
+	if (ms->build() != 0) // ! Better throw something?
+	{
+		std::cout << "Error: Can not setup MasterServer" << std::endl;
+		return 1;
+	}
 	// ms->run();
 	delete ms;
 	return 0;

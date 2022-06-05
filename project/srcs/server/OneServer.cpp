@@ -18,78 +18,76 @@ DIRECTIVES_MAP OneServer::initializeDirectivesMap()
 	map["client_max_body_size"] = &ALocation::addMaxSize;
 	map["error_page"] = &ALocation::addErrorPage;
 	map["cgi"] = &ALocation::addCgi;
-    return map;
+	return map;
 }
 
 DIRECTIVES_MAP OneServer::_directives_to_setter = OneServer::initializeDirectivesMap();
 
-
 AServerItem *OneServer::consume(Node *node)
 {
-	if(!node)
+	if (!node)
 		return NULL; // Or throw, whichever feels best
-	
+
 	Node::t_inner_args_container &inner_args = node->getInnerArgs(); // ! get all elements of server key (get all servers)
 	if (inner_args.size() == 0)
 		return NULL; // Or throw, whichever feels best
-	
+
 	// ! Get corresponding function to function pointer named directiveConsumer, based on the name of the directive
-	AServerItem *(OneServer::*directiveConsumer)(Node*) = OneServer::_directives_to_setter[*(inner_args.begin())];
-	
-	if(!directiveConsumer)
+	AServerItem *(OneServer::*directiveConsumer)(Node *) = OneServer::_directives_to_setter[*(inner_args.begin())];
+
+	if (!directiveConsumer)
 		return NULL; // Or throw, whichever feels best
 	// ! Call and Run the corresponding function, but how to change/add value to the same OneServer???
 	// ! The function does some job and change inside value of OneServer object. (return this)
-	return (this->*directiveConsumer)(node); 
+	return (this->*directiveConsumer)(node);
 }
 
-static std::vector<std::string> split(const std::string& s, char seperator)
+static std::vector<std::string> split(const std::string &s, char seperator)
 {
-   std::vector<std::string> output;
+	std::vector<std::string> output;
 
-    std::string::size_type prev_pos = 0, pos = 0;
+	std::string::size_type prev_pos = 0, pos = 0;
 
-    while((pos = s.find(seperator, pos)) != std::string::npos)
-    {
-        std::string substring( s.substr(prev_pos, pos-prev_pos) );
+	while ((pos = s.find(seperator, pos)) != std::string::npos)
+	{
+		std::string substring(s.substr(prev_pos, pos - prev_pos));
 
-        output.push_back(substring);
+		output.push_back(substring);
 
-        prev_pos = ++pos;
-    }
+		prev_pos = ++pos;
+	}
 
-    output.push_back(s.substr(prev_pos, pos-prev_pos)); // Last word
+	output.push_back(s.substr(prev_pos, pos - prev_pos)); // Last word
 
-    return output;
+	return output;
 }
 
-uint32_t getDecimalValueOfIPV4_String(const char* ipAddress)
+uint32_t getDecimalValueOfIPV4_String(const char *ipAddress)
 {
-    uint8_t ipbytes[4]={};
-    unsigned int i =0;
-    int8_t j=3;
-    while (ipAddress+i && i<strlen(ipAddress))
-    {
+	uint8_t ipbytes[4] = {};
+	unsigned int i = 0;
+	int8_t j = 3;
+	while (ipAddress + i && i < strlen(ipAddress))
+	{
 		char digit = ipAddress[i];
-		if (isdigit(digit) == 0 && digit!='.')
+		if (isdigit(digit) == 0 && digit != '.')
 			return 0;
-		j = digit == '.' ? j-1 : j;
-		ipbytes[j]= ipbytes[j] * 10 + atoi(&digit);
+		j = digit == '.' ? j - 1 : j;
+		ipbytes[j] = ipbytes[j] * 10 + atoi(&digit);
 		i++;
-    }
-    uint32_t a = ipbytes[0];
-    uint32_t b =  ( uint32_t)ipbytes[1] << 8;
-    uint32_t c =  ( uint32_t)ipbytes[2] << 16;
-    uint32_t d =  ( uint32_t)ipbytes[3] << 24;
-    return a+b+c+d;
+	}
+	uint32_t a = ipbytes[0];
+	uint32_t b = (uint32_t)ipbytes[1] << 8;
+	uint32_t c = (uint32_t)ipbytes[2] << 16;
+	uint32_t d = (uint32_t)ipbytes[3] << 24;
+	return a + b + c + d;
 }
-
 
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-OneServer::OneServer() //Todo: put default value to each directive
+OneServer::OneServer() // Todo: put default value to each directive
 {
 	_server_name.push_back("");
 	_listen = t_listen();
@@ -101,16 +99,15 @@ OneServer::OneServer() //Todo: put default value to each directive
 
 OneServer::~OneServer()
 {
-	for (std::map< std::string, OneLocation* >::const_iterator it = this->_location.begin(); it != this->_location.end(); it++)
+	for (std::map<std::string, OneLocation *>::const_iterator it = this->_location.begin(); it != this->_location.end(); it++)
 		delete it->second;
 }
-
 
 /*
 ** --------------------------------- OVERLOAD ---------------------------------
 */
 
-std::ostream &			OneServer::print( std::ostream & o) const
+std::ostream &OneServer::print(std::ostream &o) const
 {
 	o << "\n\tI'm OneServer and I have as _server_name = ";
 	for (unsigned long i = 0; i < _server_name.size(); i++)
@@ -119,7 +116,7 @@ std::ostream &			OneServer::print( std::ostream & o) const
 	o << "\n\t_listen: with address = " << _listen._address;
 	o << ", port = " << _listen._port;
 	o << ", default_server = " << _listen._default_server;
-	
+
 	o << "\n\t_index = ";
 	for (unsigned long i = 0; i < _index.size(); i++)
 		o << _index[i] << " ";
@@ -138,24 +135,48 @@ std::ostream &			OneServer::print( std::ostream & o) const
 	o << "\t_cgi = ";
 	for (unsigned long i = 0; i < _cgi.size(); i++)
 		o << _cgi[i] << " ";
-	
 	o << std::endl;
-	for (std::map< std::string, OneLocation* >::const_iterator it = this->_location.begin(); it != this->_location.end(); it++)
+	for (std::map<std::string, OneLocation *>::const_iterator it = this->_location.begin(); it != this->_location.end(); it++)
 	{
-		o << "\n\t\t" << "_location = "<< it->first << "\t" ;
+		o << "\n\t\t"
+		  << "_location = " << it->first << "\t";
 		(it->second)->print(o) << std::endl;
 	}
-	
+
 	return o;
 }
 
 /*
 ** --------------------------------- METHODS ----------------------------------
 */
+AServerItem *OneServer::findRightConfig(std::list<std::string> route_target)
+{
+
+	if (route_target.size() == 0)
+		return NULL;
+	for (std::vector<std::string>::iterator server_name_it = _server_name.begin(); server_name_it != _server_name.end(); server_name_it++)
+	{
+		if (route_target.front() != *server_name_it)
+			continue;
+		std::list<std::string>::iterator route_target_it = route_target.begin();
+		route_target_it++;
+		if (route_target.size() > 1)
+		{
+			for (std::map<std::string, OneLocation *>::iterator it = _location.begin(); it != _location.end(); it++)
+			{
+				if (*route_target_it != it->first)
+					continue;
+				return it->second;
+			}
+		}
+		return this;
+	}
+	return NULL;
+}
 
 AServerItem *OneServer::addServerName(Node *node)
-{	
-	if (this->_server_name[0].compare("") == 0 && this->_server_name.size() == 1 )
+{
+	if (this->_server_name[0].compare("") == 0 && this->_server_name.size() == 1)
 	{
 		_server_name.clear();
 		Node::t_inner_args_container values = node->get_inner_args();
@@ -170,21 +191,20 @@ AServerItem *OneServer::addServerName(Node *node)
 AServerItem *OneServer::addLocation(Node *node)
 {
 	Node::t_inner_args_container values = node->get_inner_args();
-	if(values.size() != 2) // necessary because juste after you try to read values[1]
+	if (values.size() != 2) // necessary because juste after you try to read values[1]
 		throw IncompleteDirective();
-	OneLocation * location_value = new OneLocation();
+	OneLocation *location_value = new OneLocation(this);
 	if (_location.find(values[1]) != _location.end())
 		throw DuplicateUriError();
-	_location[values[1]] =  location_value;
+	_location[values[1]] = location_value;
 	return location_value;
 }
-
 
 AServerItem *OneServer::addListen(Node *node)
 {
 	std::cout << "OneServer I'm trying to add a listen directive from " << *node;
-	
-	if (_listen._port == DEFAULT_PORT && _listen._address == LOCALHOST && _listen._default_server.compare("") == 0) 
+
+	if (_listen._port == DEFAULT_PORT && _listen._address == LOCALHOST && _listen._default_server.compare("") == 0)
 	{
 		Node::t_inner_args_container values = node->get_inner_args();
 		if (values.size() < 2 || values.size() > 3)
@@ -198,15 +218,15 @@ AServerItem *OneServer::addListen(Node *node)
 				_listen._address = getDecimalValueOfIPV4_String(output[0].c_str());
 				_listen._port = getIntNumberWithGuard(output[1]);
 			}
-			else if(output.size() == 1)
+			else if (output.size() == 1)
 			{
-				if(isIntNumber(output[0]))
+				if (isIntNumber(output[0]))
 					_listen._port = getIntNumberWithGuard(output[0]);
 				else
 					_listen._address = getDecimalValueOfIPV4_String(output[0].c_str());
 			}
 		}
-		else if (values.size () == 2)
+		else if (values.size() == 2)
 		{
 			if (isIntNumber(values[1]))
 				_listen._port = getIntNumberWithGuard(values[1]);
@@ -219,10 +239,9 @@ AServerItem *OneServer::addListen(Node *node)
 	return this;
 }
 
-
 AServerItem *OneServer::addIndex(Node *node)
 {
-	if (this->_index[0].compare("index.html") == 0 && this->_index.size() == 1 )
+	if (this->_index[0].compare("index.html") == 0 && this->_index.size() == 1)
 	{
 		Node::t_inner_args_container values = node->get_inner_args();
 		if (values.size() < 2)
@@ -272,7 +291,7 @@ AServerItem *OneServer::addAutoIndex(Node *node)
 
 AServerItem *OneServer::addMethod(Node *node)
 {
-	if (this->_method.begin()->compare("GET") == 0 && this->_method.size() == 1 )
+	if (this->_method.begin()->compare("GET") == 0 && this->_method.size() == 1)
 	{
 		Node::t_inner_args_container values = node->get_inner_args();
 		if (values.size() < 2)
@@ -291,7 +310,6 @@ AServerItem *OneServer::addMethod(Node *node)
 	return this;
 }
 
-
 AServerItem *OneServer::addMaxSize(Node *node)
 {
 	if (this->_client_max_body_size == 1)
@@ -305,7 +323,6 @@ AServerItem *OneServer::addMaxSize(Node *node)
 		throw MultipleDeclareError();
 	return this;
 }
-
 
 AServerItem *OneServer::addErrorPage(Node *node)
 {
@@ -329,7 +346,7 @@ AServerItem *OneServer::addErrorPage(Node *node)
 AServerItem *OneServer::addCgi(Node *node)
 {
 	std::cout << "OneServer I'm trying to add a cgi directive from " << *node;
-	
+
 	if (this->_cgi[0].compare("") == 0 && this->_cgi.size() == 1)
 	{
 		Node::t_inner_args_container values = node->get_inner_args();
@@ -348,7 +365,7 @@ AServerItem *OneServer::addCgi(Node *node)
 ** --------------------------------- ACCESSOR ---------------------------------
 */
 
-DIRECTIVES_MAP & OneServer::getDirectiveMap()
+DIRECTIVES_MAP &OneServer::getDirectiveMap()
 {
 	return this->_directives_to_setter;
 }

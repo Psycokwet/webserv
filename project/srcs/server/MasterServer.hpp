@@ -6,6 +6,7 @@
 #include "../../includes/webserv.h"
 #include "OneServer.hpp"
 #include "AServerItem.hpp"
+#include "../util/containerTo.hpp"
 #include <sys/select.h> // FD_CLR, FD_ZERO, FD_SET, FD_ISSET macros
 
 class MasterServer;
@@ -35,8 +36,6 @@ public:
 	int build();
 	void run();
 
-	virtual AServerItem *findTheFirstServerItemWith(AServerItem *(*test)(AServerItem *, void *datas), void *datas);
-
 	class BuildError : public std::exception
 	{
 	public:
@@ -46,14 +45,13 @@ public:
 		}
 	};
 	class RepeatPort : public std::exception
-    {
-    public:
-        virtual const char *what() const throw()
-        {
-       	 return "ERROR: Different servers listen to same port";
-        }
-    };
-
+	{
+	public:
+		virtual const char *what() const throw()
+		{
+			return "ERROR: Different servers listen to same port";
+		}
+	};
 
 private:
 	std::vector<OneServer *> _configAllServer;
@@ -67,7 +65,7 @@ private:
 
 	OneServer *createServer();
 	void init_env();
-	void get_server_ready();
+	int get_server_ready();
 	void init_fdSet();
 	void do_select();
 	void check_fd();
