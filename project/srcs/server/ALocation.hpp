@@ -44,7 +44,7 @@ class ALocation :public AServerItem
       std::set< std::string>      _method;
       int                         _client_max_body_size;
       t_error_page                _error_page;
-      std::string                 _cgi;
+      std::vector< std::string >  _cgi;
 };
 
 #endif /*------------------- ALocation --------*/
