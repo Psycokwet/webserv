@@ -90,26 +90,38 @@ std::ostream &MasterServer::print(std::ostream &o) const
 
 int MasterServer::build()
 {
-	/*************************************************************/
-	/* Initialize the master fd_set                              */
-	/*************************************************************/
-	init_env();
-	get_server_ready();
-	return 0;
+    /*************************************************************/
+    /* Initialize the master fd_set                              */
+    /*************************************************************/
+    init_env(); // ! set a vector of _fdSet, set all fd is FD_FREE
+    if (get_server_ready() == EXIT_FAILURE) // ! Set up fd socket for each server, change FD_FREE to FD_SERV
+        return EXIT_FAILURE;
+    return EXIT_SUCCESS;
 }
 
 void MasterServer::run() // ! do like main_loops
 {
-	/*************************************************************/
-	/* Loop waiting for incoming connects or for incoming data   */
-	/* on any of the connected sockets.                          */
-	/*************************************************************/
-	while (1)
-	{
-		init_fdSet();
-		do_select();
-		check_fd();
-	}
+    std::string command;
+    std::cout << "Your Server is running ... \nInsert 'exit' to stop server." << std::endl;
+    /*************************************************************/
+    /* Loop waiting for incoming connects or for incoming data   */
+    /* on any of the connected sockets.                          */
+    // /*************************************************************/
+    while (1)
+    {
+        std::getline(std::cin, command);
+        if (command.compare("exit") != 0)
+        {
+            std::cout << "Command is invalid. Insert 'exit' to stop server." << std::endl;
+            continue ;
+        }
+        else
+            break ;
+        init_fd(); //! Select fd that are not FD_FREE. Set it to _fdRead in default. if that fd has len (buf_write) > 0, it will be set to _fdWrite
+        do_select(); // ! select if fd is type READ or WRITE, set them in _fdRead or _fdWrite
+        check_fd(); // ! run through the _fdSet, if fd is on _fdRead, call fct_read, if it is on _fdWrite call fct_write
+    }
+    std::cout << "Exit program" << std::endl;
 }
 
 AServerItem *MasterServer::findTheFirstServerItemWith(AServerItem *(*test)(AServerItem *, void *), void *datas)
@@ -150,43 +162,61 @@ void MasterServer::init_env()
 		this->_fdSet.push_back(new_fd);
 		i++;
 	}
-
-	// std::cout << "\n_maxFD: " << _maxFd;
-	// std::cout << "\nSize of fdSet: " << _fdSet.size() << std::endl;
 }
 
-void MasterServer::get_server_ready()
+int MasterServer::get_server_ready()
 {
+    int server_size = _configAllServer.size();
+    try
+    {
+        std::set<int> port_set;
+        std::pair<std::set<int>::iterator,bool> ret;
+        for (int i = 0; i < server_size; i++)
+        {
+            t_listen config_listen = _configAllServer[i]->getListen();
+            ret = port_set.insert(config_listen._port);
+            if (ret.second == false)
+                throw RepeatPort();
+        }
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        return EXIT_FAILURE;
+    }
+    
+    for (int i = 0; i < server_size; i++)
+    {
+        int                 s;
+        struct sockaddr_in  sin;
+        t_listen config_listen = _configAllServer[i]->getListen();
+        int rc, on = 1;
 
-	for (unsigned long i = 0; i < _configAllServer.size(); i++)
-	{
-		int s;
-		struct sockaddr_in sin;
-		t_listen config_listen = _configAllServer[i]->getListen();
-		int rc, on = 1;
+         /************************************************************
+        * Create an AF_INET stream socket to receive incoming       
+        * connections on
+        * If PROTOCOL is zero, one is chosen automatically.
+        * Returns a file descriptor for the new socket, or -1 for errors.                                            
+        *************************************************************/
+        s = socket(AF_INET, SOCK_STREAM, 0);
+        if (DEBUG){
+            std::cout << "Socket created is: " << s << std::endl;
+        }
+        if (s == 0)
+        {
+            std::cerr << "Fail to set socket" << std::endl;
+            return EXIT_FAILURE;
+        }
 
-		/************************************************************
-		 * Create an AF_INET stream socket to receive incoming
-		 * connections on
-		 * If PROTOCOL is zero, one is chosen automatically.
-		 * Returns a file descriptor for the new socket, or -1 for errors.
-		 *************************************************************/
-		s = socket(AF_INET, SOCK_STREAM, 0);
-		if (s == 0)
-		{
-			std::cerr << "Fail to set socket" << std::endl;
-			return;
-		}
-
-		/*************************************************************/
-		/* Allow socket descriptor to be reuseable                   */
-		/*************************************************************/
-		rc = setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char *)&on, sizeof(on));
-		if (rc < 0)
-		{
-			std::cerr << "setsockopt() failed" << std::endl;
-			return;
-		}
+        /*************************************************************/
+        /* Allow socket descriptor to be reuseable                   */
+        /*************************************************************/
+        rc = setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char *)&on, sizeof(on));
+        if (rc < 0)
+        {
+            std::cerr << "setsockopt() failed" << std::endl;
+            return EXIT_FAILURE ;
+        }
 
 		/*************************************************************/
 		/* Set address (host) and port                               */
@@ -195,32 +225,33 @@ void MasterServer::get_server_ready()
 		sin.sin_addr.s_addr = htonl(config_listen._address);
 		sin.sin_port = htons(config_listen._port);
 
-		/*************************************************************/
-		/* Bind the socket                                           */
-		/*************************************************************/
-		rc = bind(s, (struct sockaddr *)&sin, sizeof(sin));
-		if (rc < 0)
-		{
-			std::cerr << "Fail to bind to port " << config_listen._port << std::endl;
-			return;
-		}
+        /*************************************************************/
+        /* Bind the socket                                           */
+        /*************************************************************/
+        rc = bind(s, (struct sockaddr *)&sin, sizeof(sin));
+        if (rc < 0)
+        {
+            std::cerr << "Fail to bind to port " << config_listen._port << std::endl;
+            return EXIT_FAILURE ;
+        }
 
-		/*************************************************************/
-		/* Try to specify maximun of client pending connection for   */
-		/*   the master socket (server_fd)                           */
-		/*************************************************************/
-		rc = listen(s, MAX_CLIENTS);
-		if (rc < 0)
-		{
-			std::cerr << "Fail to listen" << std::endl;
-			return;
-		}
+        /*************************************************************/
+        /* Try to specify maximun of client pending connection for   */
+        /*   the master socket (server_fd)                           */
+        /*************************************************************/
+        rc = listen(s, MAX_CLIENTS);
+        if (rc < 0)
+        {
+            std::cerr << "Fail to listen" << std::endl;
+            return EXIT_FAILURE;
+        }
 
-		_fdSet[s].type = FD_SERV;
-		_fdSet[s].host = config_listen._port;
-		_fdSet[s].fct_read = &MasterServer::server_accept;
+        _fdSet[s].type = FD_SERV;
+        _fdSet[s].host = config_listen._port;
+        _fdSet[s].fct_read = &MasterServer::server_accept;
 		_fdSet[s].parser = NULL;
-	}
+    }
+    return EXIT_SUCCESS;
 }
 
 void MasterServer::server_accept(int s)
@@ -229,14 +260,17 @@ void MasterServer::server_accept(int s)
 	struct sockaddr_in csin;
 	socklen_t csin_len;
 
-	csin_len = sizeof(csin);
-	cs = accept(s, (struct sockaddr *)&csin, &csin_len);
-	printf("New client #%d from %s:%d\n", cs, inet_ntoa(csin.sin_addr), ntohs(csin.sin_port));
+    csin_len = sizeof(csin);
+    cs = accept(s, (struct sockaddr*)&csin, &csin_len);
+    if (DEBUG)
+        std::cout << "fd after accept is: " << cs << std::endl;
+    
+    printf("New client #%d from %s:%d\n", cs, inet_ntoa(csin.sin_addr), ntohs(csin.sin_port));
 	init_fd(&_fdSet[cs]);
-	_fdSet[cs].type = FD_CLIENT;
-	_fdSet[cs].host = _fdSet[cs].host;
-	_fdSet[cs].fct_read = &MasterServer::client_read;
-	_fdSet[cs].fct_write = &MasterServer::client_write;
+    _fdSet[cs].type = FD_CLIENT;
+    _fdSet[cs].host = _fdSet[cs].host;
+    _fdSet[cs].fct_read = &MasterServer::client_read;
+    _fdSet[cs].fct_write = &MasterServer::client_write;
 	_fdSet[cs].parser = new GrammarParser(*_base_request_parser);
 }
 

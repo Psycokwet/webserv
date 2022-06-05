@@ -28,10 +28,10 @@ int  main(void)
     int new_socket;
     int valread;
     char buffer[1024];
-    char message[] = "HTTP/1.1 200 OK\nDate:Fri, 16 Mar 2020 17:21:12 GMT\nServer: my_server\nContent-Type: text/html;charset=UTF-8\nContent-Length: 1846\n\n<!DOCTYPE html>\n<html><h1>Hello world</h1></html>\n";
-    // char message[] = "<!DOCTYPE html>\n<html>Hello world</html>\n"; // ! This does not work, need to have full form of RESPONSE as above for browser to understand
+    char response_from_server[] = "HTTP/1.1 200 OK\nDate:Fri, 16 Mar 2020 17:21:12 GMT\nServer: my_server\nContent-Type: text/html;charset=UTF-8\nContent-Length: 1846\n\n<!DOCTYPE html>\n<html><h1>Hello world</h1></html>\n";
+    // char response_from_server[] = "<!DOCTYPE html>\n<html>Hello world</html>\n"; // ! This does not work, need to have full form of RESPONSE as above for browser to understand
     int i;
-    int max_clients = 3;
+    int max_clients = 30;
     int client_socket[max_clients];
     int opt = TRUE;
     int addrlen;
@@ -86,7 +86,7 @@ int  main(void)
 
     // Try to specify maximun of 3 pending connection for the master socket (server_fd)
     // todo: ok
-    if (listen(server_fd, 3) < 0)
+    if (listen(server_fd, max_clients + 1) < 0)
     {
         perror("Fail to listen");
         exit(EXIT_FAILURE);
@@ -145,10 +145,10 @@ int  main(void)
             //inform user of socket number - used in send and receive commands 
             printf("New connection , socket fd is %d , ip is : %s , sin_port : %d\n" , new_socket , inet_ntoa(server_address.sin_addr) , ntohs(server_address.sin_port));  
 
-            // send new connection greeting message
-            if (send(new_socket, message, strlen(message), 0) != strlen(message))
-                perror("send");
-            puts ("Welcome message sent successfully");
+            // send new connection greeting response_from_server
+            // if (send(new_socket, response_from_server, strlen(response_from_server), 0) != strlen(response_from_server))
+            //     perror("send");
+            // puts ("Welcome response_from_server sent successfully");
 
             // add new socket to array of sockets
             for (i = 0; i < max_clients; i++)
@@ -182,9 +182,7 @@ int  main(void)
             }
             buffer_recv[bytesRead] = 0;
 
-            printf("bytes read: %d\n", bytesRead);
-            printf("Request from Browser:\n%s", buffer_recv);
-            printf("Sent from Client:\n---------------------------\n%s----------------------------\n", buffer_recv);
+            printf("Request received from Client:\n---------------------------\n%s----------------------------\n", buffer_recv);
             delete[] buffer_recv;
         }
 
@@ -194,20 +192,20 @@ int  main(void)
             sd = client_socket[i];
             if (FD_ISSET(sd, &readfds))
             {
-                // check if it was for closing, and also read the incoming message
+                // check if it was for closing, and also read the incoming response_from_server
                 if ((valread = read(sd, buffer, 1024)) == 0)
                 {
                     //Somebody disconnected , get his details and print 
                     getpeername(sd , (struct sockaddr*)&server_address , \
                         (socklen_t*)&addrlen);  
-                    printf("Host disconnected , ip %s , port %d \n" , 
+                    printf("Host disconnected , ip %s , port %d \n\n" , 
                           inet_ntoa(server_address.sin_addr) , ntohs(server_address.sin_port));  
                          
                     //Close the socket and mark as 0 in list for reuse 
                     close( sd );  
                     client_socket[i] = 0;  
                 }
-                //Echo back the message that came in 
+                //Echo back the response_from_server that came in 
                 else 
                 {  
                     //set the string terminating NULL byte on the end 

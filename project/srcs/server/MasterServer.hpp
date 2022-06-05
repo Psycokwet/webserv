@@ -45,6 +45,15 @@ public:
 			return "ERROR: Couldn't finish the build";
 		}
 	};
+	class RepeatPort : public std::exception
+    {
+    public:
+        virtual const char *what() const throw()
+        {
+       	 return "ERROR: Different servers listen to same port";
+        }
+    };
+
 
 private:
 	std::vector<OneServer *> _configAllServer;

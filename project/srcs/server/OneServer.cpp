@@ -135,8 +135,9 @@ std::ostream &			OneServer::print( std::ostream & o) const
 		o << _error_page.errorCodes[i] << " ";
 	o << ", and uri = " << _error_page.uri;
 
-	o << "\n\t_cgi = " << _cgi;
-
+	o << "\t_cgi = ";
+	for (unsigned long i = 0; i < _cgi.size(); i++)
+		o << _cgi[i] << " ";
 	
 	o << std::endl;
 	for (std::map< std::string, OneLocation* >::const_iterator it = this->_location.begin(); it != this->_location.end(); it++)
@@ -180,8 +181,10 @@ AServerItem *OneServer::addLocation(Node *node)
 
 
 AServerItem *OneServer::addListen(Node *node)
-{	
-	if (_listen._port == 80 && _listen._address == LOCALHOST && _listen._default_server.compare("") == 0) 
+{
+	std::cout << "OneServer I'm trying to add a listen directive from " << *node;
+	
+	if (_listen._port == DEFAULT_PORT && _listen._address == LOCALHOST && _listen._default_server.compare("") == 0) 
 	{
 		Node::t_inner_args_container values = node->get_inner_args();
 		if (values.size() < 2 || values.size() > 3)
@@ -324,14 +327,17 @@ AServerItem *OneServer::addErrorPage(Node *node)
 }
 
 AServerItem *OneServer::addCgi(Node *node)
-{	
-	if (this->_cgi.compare("") == 0)
+{
+	std::cout << "OneServer I'm trying to add a cgi directive from " << *node;
+	
+	if (this->_cgi[0].compare("") == 0 && this->_cgi.size() == 1)
 	{
-		_cgi.clear();
 		Node::t_inner_args_container values = node->get_inner_args();
-		if (values.size() != 2)
+		if (values.size() != 3)
 			throw IncompleteDirective();
-		_cgi.assign(values[1]);
+		_cgi.clear();
+		for (unsigned long i = 1; i < values.size(); i++)
+			_cgi.push_back(values[i]);
 	}
 	else
 		throw MultipleDeclareError();

@@ -55,7 +55,9 @@ std::ostream &			OneLocation::print( std::ostream & o) const
 
 	o << "\n\t\t\t_client_max_body_size = " << _client_max_body_size;
 
-	o << "\n\t\t\t_cgi = " << _cgi;
+	o << "\n\t\t\t_cgi = ";
+	for (unsigned long i = 0; i < _cgi.size(); i++)
+		o << _cgi[i] << " ";
 
 	o << "\n\t\t\t_error_page: with codes = ";
 	for (unsigned long i = 0; i < _error_page.errorCodes.size(); i++)
@@ -175,14 +177,17 @@ AServerItem *OneLocation::addErrorPage(Node *node)
 }
 
 AServerItem *OneLocation::addCgi(Node *node)
-{	
-	if (this->_cgi.compare("") == 0)
+{
+	std::cout << "OneLocation I'm trying to add a cgi directive from " << *node;
+	
+	if (this->_cgi[0].compare("") == 0 && this->_cgi.size() == 1)
 	{
-		_cgi.clear();
 		Node::t_inner_args_container values = node->get_inner_args();
-		if (values.size() != 2)
+		if (values.size() != 3)
 			throw IncompleteDirective();
-		_cgi.assign(values[1]);
+		_cgi.clear();
+		for (unsigned long i = 1; i < values.size(); i++)
+			_cgi.push_back(values[i]);
 	}
 	else
 		throw MultipleDeclareError();

@@ -6,7 +6,7 @@
 #    By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#              #
-#    Updated: 2022/06/01 12:52:47 by scarboni         ###   ########.fr        #
+#    Updated: 2022/06/05 16:09:58 by scarboni         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -33,6 +33,8 @@ TESTCONFIGRULE		= testConfigRule
 TESTCONFIG			= testConfig
 TESTPARSERRULE		= testParserRule
 TESTPARSER			= testParser
+TESTNETWORKRULE		= testNetworkRule
+TESTNETWORK			= testNetwork
 
 LAST_RUN_LOGS_FOLDER	= logs
 SAVED_LOGS_FOLDER		= pastLogs
@@ -40,23 +42,28 @@ SAVED_LOGS_FOLDER		= pastLogs
 
 CPPFLAGS += -DLOGS_FOLDER='"$(LAST_RUN_LOGS_FOLDER)"'
 
-ifndef TESTS
+ifndef TESTS #!Focus on this
 	TESTS=""
 	SRCS = 	main.cpp
 	CPPFLAGS += -DDEBUG=false
 else
-		CPPFLAGS += -DDEBUG=true
+		CPPFLAGS += -DDEBUG=true # ! to set variable DEBUG = true here, ok I get it
 	ifeq ($(TESTS), $(TESTPARSERRULE))
 		SRCS = mainParserTest.cpp
 		NAME = $(TESTPARSER)
 	else
-		ifeq ($(TESTS), $(TESTCONFIGRULE))
+		ifeq ($(TESTS), $(TESTCONFIGRULE)) # ! testConfigRule, give program name: testConfig
 			SRCS = mainTestConfig.cpp
 			NAME = $(TESTCONFIG)
 		else
 			ifeq ($(TESTS), $(TESTSERVERRULE))
 				SRCS = main.cpp
 				NAME = $(TESTSERVER)
+			else
+				ifeq ($(TESTS), $(TESTNETWORKRULE))
+					SRCS = mainNetworkTest.cpp
+					NAME = $(TESTNETWORK)
+				endif
 			endif
 		endif
 	endif
@@ -143,6 +150,7 @@ fclean:
 	@rm -f $(TESTPARSER)
 	@rm -f $(TESTSERVER)
 	@rm -f $(TESTCONFIG)
+	@rm -f $(TESTNETWORK)
 	@echo "\033[0m"	
 
 cleanLogs:
@@ -177,7 +185,7 @@ define launch_one_test_with_sep
 	printf "____.--.--.____.--.--.____.--.--.____.--.--.__Weeeeeeeeee__.--.--.____.--.--.____.--.--.____.--.--.____\n"
 endef
 
-define launch_only_legal_tests
+define launch_only_legal_tests # ! Focus on this
 	@ if [ $(TESTS) = $(1) ]; then \
 		$(2)
 	else \
@@ -224,7 +232,7 @@ ARGS_CONFIGS_TESTS_RAW_PREF = $(addprefix $(CONFIG_FOLDER), $(ARGS_CONFIGS_TESTS
 ARGS_CONFIGS_TESTS = $(addsuffix $(CONFIG_FILE_EXT), $(ARGS_CONFIGS_TESTS_RAW_PREF))
 
 
-$(TESTCONFIGRULE): 
+$(TESTCONFIGRULE): # ! Focus on this
 	$(call launch_only_legal_tests,$(TESTCONFIGRULE),\
 		$(call launch_one_test_with_sep) ;\
 		$(call launch_one_test_with_sep, Too much args) ;\
@@ -234,7 +242,11 @@ $(TESTSERVERRULE):
 	$(call launch_only_legal_tests,$(TESTSERVERRULE),\
 		$(call launch_one_test_with_sep, ./config_files/simple.conf) ;\)
 
-allTests: $(TESTCONFIGRULE) $(TESTPARSERRULE) $(TESTSERVERRULE) 
+$(TESTNETWORKRULE):	
+	$(call launch_only_legal_tests,$(TESTNETWORKRULE),\
+		$(call launch_test_from_array_args,$(ARGS_CONFIGS_TESTS)) ;\)
+
+allTests: $(TESTCONFIGRULE) $(TESTPARSERRULE) 
 
 
 .PHONY: clean fclean re bonus
