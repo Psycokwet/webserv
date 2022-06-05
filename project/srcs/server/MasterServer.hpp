@@ -43,6 +43,14 @@ class MasterServer :public AServerItem
               }
       };
 
+        class RepeatPort : public std::exception
+        {
+            public:
+                virtual const char *what() const throw()
+                {
+                return "ERROR: Different servers listen to same port";
+                }
+        };
 
     private:
         std::vector< OneServer* >      _configAllServer;
@@ -56,7 +64,7 @@ class MasterServer :public AServerItem
          
 		OneServer   *createServer();
         void        init_env();
-        void        get_server_ready();
+        int         get_server_ready();
         void        init_fd();
         void        do_select();
         void        check_fd();

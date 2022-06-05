@@ -37,7 +37,7 @@ ALocation::ALocation() //Todo: put default value to each directive
 	_method.insert("GET");
 	_client_max_body_size = 1; // Unit is Mb
 	_error_page = t_error_page();
-	_cgi = "";
+	_cgi.push_back("");
 
 }
 
