@@ -7,11 +7,9 @@
 static void clean_fd(t_fd *fd)
 {
     bzero(fd->buf_read, BUF_SIZE + 1);
-    bzero(fd->buf_write, BUF_SIZE + 1);
     fd->type = FD_FREE;
     fd->host = NO_HOST;
     fd->fct_read = NULL;
-    fd->fct_write = NULL;
     fd->parser = NULL;
 }
 
@@ -94,22 +92,8 @@ int	MasterServer::build()
 
 void MasterServer::run() // ! do like main_loops
 {
-    // std::string command;
-    // std::cout << "Your Server is running ... \nInsert 'exit' to stop server." << std::endl;
-    /*************************************************************/
-    /* Loop waiting for incoming connects or for incoming data   */
-    /* on any of the connected sockets.                          */
-    // /*************************************************************/
     while (1)
     {
-        // std::getline(std::cin, command);
-        // if (command.compare("exit") != 0)
-        // {
-        //     std::cout << "Command is invalid. Insert 'exit' to stop server." << std::endl;
-        //     continue ;
-        // }
-        // else
-        //     break ;
         init_fd(); //! Select fd that are not FD_FREE. Set it to _fdRead in default. if that fd has len (buf_write) > 0, it will be set to _fdWrite
         do_select(); // ! select if fd is type READ or WRITE, set them in _fdRead or _fdWrite
         check_fd(); // ! run through the _fdSet, if fd is on _fdRead, call fct_read, if it is on _fdWrite call fct_write
@@ -117,7 +101,7 @@ void MasterServer::run() // ! do like main_loops
 }
 
 /*
-** --------------------------------- PRIVATE METHODS ----------------------------------
+** ------------------------- PRIVATE METHODS ----------------------------------
 */
 
 void MasterServer::init_env()
@@ -226,7 +210,7 @@ int MasterServer::get_server_ready()
         /* Try to specify maximun of client pending connection for   */
         /*   the master socket (server_fd)                           */
         /*************************************************************/
-        rc = listen(s, MAX_CLIENTS);
+        rc = listen(s, MAX_CLIENT_QUEUE);
         if (rc < 0)
         {
             std::cerr << "Fail to listen" << std::endl;
@@ -257,7 +241,17 @@ void MasterServer::server_accept(int s)
     _fdSet[cs].type = FD_CLIENT;
     _fdSet[cs].host = _fdSet[cs].host;
     _fdSet[cs].fct_read = &MasterServer::client_read;
-    _fdSet[cs].fct_write = &MasterServer::client_write;
+    for (int i = 0; i < MAX_CLIENTS; i++)  
+    {  
+        //if position is empty 
+        if( _client_sockets[i] == 0 )  
+        {  
+            _client_sockets[i] = cs;  
+            printf("Adding to list of sockets as %d\n" , i);  
+                    
+            break;  
+        }  
+    }  
 }
 
 void MasterServer::init_fd()
@@ -267,16 +261,19 @@ void MasterServer::init_fd()
     i = 0;
     this->_max = 0;
     FD_ZERO(&this->_fdRead);
-    FD_ZERO(&this->_fdWrite);
     while (i < this->_maxFd)
     {
         if (this->_fdSet[i].type != FD_FREE)
         {
             FD_SET(i, &this->_fdRead);
-            if (strlen(this->_fdSet[i].buf_write) > 0)
-                FD_SET(i, &this->_fdWrite);
             this->_max = MAX(_max, i);
         }
+        i++;
+    }
+    i = 0;
+    while (i < MAX_CLIENTS)
+    {
+        FD_SET(_client_sockets[i], &this->_fdRead);
         i++;
     }
 }
@@ -295,7 +292,7 @@ void MasterServer::do_select()
     /* Call select() and wait 1 minutes for it to complete.      */
     /* Wait for one or more fd become "ready" to read and write  */
     /*************************************************************/
-    this->_r = select(this->_max + 1, &this->_fdRead, &this->_fdWrite, NULL, &timeout);
+    this->_r = select(this->_max + 1, &this->_fdRead, NULL, NULL, &timeout);
 
     /**********************************************************/
     /* Check to see if the select call failed.                */
@@ -321,12 +318,20 @@ void MasterServer::client_read(int fd)
 {
     int r;
     int i;
+    int sd;
 
+    for (int i = 0; i < MAX_CLIENTS; i++)
+    {
+        sd = _client_sockets[i];
+
+        if (FD_ISSET(sd, &_fdRead))
+        {
+            if (valread = recv(sd, _fdS))
+        }
+    }
     //Receive request
     r = recv(fd, _fdSet[fd].buf_read, BUF_SIZE, 0);
-    printf("buf_read =\n%s\n", _fdSet[fd].buf_read);
-
-
+    printf("Request received =\n%s\n", _fdSet[fd].buf_read);
     
     if (r <= 0)
     {
@@ -341,12 +346,6 @@ void MasterServer::client_read(int fd)
         {
             if((_fdSet[i].type == FD_CLIENT) && (i != fd)) // ! need to work on this conditions, is sending response to all clients?
             {
-                printf(">>>>>>>>>>>>>>>>>> HERE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-                // char src[1000]; // will be response
-                // char dest[1000]; // will be buf_read
-                // strcpy(src, "HTTP/1.1 200 OK\nDate:Fri, 16 Mar 2020 17:21:12 GMT\nServer: my_server\nContent-Type: text/html;charset=UTF-8\nContent-Length: 1846\n\n<!DOCTYPE html>\n<html><h1>Hello world</h1></html>\n");
-                // strcpy(dest, src);
-                // send(i, dest, strlen(dest), 0);
                 char response_from_server[] = "HTTP/1.1 200 OK\nDate: Mon, 27 Jul 2009 12:28:53 GMT\nServer: Apache/2.2.14 (Win32)\nLast-Modified: Wed, 22 Jul 2009 19:15:56 GMT\nContent-Length: 88\nContent-Type: text/html\nConnection: Closed\n\n\n<html>\n<body>\n<h1>Hello World!</h1>\n</body>\n</html>\n";
                 // Send Response based on Request
                 // send(fd, _fdSet[fd].buf_read, strlen(_fdSet[fd].buf_read), 0);
@@ -360,11 +359,11 @@ void MasterServer::client_read(int fd)
 
 }
 
-void MasterServer::client_write(int fd)
-{
-    std::cout << "My fd is: " << fd << std::endl;
+// void MasterServer::client_write(int fd)
+// {
+//     std::cout << "My fd is: " << fd << std::endl;
 
-}
+// }
 
 void MasterServer::check_fd()
 {
@@ -375,11 +374,10 @@ void MasterServer::check_fd()
     while ((i < _maxFd) && (fd_rest > 0))
     {
         if (FD_ISSET(i, &_fdRead))
+        {
             (this->*_fdSet[i].fct_read)(i);
-        if (FD_ISSET(i, &_fdWrite))
-            (this->*_fdSet[i].fct_write)(i);
-        if (FD_ISSET(i, &_fdRead) || FD_ISSET(i, &_fdWrite))
             fd_rest--;
+        }
         i++;
         
         printf("i = %d; fd_rest = %d\n", i, fd_rest);

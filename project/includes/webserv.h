@@ -6,7 +6,7 @@
 /*   By: thi-nguy <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#             */
-/*   Updated: 2022/06/07 09:08:17 by thi-nguy         ###   ########.fr       */
+/*   Updated: 2022/06/07 13:04:38 by thi-nguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@
 # include <iostream>
 
 #define MAX_CLIENTS 25
+#define MAX_CLIENT_QUEUE 3
 #define LOCALHOST  2130706433
 #define BUF_SIZE 100000
 

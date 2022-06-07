@@ -14,9 +14,9 @@ typedef struct 	s_fd {
     int     type;
     int     host;
     void(MasterServer::*fct_read) (int);
-    void(MasterServer::*fct_write) (int);
+    // void(MasterServer::*fct_write) (int);
     char    buf_read[BUF_SIZE + 1];
-    char    buf_write[BUF_SIZE + 1];
+    // char    buf_write[BUF_SIZE + 1];
     GrammarParser*   parser;
 } 	t_fd;
 
@@ -43,7 +43,7 @@ class MasterServer :public AServerItem
                 }
         };
 
-        class RepeatPort : public std::exception
+        class RepeatedPort : public std::exception
         {
             public:
                 virtual const char *what() const throw()
@@ -55,11 +55,11 @@ class MasterServer :public AServerItem
     private:
         std::vector< OneServer* >      _configAllServer;
         std::vector< t_fd >            _fdSet;
+        int                            _client_sockets[MAX_CLIENTS];
         int                            _max;
         int                            _r;
         int                            _maxFd;
         fd_set                         _fdRead;
-        fd_set                         _fdWrite;
     	GrammarParser*				   _base_request_parser;
          
 		OneServer   *createServer();
@@ -71,7 +71,6 @@ class MasterServer :public AServerItem
         
         void        server_accept(int s);
         void        client_read(int fd);
-        void        client_write(int fd);
 
 };
 
