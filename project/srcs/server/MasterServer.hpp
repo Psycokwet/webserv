@@ -31,7 +31,7 @@ class MasterServer :public AServerItem
         int build();
         void run();
 
-        class RepeatPort : public std::exception
+        class RepeatedPort : public std::exception
         {
             public:
                 virtual const char *what() const throw()

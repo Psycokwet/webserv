@@ -89,27 +89,26 @@ int	MasterServer::build()
 
 void MasterServer::run() // ! do like main_loops
 {
-    std::string command;
-    std::cout << "Your Server is running ... \nInsert 'exit' to stop server." << std::endl;
+    // std::string command;
+    // std::cout << "Your Server is running ... \nInsert 'exit' to stop server." << std::endl;
     /*************************************************************/
     /* Loop waiting for incoming connects or for incoming data   */
     /* on any of the connected sockets.                          */
     // /*************************************************************/
     while (1)
     {
-        std::getline(std::cin, command);
-        if (command.compare("exit") != 0)
-        {
-            std::cout << "Command is invalid. Insert 'exit' to stop server." << std::endl;
-            continue ;
-        }
-        else
-            break ;
+        // std::getline(std::cin, command);
+        // if (command.compare("exit") != 0)
+        // {
+        //     std::cout << "Command is invalid. Insert 'exit' to stop server." << std::endl;
+        //     continue ;
+        // }
+        // else
+        //     break ;
         init_fd(); //! Select fd that are not FD_FREE. Set it to _fdRead in default. if that fd has len (buf_write) > 0, it will be set to _fdWrite
         do_select(); // ! select if fd is type READ or WRITE, set them in _fdRead or _fdWrite
         check_fd(); // ! run through the _fdSet, if fd is on _fdRead, call fct_read, if it is on _fdWrite call fct_write
     }
-    std::cout << "Exit program" << std::endl;
 }
 
 /*
@@ -143,6 +142,9 @@ void MasterServer::init_env()
 
 int MasterServer::get_server_ready()
 {
+    /*************************************************************
+     * Check for repated port.
+    *************************************************************/
     int server_size = _configAllServer.size();
     try
     {
@@ -153,7 +155,7 @@ int MasterServer::get_server_ready()
             t_listen config_listen = _configAllServer[i]->getListen();
             ret = port_set.insert(config_listen._port);
             if (ret.second == false)
-                throw RepeatPort();
+                throw RepeatedPort();
         }
     }
     catch(const std::exception& e)
@@ -162,6 +164,9 @@ int MasterServer::get_server_ready()
         return EXIT_FAILURE;
     }
     
+    /*************************************************************
+     * Setup Server.
+    *************************************************************/
     for (int i = 0; i < server_size; i++)
     {
         int                 s;
@@ -176,9 +181,9 @@ int MasterServer::get_server_ready()
         * Returns a file descriptor for the new socket, or -1 for errors.                                            
         *************************************************************/
         s = socket(AF_INET, SOCK_STREAM, 0);
-        if (DEBUG){
-            std::cout << "Socket created is: " << s << std::endl;
-        }
+        
+        std::cout << "Socket created is: " << s << std::endl;
+
         if (s == 0)
         {
             std::cerr << "Fail to set socket" << std::endl;
@@ -238,8 +243,8 @@ void MasterServer::server_accept(int s)
 
     csin_len = sizeof(csin);
     cs = accept(s, (struct sockaddr*)&csin, &csin_len);
-    if (DEBUG)
-        std::cout << "fd after accept is: " << cs << std::endl;
+
+    std::cout << "fd after accept is: " << cs << std::endl;
     
     printf("New client #%d from %s:%d\n", cs, inet_ntoa(csin.sin_addr), ntohs(csin.sin_port));
     clean_fd(&_fdSet[cs]);
@@ -275,13 +280,13 @@ void MasterServer::do_select()
     struct timeval      timeout;
 
     /*************************************************************/
-    /* Initialize the timeval struct to 3 minutes.               */
+    /* Initialize the timeval struct to 1 minutes.               */
     /*************************************************************/
-    timeout.tv_sec = 3 * 60;
+    timeout.tv_sec = 1 * 60;
     timeout.tv_usec = 0;
 
     /*************************************************************/
-    /* Call select() and wait 3 minutes for it to complete.      */
+    /* Call select() and wait 1 minutes for it to complete.      */
     /* Wait for one or more fd become "ready" to read and write  */
     /*************************************************************/
     this->_r = select(this->_max + 1, &this->_fdRead, &this->_fdWrite, NULL, &timeout);
@@ -296,7 +301,7 @@ void MasterServer::do_select()
     }
 
     /**********************************************************/
-    /* Check to see if the 3 minute time out expired.         */
+    /* Check to see if the 1 minute time out expired.         */
     /**********************************************************/
     if (this->_r == 0)
     {
@@ -314,6 +319,9 @@ void MasterServer::client_read(int fd)
     //Receive request
     r = recv(fd, _fdSet[fd].buf_read, BUF_SIZE, 0);
     printf("buf_read =\n%s\n", _fdSet[fd].buf_read);
+
+
+    
     if (r <= 0)
     {
         close(fd);
@@ -325,16 +333,19 @@ void MasterServer::client_read(int fd)
         i = 0;
         while (i < _maxFd)
         {
-            if((_fdSet[i].type == FD_CLIENT) && (i != fd) && (_fdSet[i].host == _fdSet[fd].host)) // ! need to work on this conditions, is sending response to all clients?
+            if((_fdSet[i].type == FD_CLIENT) && (i != fd)) // ! need to work on this conditions, is sending response to all clients?
             {
+                printf(">>>>>>>>>>>>>>>>>> HERE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
                 // char src[1000]; // will be response
                 // char dest[1000]; // will be buf_read
                 // strcpy(src, "HTTP/1.1 200 OK\nDate:Fri, 16 Mar 2020 17:21:12 GMT\nServer: my_server\nContent-Type: text/html;charset=UTF-8\nContent-Length: 1846\n\n<!DOCTYPE html>\n<html><h1>Hello world</h1></html>\n");
                 // strcpy(dest, src);
                 // send(i, dest, strlen(dest), 0);
-
+                char response_from_server[] = "HTTP/1.1 200 OK\nDate: Mon, 27 Jul 2009 12:28:53 GMT\nServer: Apache/2.2.14 (Win32)\nLast-Modified: Wed, 22 Jul 2009 19:15:56 GMT\nContent-Length: 88\nContent-Type: text/html\nConnection: Closed\n\n\n<html>\n<body>\n<h1>Hello World!</h1>\n</body>\n</html>\n";
                 // Send Response based on Request
-                send(i, _fdSet[fd].buf_read, strlen(_fdSet[fd].buf_read), 0);
+                // send(fd, _fdSet[fd].buf_read, strlen(_fdSet[fd].buf_read), 0);
+                send(fd, response_from_server, strlen(response_from_server), 0);
+                close(fd);
             }
             i++;
         }
@@ -352,17 +363,20 @@ void MasterServer::client_write(int fd)
 void MasterServer::check_fd()
 {
     int i;
+    int fd_rest = _r;
 
     i = 0;
-    while ((i < _maxFd) && (_r > 0))
+    while ((i < _maxFd) && (fd_rest > 0))
     {
         if (FD_ISSET(i, &_fdRead))
             (this->*_fdSet[i].fct_read)(i);
         if (FD_ISSET(i, &_fdWrite))
             (this->*_fdSet[i].fct_write)(i);
         if (FD_ISSET(i, &_fdRead) || FD_ISSET(i, &_fdWrite))
-            _r--;
+            fd_rest--;
         i++;
+        
+        printf("i = %d; fd_rest = %d\n", i, fd_rest);
     }
 }
 
