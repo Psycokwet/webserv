@@ -6,10 +6,13 @@
 
 static void clean_fd(t_fd *fd)
 {
+    bzero(fd->buf_read, BUF_SIZE + 1);
+    bzero(fd->buf_write, BUF_SIZE + 1);
     fd->type = FD_FREE;
     fd->host = NO_HOST;
     fd->fct_read = NULL;
     fd->fct_write = NULL;
+    fd->parser = NULL;
 }
 
 /*
@@ -18,7 +21,9 @@ static void clean_fd(t_fd *fd)
 
 MasterServer::MasterServer()
 {
-    
+	_base_request_parser =	GrammarParser::build(GRAMMAR_FILE);
+	if(!_base_request_parser)
+		throw BuildError();
 }
 
 MasterServer::MasterServer(const MasterServer & src): AServerItem()
@@ -231,6 +236,7 @@ int MasterServer::get_server_ready()
         _fdSet[s].type = FD_SERV;
         _fdSet[s].host = config_listen._port;
         _fdSet[s].fct_read = &MasterServer::server_accept;
+		_fdSet[s].parser = NULL;
     }
     return EXIT_SUCCESS;
 }

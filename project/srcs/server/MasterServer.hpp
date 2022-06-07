@@ -2,6 +2,7 @@
 #define MASTERSERVER_HPP
 
 #include "../config/Node.hpp"
+#include "../requests/GrammarParser.hpp"
 #include "../../includes/webserv.h"
 #include "OneServer.hpp"
 #include "AServerItem.hpp"
@@ -16,6 +17,7 @@ typedef struct 	s_fd {
     void(MasterServer::*fct_write) (int);
     char    buf_read[BUF_SIZE + 1];
     char    buf_write[BUF_SIZE + 1];
+    GrammarParser*   parser;
 } 	t_fd;
 
 class MasterServer :public AServerItem
@@ -31,7 +33,17 @@ class MasterServer :public AServerItem
         int build();
         void run();
 
-        class RepeatedPort : public std::exception
+
+        class BuildError : public std::exception
+        {
+            public:
+                virtual const char *what() const throw()
+                {
+                    return "ERROR: Couldn't finish the build";
+                }
+        };
+
+        class RepeatPort : public std::exception
         {
             public:
                 virtual const char *what() const throw()
@@ -48,6 +60,7 @@ class MasterServer :public AServerItem
         int                            _maxFd;
         fd_set                         _fdRead;
         fd_set                         _fdWrite;
+    	GrammarParser*				   _base_request_parser;
          
 		OneServer   *createServer();
         void        init_env();

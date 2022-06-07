@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: thi-nguy <marvin@42.fr>                    +#+  +:+       +#+         #
+#    By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#              #
-#    Updated: 2022/06/02 10:34:31 by thi-nguy         ###   ########.fr        #
+#    Updated: 2022/06/05 16:01:34 by scarboni         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,6 +27,8 @@ REQUEST_PATH		= requests/
 RESPONSE_PATH		= response/
 UTIL_PATH			= util/
 
+TESTSERVERRULE		= testServerRule
+TESTSERVER			= testServer
 TESTCONFIGRULE		= testConfigRule
 TESTCONFIG			= testConfig
 TESTPARSERRULE		= testParserRule
@@ -54,9 +56,14 @@ else
 			SRCS = mainTestConfig.cpp
 			NAME = $(TESTCONFIG)
 		else
-			ifeq ($(TESTS), $(TESTNETWORKRULE))
-				SRCS = mainNetworkTest.cpp
-				NAME = $(TESTNETWORK)
+			ifeq ($(TESTS), $(TESTSERVERRULE))
+				SRCS = main.cpp
+				NAME = $(TESTSERVER)
+			else
+				ifeq ($(TESTS), $(TESTNETWORKRULE))
+					SRCS = mainNetworkTest.cpp
+					NAME = $(TESTNETWORK)
+				endif
 			endif
 		endif
 	endif
@@ -141,6 +148,8 @@ fclean:
 	@echo "\nDeleting executable..."
 	@rm -f $(NAME)
 	@rm -f $(TESTPARSER)
+	@rm -f $(TESTSERVER)
+	@rm -f $(TESTCONFIG)
 	@rm -f $(TESTNETWORK)
 	@echo "\033[0m"	
 
@@ -228,6 +237,10 @@ $(TESTCONFIGRULE): # ! Focus on this
 		$(call launch_one_test_with_sep) ;\
 		$(call launch_one_test_with_sep, Too much args) ;\
 		$(call launch_test_from_array_args,$(ARGS_CONFIGS_TESTS)) ;\)
+
+$(TESTSERVERRULE): 
+	$(call launch_only_legal_tests,$(TESTSERVERRULE),\
+		$(call launch_one_test_with_sep, ./config_files/simple.conf) ;\)
 
 $(TESTNETWORKRULE):	
 	$(call launch_only_legal_tests,$(TESTNETWORKRULE),\
