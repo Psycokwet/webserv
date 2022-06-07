@@ -208,10 +208,7 @@ bool checkValidityForVar(GrammarVariables *gv, t_grammar_map &gramMap)
 	{
 		if ((id = getBuilderIDForToken(tokens[i], gramMap)) == NON_VALID)
 			return false;
-		if (DEBUG)
-		{
-			std::cout << COLORS[id] << " " << tokens[i] << " " << RESET;
-		}
+		one_file_logger_raw(std::string(COLORS[id]) + " " + tokens[i] + " " + RESET);
 	}
 	return true;
 }
@@ -237,6 +234,7 @@ GrammarParser *GrammarParser::build(std::string filename)
 	{
 		std::cout << "Grammar innaccessible or non existing, can not proceed with request parsing" << std::endl;
 		ifs.close();
+		one_file_logger_raw("\n");
 		return NULL;
 	}
 	while (std::getline(ifs, tmp_line))
@@ -248,11 +246,13 @@ GrammarParser *GrammarParser::build(std::string filename)
 			std::cout << "The grammar file is not correctly formated" << std::endl;
 			for (t_grammar_map::const_iterator it = vars.begin(); it != vars.end(); it++)
 				delete it->second;
+			one_file_logger_raw("\n");
 			return NULL;
 		}
 		vars[gv->getName()] = gv;
 	}
 	ifs.close();
+	one_file_logger_raw("\n");
 	if (isGrammarMapValid(vars) && vars.find(ID_BASE_REQUEST) != vars.end())
 		return new GrammarParser(vars);
 	for (t_grammar_map::const_iterator it = vars.begin(); it != vars.end(); it++)
@@ -320,7 +320,8 @@ std::ostream &GrammarParser::print(std::ostream &o) const
 
 std::ostream &operator<<(std::ostream &o, GrammarParser const &i)
 {
-	return i.print(o);
+	one_file_logger(&i, streamFunctionToString(&GrammarParser::print, &i));
+	return o;
 }
 
 /*
@@ -431,8 +432,7 @@ e_parsing_states GrammarParser::parse()
 				std::cerr << e.what() << " from parse \n";
 				{
 					_resp->set_parsing_validity_state(PARSE_FATAL_FAILURE);
-					if (DEBUG)
-						std::cout << RESET;
+					// one_file_logger_raw(RESET);
 					return _resp->get_parsing_validity_state();
 				}
 			}
@@ -456,8 +456,7 @@ e_parsing_states GrammarParser::parse()
 			_resp->set_parsing_validity_state(PARSE_FATAL_FAILURE);
 			break;
 		}
-		if (DEBUG)
-			std::cout << COLORS[id];
+		// one_file_logger_raw(COLORS[id]);
 		GrammarParserBuilderMarker *gp = _priority_states.front();
 		try
 		{
@@ -465,20 +464,16 @@ e_parsing_states GrammarParser::parse()
 		}
 		catch (const std::exception &e)
 		{
-			if (DEBUG)
-				std::cout << RESET;
 			std::cerr << e.what() << " from " << id << '\n';
 			_resp->set_parsing_validity_state(PARSE_FATAL_FAILURE);
 			break;
 		}
-
-		if (DEBUG)
-			std::cout << RESET;
+		// one_file_logger_raw(RESET);
 		if (_resp->get_parsing_validity_state() == PARSE_FAILURE)
 			gp->setIsCurrentlyValid(false);
 	} while (_resp->get_parsing_validity_state() != PARSE_NOT_ENOUGH_DATAS && _resp->get_parsing_validity_state() != PARSE_FATAL_FAILURE);
-	if (DEBUG)
-		std::cout << RESET;
+
+	// one_file_logger_raw(RESET);
 	return _resp->get_parsing_validity_state();
 }
 

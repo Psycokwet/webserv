@@ -24,7 +24,6 @@ public:
 	static ResponseBuilder *init();
 	ResponseBuilder *end_build(std::string raw, e_parsing_states endStatus);
 	std::ostream &print(std::ostream &o) const;
-	std::ostream &print_int(std::ostream &o) const;
 	std::ostream &print_request(std::ostream &o) const;
 	std::ostream &print_response(std::ostream &o) const;
 

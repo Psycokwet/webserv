@@ -9,13 +9,6 @@
 #include "../../includes/enumFactory.h"
 #include "GrammarParser.hpp"
 
-#define E_STATES_ENUM(XX)     \
-	XX(NO_TYPE, = 0x00000001) \
-	XX(HASHMAP, = 0x00000010) \
-	XX(LIST, = 0x00000100)
-
-DECLARE_ENUM(e_states, E_STATES_ENUM)
-
 class GrammarParser;
 class GrammarParserBuilderMarker
 {
