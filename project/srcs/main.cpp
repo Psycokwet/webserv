@@ -6,7 +6,7 @@
 /*   By: thi-nguy <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#             */
-/*   Updated: 2022/06/01 17:37:28 by thi-nguy         ###   ########.fr       */
+/*   Updated: 2022/06/08 21:59:38 by thi-nguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,9 +35,10 @@ int		main(int ac, char *av[])
 		return 1;
 	std::cout <<"Print result " << *ms << std::endl;
 
-	if (ms->build() != 0) // ! Better throw something?
+	if (ms->build() == EXIT_FAILURE) // ! Better throw something?
 	{
 		std::cout << "Error: Can not setup MasterServer" << std::endl;
+		delete ms;
 		return 1;
 	}
 	ms->run();

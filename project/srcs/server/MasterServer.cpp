@@ -76,6 +76,19 @@ int	MasterServer::build()
     int opt = TRUE;
     int server_size = _configAllServer.size();
 
+	std::set<int> port_set;
+	std::pair<std::set<int>::iterator,bool> ret;
+	for (int i = 0; i < server_size; i++)
+	{
+		t_listen config_listen = _configAllServer[i]->getListen();
+		ret = port_set.insert(config_listen._port);
+		if (ret.second == false)
+		{
+			std::cout << "Duplicate Ports" << std::endl;
+			return EXIT_FAILURE;
+		}
+    }
+
     for (int i = 0; i < server_size; i++)
     {
 		int fdServ;
@@ -109,7 +122,7 @@ int	MasterServer::build()
         /* Set address (host) and port                               */
         /*************************************************************/
 		address.sin_family = AF_INET;
-		address.sin_addr.s_addr = INADDR_ANY;
+		address.sin_addr.s_addr = htonl(config_listen._address);
 		address.sin_port = htons(config_listen._port);
 
 		/*************************************************************/

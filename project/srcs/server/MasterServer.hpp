@@ -31,15 +31,6 @@ class MasterServer :public AServerItem
                 }
         };
 
-        class RepeatedPort : public std::exception
-        {
-            public:
-                virtual const char *what() const throw()
-                {
-                return "ERROR: Different servers listen to same port";
-                }
-        };
-
     private:
         std::vector< OneServer* >           _configAllServer;
         std::map< int, std::set<int> >		_fdMap;		// key as fdServer, value as fdClients
