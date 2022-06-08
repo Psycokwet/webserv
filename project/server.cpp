@@ -28,10 +28,10 @@ int  main(void)
     int new_socket;
     int valread;
     char buffer[1024];
-    char response_from_server[] = "HTTP/1.1 200 OK\nDate:Fri, 16 Mar 2020 17:21:12 GMT\nServer: my_server\nContent-Type: text/html;charset=UTF-8\nContent-Length: 1846\n\n<!DOCTYPE html>\n<html><h1>Hello world</h1></html>\n";
+    char response_from_server[] = "HTTP/1.1 200 OK\nDate: Mon, 27 Jul 2009 12:28:53 GMT\nServer: Apache/2.2.14 (Win32)\nLast-Modified: Wed, 22 Jul 2009 19:15:56 GMT\nContent-Length: 88\nContent-Type: text/html\nConnection: Closed\n\n\n<html>\n<body>\n<h1>Hello, World!</h1>\n</body>\n</html>\n";
     // char response_from_server[] = "<!DOCTYPE html>\n<html>Hello world</html>\n"; // ! This does not work, need to have full form of RESPONSE as above for browser to understand
     int i;
-    int max_clients = 30;
+    int max_clients = 50;
     int client_socket[max_clients];
     int opt = TRUE;
     int addrlen;
@@ -145,10 +145,6 @@ int  main(void)
             //inform user of socket number - used in send and receive commands 
             printf("New connection , socket fd is %d , ip is : %s , sin_port : %d\n" , new_socket , inet_ntoa(server_address.sin_addr) , ntohs(server_address.sin_port));  
 
-            // send new connection greeting response_from_server
-            // if (send(new_socket, response_from_server, strlen(response_from_server), 0) != strlen(response_from_server))
-            //     perror("send");
-            // puts ("Welcome response_from_server sent successfully");
 
             // add new socket to array of sockets
             for (i = 0; i < max_clients; i++)
@@ -157,8 +153,6 @@ int  main(void)
                 if (client_socket[i] == 0)
                 {
                     client_socket[i] = new_socket;
-                    printf("Adding to list of sockets at position of %d\n", i);
-
                     break ;
                 }
             }
@@ -184,6 +178,7 @@ int  main(void)
 
             printf("Request received from Client:\n---------------------------\n%s----------------------------\n", buffer_recv);
             delete[] buffer_recv;
+            // close(new_socket);
         }
 
         // else, it comes fromt IO operation on some other socket
