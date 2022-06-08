@@ -10,18 +10,23 @@
 #include <sys/socket.h> 
 #include <netinet/in.h> 
 #include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros 
+
+#include <map>
+#include <set>
+#include <vector>
      
 #define TRUE   1 
 #define FALSE  0 
-#define PORT 8080 
+#define MAX_CLIENTS 25 
+#define MAX_CLIENTS_QUEUE 3 
      
 int main(int argc , char *argv[])  
 {  
     int opt = TRUE;  
-    int master_socket , addrlen , new_socket , client_socket[30] , 
-          max_clients = 30 , activity, i , valread , sd;  
+    int master_socket , addrlen , new_socket , client_socket[MAX_CLIENTS], activity, i , valread , sd;  
     int max_sd;  
     struct sockaddr_in address;  
+    int PORT[] = {8080, 8081, 8082};
          
     char http_request[100000];  //data http_request of 1K 
          
@@ -32,13 +37,13 @@ int main(int argc , char *argv[])
     char http_response[] = "HTTP/1.1 200 OK\nDate: Mon, 27 Jul 2009 12:28:53 GMT\nServer: Apache/2.2.14 (Win32)\nLast-Modified: Wed, 22 Jul 2009 19:15:56 GMT\nContent-Length: 88\nContent-Type: text/html\nConnection: Closed\n\n\n<html>\n<body>\n<h1>Hello, World!</h1>\n</body>\n</html>\n";  
      
     //initialise all client_socket[] to 0 so not checked 
-    for (i = 0; i < max_clients; i++)  
+    for (i = 0; i < MAX_CLIENTS; i++)  
     {  
         client_socket[i] = 0;  
     }  
          
     //create a master socket 
-    if( (master_socket = socket(AF_INET , SOCK_STREAM , 0)) == 0)  
+    if( (master_socket = socket(AF_INET , SOCK_STREAM , 0)) == -1)  
     {  
         perror("socket failed");  
         exit(EXIT_FAILURE);  
@@ -87,7 +92,7 @@ int main(int argc , char *argv[])
         max_sd = master_socket;  
              
         //add child sockets to set 
-        for ( i = 0 ; i < max_clients ; i++)  
+        for ( i = 0 ; i < MAX_CLIENTS ; i++)  
         {  
             //socket descriptor 
             sd = client_socket[i];  
@@ -135,7 +140,7 @@ int main(int argc , char *argv[])
             // puts("Welcome http_response sent successfully");  
                  
             //add new socket to array of sockets 
-            for (i = 0; i < max_clients; i++)  
+            for (i = 0; i < MAX_CLIENTS; i++)  
             {  
                 //if position is empty 
                 if( client_socket[i] == 0 )  
@@ -149,7 +154,7 @@ int main(int argc , char *argv[])
         }  
              
         //else its some IO operation on some other socket
-        for (i = 0; i < max_clients; i++)  
+        for (i = 0; i < MAX_CLIENTS; i++)  
         {  
             sd = client_socket[i];  
                  

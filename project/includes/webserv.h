@@ -6,7 +6,7 @@
 /*   By: thi-nguy <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#             */
-/*   Updated: 2022/06/07 13:04:38 by thi-nguy         ###   ########.fr       */
+/*   Updated: 2022/06/08 19:41:17 by thi-nguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,8 @@
 #define NO_HOST 0
 
 #define MAX(x, y) ((x > y) ? x : y) 
+#define TRUE 1
+#define SERVER_ERR(err)	do { std::cerr << "ERROR while perfoming " << err << std::endl; exit(1); } while (0)
 
 // typedef struct 	s_fd {
 //     int     type;

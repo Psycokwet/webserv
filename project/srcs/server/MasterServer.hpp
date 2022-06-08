@@ -53,24 +53,25 @@ class MasterServer :public AServerItem
         };
 
     private:
-        std::vector< OneServer* >      _configAllServer;
-        std::vector< t_fd >            _fdSet;
-        int                            _client_sockets[MAX_CLIENTS];
-        int                            _max;
-        int                            _r;
-        int                            _maxFd;
-        fd_set                         _fdRead;
+        std::vector< OneServer* >           _configAllServer;
+        std::map< int, std::set<int> >		_fdMap;		// key as fdServer, value as fdClients
+        int									_maxFD;		// Current highest client FD
+        std::set< int > 					_fdServer;	// _fdServer set
+        fd_set								_fdReader;	// Structure to select client FD for reading
+        int									_numberOfReadyFd;
+
+       
     	GrammarParser*				   _base_request_parser;
          
 		OneServer   *createServer();
-        void        init_env();
-        int         get_server_ready();
-        void        init_fd();
-        void        do_select();
-        void        check_fd();
-        
-        void        server_accept(int s);
-        void        client_read(int fd);
+        void	acceptClient(int fdServer);
+        int 	findFdServer(int value);
+        // Make all open socket ready to be read then select them. Return the number of FDs ready to be read
+        int		setFDForReading();
+
+        // RQueue, std::set<int> &disconnectLisead from fd to get client commands then forward it to the IRC program
+        void	recvProcessCommand(int totalFD);
+       
 
 };
 

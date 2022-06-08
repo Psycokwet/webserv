@@ -4,14 +4,6 @@
 ** ---------------------------------- STATIC ----------------------------------
 */
 
-static void clean_fd(t_fd *fd)
-{
-    bzero(fd->buf_read, BUF_SIZE + 1);
-    fd->type = FD_FREE;
-    fd->host = NO_HOST;
-    fd->fct_read = NULL;
-    fd->parser = NULL;
-}
 
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
@@ -79,101 +71,23 @@ std::ostream &			MasterServer::print( std::ostream & o) const
 
 int	MasterServer::build()
 {
-    /*************************************************************/
-    /* Initialize the master fd_set                              */
-    /*************************************************************/
-    init_env(); // ! set a vector of _fdSet, set all fd is FD_FREE
-    if (get_server_ready() == EXIT_FAILURE) // ! Set up fd socket for each server, change FD_FREE to FD_SERV
-        return EXIT_FAILURE;
-    return EXIT_SUCCESS;
-}
-
-
-
-void MasterServer::run() // ! do like main_loops
-{
-    while (1)
-    {
-        init_fd(); //! Select fd that are not FD_FREE. Set it to _fdRead in default. if that fd has len (buf_write) > 0, it will be set to _fdWrite
-        do_select(); // ! select if fd is type READ or WRITE, set them in _fdRead or _fdWrite
-        check_fd(); // ! run through the _fdSet, if fd is on _fdRead, call fct_read, if it is on _fdWrite call fct_write
-    }
-}
-
-/*
-** ------------------------- PRIVATE METHODS ----------------------------------
-*/
-
-void MasterServer::init_env()
-{
-    int     i;
-    /**************************************************************************
-    ! Do not use this, it causes freeze in computer.
-    RLIMIT_NOFILE - The maximum number of file descriptors that the process may have open at one time.
-    *************************************************************************
-    struct rlimit rlp;
-    if (getrlimit(RLIMIT_NOFILE, &rlp) == -1)
-        return ; // or throw something
-    this->_maxFd = rlp.rlim_cur;
-
-    **************************************************************************/
-    this->_maxFd = FD_MAX; // ! use this instead of above method.
-    i = 0;
-    while (i < this->_maxFd)
-    {
-        t_fd    new_fd;
-
-        clean_fd(&new_fd);
-        this->_fdSet.push_back(new_fd);
-        i++;
-    }
-}
-
-int MasterServer::get_server_ready()
-{
-    /*************************************************************
-     * Check for repated port.
-    *************************************************************/
+    int opt = TRUE;
     int server_size = _configAllServer.size();
-    try
-    {
-        std::set<int> port_set;
-        std::pair<std::set<int>::iterator,bool> ret;
-        for (int i = 0; i < server_size; i++)
-        {
-            t_listen config_listen = _configAllServer[i]->getListen();
-            ret = port_set.insert(config_listen._port);
-            if (ret.second == false)
-                throw RepeatedPort();
-        }
-    }
-    catch(const std::exception& e)
-    {
-        std::cerr << e.what() << '\n';
-        return EXIT_FAILURE;
-    }
-    
-    /*************************************************************
-     * Setup Server.
-    *************************************************************/
+
     for (int i = 0; i < server_size; i++)
     {
-        int                 s;
-        struct sockaddr_in  sin;
+		int fdServ;
+		struct sockaddr_in address;
         t_listen config_listen = _configAllServer[i]->getListen();
-        int rc, on = 1;
 
-         /************************************************************
+        /************************************************************
         * Create an AF_INET stream socket to receive incoming       
         * connections on
         * If PROTOCOL is zero, one is chosen automatically.
         * Returns a file descriptor for the new socket, or -1 for errors.                                            
         *************************************************************/
-        s = socket(AF_INET, SOCK_STREAM, 0);
-        
-        std::cout << "Socket created is: " << s << std::endl;
-
-        if (s == 0)
+		fdServ = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
+		if (fdServ == -1)
         {
             std::cerr << "Fail to set socket" << std::endl;
             return EXIT_FAILURE;
@@ -182,25 +96,24 @@ int MasterServer::get_server_ready()
         /*************************************************************/
         /* Allow socket descriptor to be reuseable                   */
         /*************************************************************/
-        rc = setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char *)&on, sizeof(on));
-        if (rc < 0)
-        {
+		if (setsockopt(fdServ, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, (char *)&opt, sizeof(opt)) == -1)
+		{
             std::cerr << "setsockopt() failed" << std::endl;
             return EXIT_FAILURE ;
         }
 
+        
         /*************************************************************/
         /* Set address (host) and port                               */
         /*************************************************************/
-        sin.sin_family = AF_INET;
-        sin.sin_addr.s_addr = htonl(config_listen._address);
-        sin.sin_port = htons(config_listen._port);
+		address.sin_family = AF_INET;
+		address.sin_addr.s_addr = htonl(config_listen._address);
+		address.sin_port = htons(config_listen._port);
 
-        /*************************************************************/
+         /*************************************************************/
         /* Bind the socket                                           */
         /*************************************************************/
-        rc = bind(s, (struct sockaddr *)&sin, sizeof(sin));
-        if (rc < 0)
+		if (bind(fdServ, (sockaddr *)&address, sizeof(address)) == -1)
         {
             std::cerr << "Fail to bind to port " << config_listen._port << std::endl;
             return EXIT_FAILURE ;
@@ -210,178 +123,166 @@ int MasterServer::get_server_ready()
         /* Try to specify maximun of client pending connection for   */
         /*   the master socket (server_fd)                           */
         /*************************************************************/
-        rc = listen(s, MAX_CLIENT_QUEUE);
-        if (rc < 0)
+		if (listen(fdServ, MAX_CLIENT_QUEUE) == -1)
         {
             std::cerr << "Fail to listen" << std::endl;
             return EXIT_FAILURE;
         }
 
-        _fdSet[s].type = FD_SERV;
-        _fdSet[s].host = config_listen._port;
-        _fdSet[s].fct_read = &MasterServer::server_accept;
-		_fdSet[s].parser = NULL;
-    }
+		std::cout	<< "Listening on port "
+					<< config_listen._port
+					<< std::endl;
+
+		std::pair<std::set<int>::iterator,bool> ret;
+		ret = _fdServer.insert(fdServ);               
+		if (ret.second==false)
+        {
+            std::cerr << "Repeated Ports" << std::endl;
+            return EXIT_FAILURE;
+        }
+
+		_fdMap[fdServ]; 
+
+		_maxFD = MAX(_maxFD, fdServ);
+	}
+	std::cout << "mymap now contains " << _fdMap.size() << " elements.\n";
     return EXIT_SUCCESS;
 }
 
-void MasterServer::server_accept(int s)
+
+
+void MasterServer::run() // ! do like main_loops
 {
-    int cs;
-    struct sockaddr_in csin;
-    socklen_t csin_len;
+    int	totalFD;
 
-    csin_len = sizeof(csin);
-    cs = accept(s, (struct sockaddr*)&csin, &csin_len);
-
-    std::cout << "fd after accept is: " << cs << std::endl;
-    
-    printf("New client #%d from %s:%d\n", cs, inet_ntoa(csin.sin_addr), ntohs(csin.sin_port));
-    clean_fd(&_fdSet[cs]);
-    _fdSet[cs].type = FD_CLIENT;
-    _fdSet[cs].host = _fdSet[cs].host;
-    _fdSet[cs].fct_read = &MasterServer::client_read;
-    for (int i = 0; i < MAX_CLIENTS; i++)  
-    {  
-        //if position is empty 
-        if( _client_sockets[i] == 0 )  
-        {  
-            _client_sockets[i] = cs;  
-            printf("Adding to list of sockets as %d\n" , i);  
-                    
-            break;  
-        }  
-    }  
-}
-
-void MasterServer::init_fd()
-{
-    int i;
-
-    i = 0;
-    this->_max = 0;
-    FD_ZERO(&this->_fdRead);
-    while (i < this->_maxFd)
+    while (TRUE)
     {
-        if (this->_fdSet[i].type != FD_FREE)
-        {
-            FD_SET(i, &this->_fdRead);
-            this->_max = MAX(_max, i);
-        }
-        i++;
-    }
-    i = 0;
-    while (i < MAX_CLIENTS)
-    {
-        FD_SET(_client_sockets[i], &this->_fdRead);
-        i++;
+        FD_ZERO(&_fdReader);
+        totalFD = setFDForReading();
+        recvProcessCommand(totalFD);
     }
 }
 
-void MasterServer::do_select()
+/*
+** ------------------------- PRIVATE METHODS ----------------------------------
+*/
+
+int	MasterServer::setFDForReading()
 {
+	std::map<int, std::set<int> >::iterator it;
+	for (it = _fdMap.begin(); it!=_fdMap.end(); ++it)
+	{
+		int 			fdServer = it->first;
+		std::set<int> 	fdClientSet = it->second;
+
+		_maxFD = MAX(_maxFD, fdServer);
+		FD_SET(fdServer, &_fdReader);
+
+		std::set<int>::iterator	clientIter;
+		for (clientIter = fdClientSet.begin(); clientIter != fdClientSet.end(); ++clientIter) // chay qua tung thang client trong client set cua tung server
+		{
+			int	clientFD = *clientIter;
+			FD_SET(clientFD, &_fdReader);
+			_maxFD = MAX(_maxFD, clientFD);
+		}
+	}
+
     struct timeval      timeout;
-
     /*************************************************************/
     /* Initialize the timeval struct to 1 minutes.               */
     /*************************************************************/
     timeout.tv_sec = 1 * 60;
     timeout.tv_usec = 0;
-
     /*************************************************************/
     /* Call select() and wait 1 minutes for it to complete.      */
     /* Wait for one or more fd become "ready" to read and write  */
     /*************************************************************/
-    this->_r = select(this->_max + 1, &this->_fdRead, NULL, NULL, &timeout);
-
-    /**********************************************************/
-    /* Check to see if the select call failed.                */
-    /**********************************************************/
-    if (this->_r < 0)
-    {
-        std::cout << "select() failed" << std::endl;
-        return ; // ! throw something
-    }
-
-    /**********************************************************/
-    /* Check to see if the 1 minute time out expired.         */
-    /**********************************************************/
-    if (this->_r == 0)
-    {
-        std::cerr << "select() time out. End program." << std::endl;
-        // ! close / clear opened socket
-    }
-}
-
-
-void MasterServer::client_read(int fd)
-{
-    int r;
-    int i;
-    int sd;
-
-    for (int i = 0; i < MAX_CLIENTS; i++)
-    {
-        sd = _client_sockets[i];
-
-        if (FD_ISSET(sd, &_fdRead))
-        {
-            if (valread = recv(sd, _fdS))
-        }
-    }
-    //Receive request
-    r = recv(fd, _fdSet[fd].buf_read, BUF_SIZE, 0);
-    printf("Request received =\n%s\n", _fdSet[fd].buf_read);
-    
-    if (r <= 0)
-    {
-        close(fd);
-        clean_fd(&_fdSet[fd]);
-        printf("Client #%d gone away\n", fd);
-    }
-    else
-    {
-        i = 0;
-        while (i < _maxFd)
-        {
-            if((_fdSet[i].type == FD_CLIENT) && (i != fd)) // ! need to work on this conditions, is sending response to all clients?
-            {
-                char response_from_server[] = "HTTP/1.1 200 OK\nDate: Mon, 27 Jul 2009 12:28:53 GMT\nServer: Apache/2.2.14 (Win32)\nLast-Modified: Wed, 22 Jul 2009 19:15:56 GMT\nContent-Length: 88\nContent-Type: text/html\nConnection: Closed\n\n\n<html>\n<body>\n<h1>Hello World!</h1>\n</body>\n</html>\n";
-                // Send Response based on Request
-                // send(fd, _fdSet[fd].buf_read, strlen(_fdSet[fd].buf_read), 0);
-                send(fd, response_from_server, strlen(response_from_server), 0);
-                close(fd);
-            }
-            i++;
-        }
-    }
-    printf("client read finish\n\n");
-
-}
-
-// void MasterServer::client_write(int fd)
-// {
-//     std::cout << "My fd is: " << fd << std::endl;
-
-// }
-
-void MasterServer::check_fd()
-{
-    int i;
-    int fd_rest = _r;
-
-    i = 0;
-    while ((i < _maxFd) && (fd_rest > 0))
-    {
-        if (FD_ISSET(i, &_fdRead))
-        {
-            (this->*_fdSet[i].fct_read)(i);
-            fd_rest--;
-        }
-        i++;
+	int new_r;
+	new_r = select(_maxFD + 1, &_fdReader, NULL, NULL, &timeout);
+	if (new_r == -1)
+		SERVER_ERR("select");
+    if (new_r == 0)
+		SERVER_ERR("Select: Time Out");
         
-        printf("i = %d; fd_rest = %d\n", i, fd_rest);
-    }
+	_numberOfReadyFd = MAX(_numberOfReadyFd, new_r);
+
+	return _numberOfReadyFd;
+}
+
+
+void	MasterServer::recvProcessCommand(int totalFD)
+{
+	// Checking each socket for reading, starting from FD 3 because there should be nothing
+	// to read from 0 (stdin), 1 (stdout) and 2 (stderr)
+	for (int fd = 3; fd <= _maxFD && totalFD; ++fd)
+		if (FD_ISSET(fd, &_fdReader))
+		{
+			if (_fdServer.count(fd) == 1) // if fd is Server
+				acceptClient(fd);
+			else // if fd is Client
+			{
+				char http_response[] = "HTTP/1.1 200 OK\nDate: Mon, 27 Jul 2009 12:28:53 GMT\nServer: Apache/2.2.14 (Win32)\nLast-Modified: Wed, 22 Jul 2009 19:15:56 GMT\nContent-Length: 88\nContent-Type: text/html\nConnection: Closed\n\n\n<html>\n<body>\n<h1>Hello, World!</h1>\n</body>\n</html>\n";  
+
+				char http_request[100000];
+				int valread;
+				if ((valread = recv( fd , http_request, 100000, 0)) == 0) // If receive nothing from clients
+                {  
+                    
+                    //Close the socket and erase it from fd of clients
+                    close(fd);
+					int fdServ = findFdServer(fd);  
+                    _fdMap[fdServ].erase(fd);
+                }  
+                else // send response
+                {  
+                    http_request[valread] = '\0';  
+                    printf("Request Received from client:\n--------------\n%s\n", http_request);
+                    send(fd , http_response , strlen(http_response) , 0 );
+					std::cout << "A http response is sent\n" ;
+
+                    //Close the socket and erase it from fd of clients
+                    close (fd);
+					int fdServ = findFdServer(fd);  
+                    _fdMap[fdServ].erase(fd);
+                }  
+			}
+			--totalFD;
+		}
+}
+
+void	MasterServer::acceptClient(int fdServer)
+{
+	sockaddr_in	sin;
+	socklen_t	sin_len = 0;
+
+	int	clientFD = accept(fdServer, (sockaddr *)&sin, &sin_len);
+	if (clientFD == -1)
+	{
+		std::cerr << "Failed to accept a new connection\n";
+		return;
+	}
+	std::cout 	<< "New client on socket #" << clientFD 
+				<< ". This socket belongs to Server at socket #" << fdServer
+				<< std::endl;
+	_fdMap[fdServer].insert(clientFD);
+}
+
+
+int	MasterServer::findFdServer(int value)
+{
+	int fdServer;
+
+	std::map< int, std::set<int> >::iterator it;
+	
+	for (it = _fdMap.begin(); it != _fdMap.end(); ++it)
+	{
+		if (it->second.count(value) == 1)
+		{
+			fdServer = it->first;
+			break; // to stop searching
+		}
+   }
+   return fdServer;
 }
 
 /*
