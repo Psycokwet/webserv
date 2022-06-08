@@ -10,7 +10,9 @@
 */
 
 MasterServer::MasterServer()
+: _maxFD(-1)
 {
+	
 	_base_request_parser =	GrammarParser::build(GRAMMAR_FILE);
 	if(!_base_request_parser)
 		throw BuildError();
@@ -107,10 +109,10 @@ int	MasterServer::build()
         /* Set address (host) and port                               */
         /*************************************************************/
 		address.sin_family = AF_INET;
-		address.sin_addr.s_addr = htonl(config_listen._address);
+		address.sin_addr.s_addr = INADDR_ANY;
 		address.sin_port = htons(config_listen._port);
 
-         /*************************************************************/
+		/*************************************************************/
         /* Bind the socket                                           */
         /*************************************************************/
 		if (bind(fdServ, (sockaddr *)&address, sizeof(address)) == -1)
@@ -153,13 +155,11 @@ int	MasterServer::build()
 
 void MasterServer::run() // ! do like main_loops
 {
-    int	totalFD;
-
     while (TRUE)
     {
         FD_ZERO(&_fdReader);
-        totalFD = setFDForReading();
-        recvProcessCommand(totalFD);
+        setFDForReading();
+        recvProcessCommand();
     }
 }
 
@@ -167,7 +167,7 @@ void MasterServer::run() // ! do like main_loops
 ** ------------------------- PRIVATE METHODS ----------------------------------
 */
 
-int	MasterServer::setFDForReading()
+void	MasterServer::setFDForReading()
 {
 	std::map<int, std::set<int> >::iterator it;
 	for (it = _fdMap.begin(); it!=_fdMap.end(); ++it)
@@ -205,16 +205,15 @@ int	MasterServer::setFDForReading()
 		SERVER_ERR("Select: Time Out");
         
 	_numberOfReadyFd = MAX(_numberOfReadyFd, new_r);
-
-	return _numberOfReadyFd;
 }
 
 
-void	MasterServer::recvProcessCommand(int totalFD)
+void	MasterServer::recvProcessCommand()
 {
 	// Checking each socket for reading, starting from FD 3 because there should be nothing
 	// to read from 0 (stdin), 1 (stdout) and 2 (stderr)
-	for (int fd = 3; fd <= _maxFD && totalFD; ++fd)
+	for (int fd = 3; fd <= _maxFD && _numberOfReadyFd; ++fd)
+	{
 		if (FD_ISSET(fd, &_fdReader))
 		{
 			if (_fdServer.count(fd) == 1) // if fd is Server
@@ -226,28 +225,29 @@ void	MasterServer::recvProcessCommand(int totalFD)
 				char http_request[100000];
 				int valread;
 				if ((valread = recv( fd , http_request, 100000, 0)) == 0) // If receive nothing from clients
-                {  
-                    
-                    //Close the socket and erase it from fd of clients
-                    close(fd);
+				{  
+					
+					//Close the socket and erase it from fd of clients
+					close(fd);
 					int fdServ = findFdServer(fd);  
-                    _fdMap[fdServ].erase(fd);
-                }  
-                else // send response
-                {  
-                    http_request[valread] = '\0';  
-                    printf("Request Received from client:\n--------------\n%s\n", http_request);
-                    send(fd , http_response , strlen(http_response) , 0 );
+					_fdMap[fdServ].erase(fd);
+				}  
+				else // send response
+				{  
+					http_request[valread] = '\0';  
+					printf("Request Received from client:\n--------------\n%s\n", http_request);
+					send(fd , http_response , strlen(http_response) , 0 );
 					std::cout << "A http response is sent\n" ;
 
-                    //Close the socket and erase it from fd of clients
-                    close (fd);
-					int fdServ = findFdServer(fd);  
-                    _fdMap[fdServ].erase(fd);
-                }  
+					//Close the socket and erase it from fd of clients
+					close (fd);
+					int fdServ = findFdServer(fd);
+					_fdMap[fdServ].erase(fd);
+				}  
 			}
-			--totalFD;
+			--_numberOfReadyFd;
 		}
+	}
 }
 
 void	MasterServer::acceptClient(int fdServer)
@@ -270,7 +270,7 @@ void	MasterServer::acceptClient(int fdServer)
 
 int	MasterServer::findFdServer(int value)
 {
-	int fdServer;
+	int fdServer = -1;
 
 	std::map< int, std::set<int> >::iterator it;
 	

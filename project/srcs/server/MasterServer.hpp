@@ -8,18 +8,6 @@
 #include "AServerItem.hpp"
 #include <sys/select.h> // FD_CLR, FD_ZERO, FD_SET, FD_ISSET macros
 
-class MasterServer;
-
-typedef struct 	s_fd {
-    int     type;
-    int     host;
-    void(MasterServer::*fct_read) (int);
-    // void(MasterServer::*fct_write) (int);
-    char    buf_read[BUF_SIZE + 1];
-    // char    buf_write[BUF_SIZE + 1];
-    GrammarParser*   parser;
-} 	t_fd;
-
 class MasterServer :public AServerItem
 {
     public:
@@ -64,13 +52,14 @@ class MasterServer :public AServerItem
     	GrammarParser*				   _base_request_parser;
          
 		OneServer   *createServer();
+
         void	acceptClient(int fdServer);
         int 	findFdServer(int value);
         // Make all open socket ready to be read then select them. Return the number of FDs ready to be read
-        int		setFDForReading();
+        void		setFDForReading();
 
         // RQueue, std::set<int> &disconnectLisead from fd to get client commands then forward it to the IRC program
-        void	recvProcessCommand(int totalFD);
+        void	recvProcessCommand(void);
        
 
 };

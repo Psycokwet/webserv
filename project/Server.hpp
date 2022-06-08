@@ -37,15 +37,12 @@ private:
 	void	acceptClient(int fdServer);
 	int 	findFdServer(int value);
 
-	// // Remove existing client
-	// void	removeClient(int fd);
-
 	// Make all open socket ready to be read then select them. Return the number of FDs
 	// ready to be read
-	int		setFDForReading();
+	void		setFDForReading();
 
 	// RQueue, std::set<int> &disconnectLisead from fd to get client commands then forward it to the IRC program
-	void	recvProcessCommand(int totalFD);
+	void	recvProcessCommand();
 
 public:
 	Server();

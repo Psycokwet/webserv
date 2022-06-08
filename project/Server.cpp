@@ -53,17 +53,15 @@ void	Server::SetUp()
 
 void	Server::Run()
 {
-	int	totalFD;
-
 	while (true)
 	{
 		FD_ZERO(&_fdReader);
-		totalFD = setFDForReading();
-		recvProcessCommand(totalFD);
+		setFDForReading();
+		recvProcessCommand();
 	}
 }
 
-int	Server::setFDForReading()
+void	Server::setFDForReading()
 {
 	int new_r;
 	std::map<int, std::set<int> >::iterator it;
@@ -87,7 +85,6 @@ int	Server::setFDForReading()
 	if (new_r == -1)
 		SERVER_ERR("select");
 	_r = MAX(_r, new_r);
-	return _r;
 }
 
 int	Server::findFdServer(int value)
@@ -107,11 +104,12 @@ int	Server::findFdServer(int value)
    return fdServer;
 }
 
-void	Server::recvProcessCommand(int totalFD)
+void	Server::recvProcessCommand()
 {
 	// Checking each socket for reading, starting from FD 3 because there should be nothing
 	// to read from 0 (stdin), 1 (stdout) and 2 (stderr)
-	for (int fd = 3; fd <= _maxFD && totalFD; ++fd)
+	for (int fd = 3; fd <= _maxFD && _r; ++fd)
+	{
 		if (FD_ISSET(fd, &_fdReader))
 		{
 			if (_fdServer.count(fd) == 1)
@@ -149,8 +147,9 @@ void	Server::recvProcessCommand(int totalFD)
                     _fdMap[fdServ].erase(fd);
                 }  
 			}
-			--totalFD;
+			--_r;
 		}
+	}
 }
 
 void	Server::acceptClient(int fdServer)
