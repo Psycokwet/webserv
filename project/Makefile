@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: scarboni <scarboni@student.42.fr>          +#+  +:+       +#+         #
+#    By: thi-nguy <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#              #
-#    Updated: 2022/06/05 16:01:34 by scarboni         ###   ########.fr        #
+#    Updated: 2022/06/09 21:39:50 by thi-nguy         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -90,7 +90,9 @@ REQUESTS_FILES = 	GrammarParser.cpp \
 SRCS += $(addprefix $(REQUEST_PATH), $(REQUESTS_FILES))
 UTIL_FILES =	parse.cpp \
 				numbers.cpp \
-				logger.cpp		
+				logger.cpp	\
+				compareContainers.cpp	\
+				containerTo.cpp
 SRCS += $(addprefix $(UTIL_PATH), $(UTIL_FILES))
 
 SERVER_FILES =  MasterServer.cpp \

@@ -14,7 +14,7 @@
 
 #define DEFAULT_CONFIG_PATH "./config_files/default.conf"
 
-int		main(int ac, char *av[])
+int main(int ac, char *av[])
 {
 	std::string config_path;
 
@@ -28,12 +28,13 @@ int		main(int ac, char *av[])
 		config_path = DEFAULT_CONFIG_PATH;
 		std::cout << "Taking default configuration file" << std::endl;
 	}
-	else config_path = av[1];
+	else
+		config_path = av[1];
 
 	MasterServer *ms = ConfigConsumer::validateEntry(config_path);
-	if(!ms)
+	if (!ms)
 		return 1;
-	std::cout <<"Print result " << *ms << std::endl;
+	std::cout << "Print result " << *ms << std::endl;
 
 	if (ms->build() == EXIT_FAILURE) // ! Better throw something?
 	{
@@ -41,7 +42,7 @@ int		main(int ac, char *av[])
 		delete ms;
 		return 1;
 	}
-	ms->run();
+	// ms->run();
 	delete ms;
 	return 0;
 }

@@ -6,30 +6,30 @@
 #include "../../includes/webserv.h"
 #include "OneServer.hpp"
 #include "AServerItem.hpp"
+#include "../util/containerTo.hpp"
 #include <sys/select.h> // FD_CLR, FD_ZERO, FD_SET, FD_ISSET macros
 
-class MasterServer :public AServerItem
+
+class MasterServer : public AServerItem
 {
-    public:
-        MasterServer();
-        MasterServer(const MasterServer & src);
-        MasterServer & operator=(const MasterServer & rhs);
-        virtual ~MasterServer();
-      	virtual AServerItem *consume(Node *node);
+	public:
+		MasterServer();
+		MasterServer(const MasterServer &src);
+		MasterServer &operator=(const MasterServer &rhs);
+		virtual ~MasterServer();
+		virtual AServerItem *consume(Node *node);
+		std::ostream &print(std::ostream &o) const;
+		int build();
+		void run();
 
-		std::ostream & print( std::ostream & o) const;
-        int build();
-        void run();
-
-
-        class BuildError : public std::exception
-        {
-            public:
-                virtual const char *what() const throw()
-                {
-                    return "ERROR: Couldn't finish the build";
-                }
-        };
+		class BuildError : public std::exception
+		{
+			public:
+				virtual const char *what() const throw()
+				{
+					return "ERROR: Couldn't finish the build";
+				}
+		};
 
     private:
         std::vector< OneServer* >           _configAllServer;
@@ -40,7 +40,7 @@ class MasterServer :public AServerItem
         int									_numberOfReadyFd;
 
        
-    	GrammarParser*				   _base_request_parser;
+    	GrammarParser*				   		_base_request_parser;
          
 		OneServer   *createServer();
 
@@ -49,11 +49,7 @@ class MasterServer :public AServerItem
         // Make all open socket ready to be read then select them. Return the number of FDs ready to be read
         void		setFDForReading();
 
-        // RQueue, std::set<int> &disconnectLisead from fd to get client commands then forward it to the IRC program
-        void	recvProcessCommand(void);
-       
-
+        void	recvProcess(void);
 };
-
 
 #endif /*...................MasterServer...............*/

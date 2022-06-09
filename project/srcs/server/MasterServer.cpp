@@ -12,16 +12,15 @@
 MasterServer::MasterServer()
 : _maxFD(-1)
 {
-	
-	_base_request_parser =	GrammarParser::build(GRAMMAR_FILE);
-	if(!_base_request_parser)
+	_base_request_parser = GrammarParser::build(GRAMMAR_FILE);
+	if (!_base_request_parser)
 		throw BuildError();
 }
-
-MasterServer::MasterServer(const MasterServer & src): AServerItem()
+	
+MasterServer::MasterServer(const MasterServer &src) : AServerItem()
 {
-    if (this != &src)
-        *this = src;
+	if (this != &src)
+		*this = src;
 }
 
 /*
@@ -32,18 +31,19 @@ MasterServer::~MasterServer()
 {
 	for (unsigned int index = 0; index < this->_configAllServer.size(); index++)
 		delete this->_configAllServer[index];
+	if (_base_request_parser)
+		delete _base_request_parser;
 }
 
 /*
 ** --------------------------------- OVERLOAD ---------------------------------
 */
 
-MasterServer & MasterServer::operator=(const MasterServer & rhs)
+MasterServer &MasterServer::operator=(const MasterServer &rhs)
 {
-    this->_configAllServer = rhs._configAllServer;
-    return (*this);
+	this->_configAllServer = rhs._configAllServer;
+	return (*this);
 }
-
 
 AServerItem *MasterServer::consume(Node *node)
 {
@@ -61,17 +61,16 @@ OneServer *MasterServer::createServer()
 	return this->_configAllServer[this->_configAllServer.size() - 1];
 }
 
-
-std::ostream &			MasterServer::print( std::ostream & o) const
+std::ostream &MasterServer::print(std::ostream &o) const
 {
 	o << "I'm Master Server !" << std::endl;
 	for (size_t i = 0; i < this->_configAllServer.size(); i++)
-		o << *(this->_configAllServer[i]) << std::endl;
-	
+		(this->_configAllServer[i])->print(o) << std::endl;
+
 	return o;
 }
 
-int	MasterServer::build()
+int MasterServer::build()
 {
     int opt = TRUE;
     int server_size = _configAllServer.size();
@@ -172,7 +171,7 @@ void MasterServer::run() // ! do like main_loops
     {
         FD_ZERO(&_fdReader);
         setFDForReading();
-        recvProcessCommand();
+        recvProcess();
     }
 }
 
@@ -221,7 +220,7 @@ void	MasterServer::setFDForReading()
 }
 
 
-void	MasterServer::recvProcessCommand()
+void	MasterServer::recvProcess()
 {
 	// Checking each socket for reading, starting from FD 3 because there should be nothing
 	// to read from 0 (stdin), 1 (stdout) and 2 (stderr)
