@@ -9,6 +9,7 @@
 #include "../util/containerTo.hpp"
 #include <sys/select.h> // FD_CLR, FD_ZERO, FD_SET, FD_ISSET macros
 
+class GrammarParser;
 
 class MasterServer : public AServerItem
 {

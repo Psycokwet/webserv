@@ -232,21 +232,20 @@ void	MasterServer::recvProcess()
 				acceptClient(fd);
 			else // if fd is Client
 			{
-				ResponseBuilder *resp;
-				GrammarParser *parser;
+				// ResponseBuilder *resp;
+				// GrammarParser *parser = NULL;
 
-				char http_response[] = "HTTP/1.1 200 OK\nDate: Mon, 27 Jul 2009 12:28:53 GMT\nServer: Apache/2.2.14 (Win32)\nLast-Modified: Wed, 22 Jul 2009 19:15:56 GMT\nContent-Length: 88\nContent-Type: text/html\nConnection: Closed\n\n\n<html>\n<body>\n<h1>Hello, World!</h1>\n</body>\n</html>\n";  
 
-				char http_request[BUF_SIZE];
+				char http_request[BUF_SIZE + 1];
 				int valread;
 
 				valread = recv(fd, http_request, BUF_SIZE, 0);
-				parser->feed(http_request);
+				// parser->feed(http_request);
 
 				if (valread == BUF_SIZE)
 				{
 					std::cout << "client read incomplete \n";
-					parser->parse();
+					// parser->parse();
 					return;
 				}
 				else if (valread <= 0) // If receive nothing from clients
@@ -257,21 +256,23 @@ void	MasterServer::recvProcess()
 					int fdServ = findFdServer(fd);  
 					_fdMap[fdServ].erase(fd);
 				}
-				else if ((resp = parser->finishParse()) == NULL)
-				{
-					std::cout << "THIS SHOULD NOT HAPPEN EVER, SOMETHING IS VERY WRONG\n";
-				}
+				// else if ((resp = parser->finishParse()) == NULL)
+				// {
+				// 	std::cout << "THIS SHOULD NOT HAPPEN EVER, SOMETHING IS VERY WRONG\n";
+				// }
 				else // send response
 				{  
-					resp->execute(this);
-					std::string finalResponsefake =
-						streamFunctionToString(&ResponseBuilder::print_response, resp);
-					std::cout
-						<< "finalResponsefake" << std::endl
-						<< finalResponsefake << std::endl;
+					// resp->execute(this);
+					// std::string finalResponsefake =
+					// 	streamFunctionToString(&ResponseBuilder::print_response, resp);
+					// std::cout
+					// 	<< "finalResponsefake" << std::endl
+					// 	<< finalResponsefake << std::endl;
+					// send(fd, finalResponsefake.c_str(), finalResponsefake.size(), 0);
+
 					std::string finalResponse = "HTTP/1.1 200 OK\nDate:Fri, 16 Mar 2020 17:21:12 GMT\nServer: my_server\nContent-Type: text/html;charset=UTF-8\nContent-Length: 1846\n\n<!DOCTYPE html>\n<html><h1>Hello world</h1></html>\n";
-					send(fd, finalResponsefake.c_str(), finalResponsefake.size(), 0);
 					std::cout << "A http response is sent\n" ;
+					send(fd, finalResponse.c_str(), finalResponse.size(), 0);
 
 					//Close the socket and erase it from fd of clients
 					close (fd);

@@ -6,7 +6,7 @@
 /*   By: thi-nguy <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/19 22:03:00 by scarboni          #+#    #+#             */
-/*   Updated: 2022/06/08 21:59:38 by thi-nguy         ###   ########.fr       */
+/*   Updated: 2022/06/09 21:51:01 by thi-nguy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ int main(int ac, char *av[])
 		delete ms;
 		return 1;
 	}
-	// ms->run();
+	ms->run();
 	delete ms;
 	return 0;
 }
