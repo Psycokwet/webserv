@@ -232,36 +232,34 @@ void	MasterServer::recvProcess()
 				acceptClient(fd);
 			else // if fd is Client
 			{
-				// ResponseBuilder *resp;
-				// GrammarParser *parser = NULL;
-
-
+				ResponseBuilder *resp;
+				GrammarParser parser =  GrammarParser(*_base_request_parser);
 				char http_request[BUF_SIZE + 1];
 				int valread;
 
 				valread = recv(fd, http_request, BUF_SIZE, 0);
-				// parser->feed(http_request);
+				parser.feed(http_request);
 
 				if (valread == BUF_SIZE)
 				{
+					//Because of this case, you need to keep track of the parser used for a listen. Since you may use it again later to finish reading. Or, you must restart reading until you read it all.
 					std::cout << "client read incomplete \n";
-					// parser->parse();
+					parser.parse();
 					return;
 				}
 				else if (valread <= 0) // If receive nothing from clients
-				{  
-					
+				{
 					//Close the socket and erase it from fd of clients
 					close(fd);
 					int fdServ = findFdServer(fd);  
 					_fdMap[fdServ].erase(fd);
 				}
-				// else if ((resp = parser->finishParse()) == NULL)
-				// {
-				// 	std::cout << "THIS SHOULD NOT HAPPEN EVER, SOMETHING IS VERY WRONG\n";
-				// }
+				else if ((resp = parser.finishParse()) == NULL)
+				{
+					std::cout << "THIS SHOULD NOT HAPPEN EVER, SOMETHING IS VERY WRONG\n";
+				}
 				else // send response
-				{  
+				{
 					// resp->execute(this);
 					// std::string finalResponsefake =
 					// 	streamFunctionToString(&ResponseBuilder::print_response, resp);
