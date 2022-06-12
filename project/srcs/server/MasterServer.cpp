@@ -243,8 +243,9 @@ void	MasterServer::recvProcess()
 
 				if (valread == BUF_SIZE)
 				{
+					//Because of this case, you need to keep track of the parser used for a listen. Since you may use it again later to finish reading. Or, you must restart reading until you read it all.
 					std::cout << "client read incomplete \n";
-					// parser->parse();
+					parser.parse();
 					return;
 				}
 				else if (valread <= 0) // If receive nothing from clients
@@ -255,12 +256,12 @@ void	MasterServer::recvProcess()
 					_fdMap[fdServ].second.erase(fd);
 					std::cout << "Closing " << fd << ". It belongs to " << fdServ << std::endl;
 				}
-				// else if ((resp = parser->finishParse()) == NULL)
-				// {
-				// 	std::cout << "THIS SHOULD NOT HAPPEN EVER, SOMETHING IS VERY WRONG\n";
-				// }
+				else if ((resp = parser.finishParse()) == NULL)
+				{
+					std::cout << "THIS SHOULD NOT HAPPEN EVER, SOMETHING IS VERY WRONG\n";
+				}
 				else // send response
-				{  
+				{
 					// resp->execute(this);
 					// std::string finalResponsefake =
 					// 	streamFunctionToString(&ResponseBuilder::print_response, resp);
