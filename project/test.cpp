@@ -1,20 +1,21 @@
-#include <iostream>
-#include <string>
-#include <map>
+// pair::pair example
+#include <utility>      // std::pair, std::make_pair
+#include <string>       // std::string
+#include <iostream>     // std::cout
 
-#include <sstream>
+int main () {
+  std::pair <std::string,double> product1;                     // default constructor
+  std::pair <std::string,double> product2 ("tomatoes",2.30);   // value init
+  std::pair <std::string,double> product3;          // copy constructor
 
-#include <iostream>
-#include <limits> // numberic_limits
-#include <cstring>
-#include <set>
-#include "Server.hpp"
+  product1 = std::make_pair(std::string("lightbulbs"),0.99);   // using make_pair (move)
 
-Server	*gServer = NULL;
+  product2.first = "shoes";                  // the type of first is string
+  product2.second = 39.90;       
+  product3.first = "table";            // the type of second is double
 
-int main ()
-{
-  gServer = new Server();
-	gServer->SetUp();
-	gServer->Run();
-} 
+  std::cout << "The price of " << product1.first << " is $" << product1.second << '\n';
+  std::cout << "The price of " << product2.first << " is $" << product2.second << '\n';
+  std::cout << "The price of " << product3.first << " is $" << product3.second << '\n';
+  return 0;
+}

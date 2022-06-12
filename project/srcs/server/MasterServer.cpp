@@ -10,7 +10,7 @@
 */
 
 MasterServer::MasterServer()
-: _maxFD(-1)
+: _maxFD(-1), _numberOfReadyFd(-1)
 {
 	_base_request_parser = GrammarParser::build(GRAMMAR_FILE);
 	if (!_base_request_parser)
@@ -147,15 +147,12 @@ int MasterServer::build()
 					<< config_listen._port
 					<< std::endl;
 
-		std::pair<std::set<int>::iterator,bool> ret;
-		ret = _fdServer.insert(fdServ);               
-		if (ret.second==false)
-        {
-            std::cerr << "Repeated Ports" << std::endl;
-            return EXIT_FAILURE;
-        }
+		_fdServer.insert(fdServ);               
 
-		_fdMap[fdServ]; 
+		// std::pair< OneServer*, std::map <int, GrammarParser> > fd_map_value;
+		std::pair< OneServer*, std::map <int, std::string> > fd_map_value;
+		fd_map_value.first = _configAllServer[i];
+		_fdMap[fdServ] = fd_map_value; 
 
 		_maxFD = MAX(_maxFD, fdServ);
 	}
@@ -181,19 +178,22 @@ void MasterServer::run() // ! do like main_loops
 
 void	MasterServer::setFDForReading()
 {
-	std::map<int, std::set<int> >::iterator it;
+	//  std::map<int, std::pair<OneServer*, std::map <int, GrammarParser> > >::iterator it;
+	 std::map<int, std::pair<OneServer*, std::map <int, std::string> > >::iterator it;
 	for (it = _fdMap.begin(); it!=_fdMap.end(); ++it)
 	{
 		int 			fdServer = it->first;
-		std::set<int> 	fdClientSet = it->second;
+		// std::map <int, GrammarParser> 	fdClientMap = it->second.second;
+		std::map <int, std::string> 	fdClientMap = it->second.second;
 
 		_maxFD = MAX(_maxFD, fdServer);
 		FD_SET(fdServer, &_fdReader);
 
-		std::set<int>::iterator	clientIter;
-		for (clientIter = fdClientSet.begin(); clientIter != fdClientSet.end(); ++clientIter) // chay qua tung thang client trong client set cua tung server
+		// std::map <int, GrammarParser>::iterator	clientIter;
+		std::map <int, std::string>::iterator	clientIter;
+		for (clientIter = fdClientMap.begin(); clientIter != fdClientMap.end(); ++clientIter)
 		{
-			int	clientFD = *clientIter;
+			int	clientFD = clientIter->first;
 			FD_SET(clientFD, &_fdReader);
 			_maxFD = MAX(_maxFD, clientFD);
 		}
@@ -230,16 +230,15 @@ void	MasterServer::recvProcess()
 		{
 			if (_fdServer.count(fd) == 1) // if fd is Server
 				acceptClient(fd);
-			else // if fd is Client
+			else
 			{
-				// ResponseBuilder *resp;
-				// GrammarParser *parser = NULL;
-
-
 				char http_request[BUF_SIZE + 1];
 				int valread;
 
 				valread = recv(fd, http_request, BUF_SIZE, 0);
+				valread = '\0';
+				std::cout << valread << std::endl;
+
 				// parser->feed(http_request);
 
 				if (valread == BUF_SIZE)
@@ -250,11 +249,11 @@ void	MasterServer::recvProcess()
 				}
 				else if (valread <= 0) // If receive nothing from clients
 				{  
-					
 					//Close the socket and erase it from fd of clients
 					close(fd);
-					int fdServ = findFdServer(fd);  
-					_fdMap[fdServ].erase(fd);
+					int fdServ = findFdServer(fd); 
+					_fdMap[fdServ].second.erase(fd);
+					std::cout << "Closing " << fd << ". It belongs to " << fdServ << std::endl;
 				}
 				// else if ((resp = parser->finishParse()) == NULL)
 				// {
@@ -274,10 +273,11 @@ void	MasterServer::recvProcess()
 					std::cout << "A http response is sent\n" ;
 					send(fd, finalResponse.c_str(), finalResponse.size(), 0);
 
-					//Close the socket and erase it from fd of clients
+					//Close the socket and erase it from client_fd of clients
 					close (fd);
-					int fdServ = findFdServer(fd);
-					_fdMap[fdServ].erase(fd);
+					int fdServ = findFdServer(fd); 
+					_fdMap[fdServ].second.erase(fd);
+					std::cout << "Closing " << fd << ". It belongs to " << fdServ << std::endl;
 				}  
 			}
 			--_numberOfReadyFd;
@@ -294,12 +294,14 @@ void	MasterServer::acceptClient(int fdServer)
 	if (clientFD == -1)
 	{
 		std::cerr << "Failed to accept a new connection\n";
-		return;
+		return; // ! do something more than that
 	}
 	std::cout 	<< "New client on socket #" << clientFD 
 				<< ". This socket belongs to Server at socket #" << fdServer
 				<< std::endl;
-	_fdMap[fdServer].insert(clientFD);
+	std::string parser = "I'm a GrammarParser";
+	// GrammarParser parser = GrammarParser(*_base_request_parser);
+	_fdMap[fdServer].second[clientFD] = parser;
 }
 
 
@@ -307,13 +309,21 @@ int	MasterServer::findFdServer(int value)
 {
 	int fdServer = -1;
 
-	std::map< int, std::set<int> >::iterator it;
-	
-	for (it = _fdMap.begin(); it != _fdMap.end(); ++it)
+	// std::map<int, std::pair<OneServer*, std::map <int, GrammarParser> > >::iterator itFdMap;
+	std::map<int, std::pair<OneServer*, std::map <int, std::string> > >::iterator itFdMap;
+
+	for (itFdMap = _fdMap.begin(); itFdMap != _fdMap.end(); ++itFdMap)
 	{
-		if (it->second.count(value) == 1)
+		// std::map<int, GrammarParser> clientMap;
+		std::map<int, std::string> clientMap;
+		clientMap = itFdMap->second.second;
+
+		// std::map<int, GrammarParser>::iterator it_clientMap;
+		std::map<int, std::string>::iterator it_clientMap;
+		it_clientMap = clientMap.find(value);
+		if (it_clientMap != clientMap.end())
 		{
-			fdServer = it->first;
+			fdServer = itFdMap->first;
 			break; // to stop searching
 		}
    }

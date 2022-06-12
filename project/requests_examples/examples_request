@@ -1,13 +1,3 @@
-Listener on port number 8080
-Waiting for connections...
-New connection , socket fd is 4 , ip is : 127.0.0.1 , sin_port : 59878
-Welcome message sent successfully
-Adding to list of sockets at position of 0
-List of opened socket:
-4 0 0 
-bytes read: 5851
-Sent from Client:
----------------------------
 POST / HTTP/1.1
 Host: localhost:8080
 Connection: keep-alive

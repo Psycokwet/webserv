@@ -27,7 +27,7 @@ URLS = [
     "http://localhost:8082",
 ]
 
-CLIENTS_PER_URL = 300
+CLIENTS_PER_URL = 3
 
 def launch_request(url):
     response = requests.get(url)

@@ -34,8 +34,20 @@ class MasterServer : public AServerItem
 
     private:
         std::vector< OneServer* >           _configAllServer;
-        std::map< int, std::set<int> >		_fdMap;		// key as fdServer, value as fdClients
-        int									_maxFD;		// Current highest client FD
+        // std::map<int, std::pair<OneServer*, std::map <int, GrammarParser> > > 	_fdMap;		// map<int (fd server), pair<configserver, map <int (fd client), parser>>>
+        std::map<int, std::pair<OneServer*, std::map <int, std::string> > > 	_fdMap;		// map<int (fd server), pair<configserver, map <int (fd client), parser>>>
+        int					
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+						_maxFD;		// Current highest client FD
         std::set< int > 					_fdServer;	// _fdServer set
         fd_set								_fdReader;	// Structure to select client FD for reading
         int									_numberOfReadyFd;
